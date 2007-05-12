@@ -1,0 +1,4 @@
+* make transform tool respect LOD entries.
+* make info tool useful.
+* add reorganise tool that reorganises buffer layout in a flexible way.
+* proper documentation.
