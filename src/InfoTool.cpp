@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "StatefulMeshSerializer.h"
 #include "StatefulSkeletonSerializer.h"
 
+#include <OgreAnimation.h>
 #include <OgreStringConverter.h>
 #include <OgreSubmesh.h>
 
@@ -88,6 +89,41 @@ namespace meshmagick
                 processVertexData(submesh->vertexData);
             }
         }
+
+        // Animation detection
+
+        // Morph animations ?
+        if (mesh->getNumAnimations() > 0)
+        {
+            // Yes, list them
+            for (unsigned short i = 0, end = mesh->getNumAnimations(); i < end; ++i)
+            {
+                Animation* ani = mesh->getAnimation(i);
+                print("Morph animation " + ani->getName() + " with length of " +
+                    StringConverter::toString(ani->getLength()) + " seconds.");
+            }
+        }
+        else
+        {
+            print("Mesh does have no morph animations.");
+        }
+
+        // Poses?
+        PoseList poses = mesh->getPoseList();
+        if (!poses.empty())
+        {
+            print("Mesh has " + StringConverter::toString(poses.size()) + " poses.");
+        }
+        else
+        {
+            print("Mesh does have no poses.");
+        }
+
+        // Is there a skeleton linked and are we supposed to follow it?
+        if (mFollowSkeletonLink && mesh->hasSkeleton())
+        {
+            processSkeleton(mesh->getSkeletonName());
+        }
     }
     //------------------------------------------------------------------------
 
@@ -100,7 +136,30 @@ namespace meshmagick
     {
         StatefulSkeletonSerializer* skeletonSerializer =
             OgreEnvironment::getSingleton().getSkeletonSerializer();
+
+        SkeletonPtr skeleton;
+        try
+        {
+            skeleton = skeletonSerializer->loadSkeleton(skeletonFileName);
+        }
+        catch(std::exception& e)
+        {
+            warn(e.what());
+            warn("Unable to open skeleton file " + skeletonFileName);
+            return;
+        }
+
         print("Analysing skeletonfile " + skeletonFileName + "...");
+
+        print("Skeleton has " + StringConverter::toString(skeleton->getNumBones()) + " bones.");
+        print("Skeleton has " + StringConverter::toString(skeleton->getNumAnimations())
+            + " animations.");
+        for (unsigned short i = 0, end = skeleton->getNumAnimations(); i < end; ++i)
+        {
+            Animation* ani = skeleton->getAnimation(i);
+            print("    " + ani->getName() + " with length of " +
+                StringConverter::toString(ani->getLength()) + " seconds.");
+        }
     }
     //------------------------------------------------------------------------
 
