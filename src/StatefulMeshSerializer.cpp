@@ -22,7 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <OgreResourceGroupManager.h>
 #include <OgreMeshManager.h>
 
+#include <ios>
 #include <iostream>
+#include <stdexcept>
 
 using namespace Ogre;
 
@@ -39,7 +41,7 @@ namespace meshmagick
         ifs.open(name.c_str(), std::ios_base::in | std::ios_base::binary);
         if (!ifs)
         {
-            throw std::exception(("cannot open file " + name).c_str());
+            throw std::ios_base::failure(("cannot open file " + name).c_str());
         }
 
         DataStreamPtr stream(new FileStreamDataStream(name, &ifs, false));
@@ -58,7 +60,7 @@ namespace meshmagick
     {
         if (mMesh.isNull())
         {
-            throw std::exception("No mesh to save set.");
+            throw std::logic_error("No mesh to save set.");
         }
 
         String version = keepVersion ? mMeshFileVersion : msCurrentVersion;

@@ -25,12 +25,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <OgreAnimation.h>
 #include <OgreStringConverter.h>
-#include <OgreSubmesh.h>
+
+#include <algorithm>
+#include <functional>
 
 using namespace Ogre;
 
 namespace meshmagick
 {
+    struct FindSubMeshNameByIndex
+        : public std::binary_function<Mesh::SubMeshNameMap::value_type, unsigned short, bool>
+    {
+        bool operator()(const Mesh::SubMeshNameMap::value_type& entry, unsigned short index) const
+        {
+            return entry.second == index;
+        }
+    };
+
     //------------------------------------------------------------------------
     InfoTool::InfoTool()
     {
@@ -68,27 +79,27 @@ namespace meshmagick
         {
             print("Shared vertex data with " +
                 StringConverter::toString(mesh->sharedVertexData->vertexCount) + " vertices");
-            if (mVerbosity == V_HIGH)
-            {
-                processVertexData(mesh->sharedVertexData);
-            }
         }
         else
         {
             print("No shared vertices.");
         }
 
+        print(" ");
+
+        const Mesh::SubMeshNameMap& subMeshNames = mesh->getSubMeshNameMap();
         for(int i = 0;i < mesh->getNumSubMeshes();i++)
         {
-            SubMesh* submesh = mesh->getSubMesh(i);
-            print("Submesh " + StringConverter::toString(i) + " with " +
-                StringConverter::toString(submesh->vertexData->vertexCount) + " vertices");
-            print("    Material: " + submesh->getMaterialName());
-            if (mVerbosity == V_HIGH)
-            {
-                processVertexData(submesh->vertexData);
-            }
+            // Has the submesh got a name?
+            Mesh::SubMeshNameMap::const_iterator it = std::find_if(subMeshNames.begin(),
+                subMeshNames.end(), std::bind2nd(FindSubMeshNameByIndex(), i));
+
+            String name = it == subMeshNames.end() ? String("unnamed") : it->first;
+            print("Submesh " + StringConverter::toString(i) + " (" + name + ") : ");
+            processSubMesh(mesh->getSubMesh(i));
         }
+
+        print(" ");
 
         // Animation detection
 
@@ -105,7 +116,7 @@ namespace meshmagick
         }
         else
         {
-            print("Mesh does have no morph animations.");
+            print("Mesh does not have morph animations.");
         }
 
         // Poses?
@@ -116,7 +127,7 @@ namespace meshmagick
         }
         else
         {
-            print("Mesh does have no poses.");
+            print("Mesh does not have poses.");
         }
 
         // Is there a skeleton linked and are we supposed to follow it?
@@ -127,8 +138,34 @@ namespace meshmagick
     }
     //------------------------------------------------------------------------
 
-    void InfoTool::processVertexData(const Ogre::VertexData* vd) const
+    void InfoTool::processSubMesh(Ogre::SubMesh* submesh) const
     {
+        // vertices
+        if (submesh->useSharedVertices)
+        {
+            print("    shared vertex data used.");
+        }
+        else if (submesh->vertexData != NULL)
+        {
+            print("    " +
+                StringConverter::toString(submesh->vertexData->vertexCount) + " vertices.");
+        }
+
+        // indices
+        if (submesh->indexData != NULL)
+        {
+            HardwareIndexBufferSharedPtr indexBuffer = submesh->indexData->indexBuffer;
+            print("    " + StringConverter::toString(indexBuffer->getNumIndexes() / 3) +
+                " triangles.");
+            if (indexBuffer->getType() == HardwareIndexBuffer::IT_16BIT)
+            {
+                print("    16 bit index buffer");
+            }
+            else
+            {
+                print("    32 bit index buffer");
+            }
+        }
     }
     //------------------------------------------------------------------------
 

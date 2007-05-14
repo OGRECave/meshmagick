@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "ToolManager.h"
 #include "ToolFactory.h"
 
+#include <stdexcept>
+
 namespace meshmagick
 {
     ToolManager::~ToolManager()

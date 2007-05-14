@@ -22,7 +22,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <OgreResourceGroupManager.h>
 #include <OgreSkeletonManager.h>
 
+#include <ios>
 #include <iostream>
+#include <stdexcept>
 
 using namespace Ogre;
 
@@ -39,7 +41,7 @@ namespace meshmagick
         ifs.open(name.c_str(), std::ios_base::in | std::ios_base::binary);
         if (!ifs)
         {
-            throw std::exception(("cannot open file " + name).c_str());
+            throw std::ios_base::failure(("cannot open file " + name).c_str());
         }
 
         DataStreamPtr stream(new FileStreamDataStream(name, &ifs, false));
@@ -57,7 +59,7 @@ namespace meshmagick
     {
         if (mSkeleton.isNull())
         {
-            throw std::exception("No skeleton to save set.");
+            throw std::logic_error("No skeleton to save set.");
         }
 
         Endian endianMode = keepEndianess ? mSkeletonFileEndian : ENDIAN_NATIVE;
