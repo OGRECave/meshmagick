@@ -34,8 +34,14 @@ namespace meshmagick
 
     SkeletonPtr StatefulSkeletonSerializer::loadSkeleton(const String& name)
     {
-        mSkeleton = SkeletonManager::getSingleton().create(name + "_mm", 
-            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        // Resource already created upon mesh loading?
+        mSkeleton = SkeletonManager::getSingleton().getByName(name);
+        if (mSkeleton.isNull())
+        {
+            // Nope. We create it here then.
+            mSkeleton = SkeletonManager::getSingleton().create(name, 
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        }
 
         std::ifstream ifs;
         ifs.open(name.c_str(), std::ios_base::in | std::ios_base::binary);
