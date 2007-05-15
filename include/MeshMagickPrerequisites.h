@@ -27,4 +27,17 @@ namespace meshmagick
     class ToolFactory;
 }
 
+#include <OgrePlatform.h>
+
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && !OGRE_STATIC_LIB
+// Export control
+#   if defined( MESHMAGICK_EXPORTS )
+#       define _MeshMagickExport __declspec( dllexport )
+#   else
+#       define _MeshMagickExport __declspec( dllimport )
+#   endif
+#else // Linux / Mac OSX etc
+#   define _MeshMagickExport
+#endif
+
 #endif

@@ -30,10 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace meshmagick
 {
-    class TransformTool : public Tool
+    class _MeshMagickExport TransformTool : public Tool
     {
     public:
         TransformTool();
+
+		void transformMesh(Ogre::MeshPtr mesh, Ogre::Matrix4 transformation);
 
     private:
         Ogre::Matrix4 mTransform;
@@ -63,7 +65,7 @@ namespace meshmagick
         Ogre::AxisAlignedBox getTransformedVertexDataAabb(Ogre::VertexData* vd,
             const Ogre::Matrix4& transform);
 
-        void doInvoke(const OptionList& toolOptions,
+		void doInvoke(const OptionList& toolOptions,
             const Ogre::StringVector& inFileNames,
             const Ogre::StringVector& outFileNames);
     };

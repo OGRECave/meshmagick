@@ -21,6 +21,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <iostream>
 #include <stdexcept>
+#include <OgreLog.h>
+
+#include "OgreEnvironment.h"
 
 using namespace Ogre;
 
@@ -71,10 +74,16 @@ namespace meshmagick
 
     void Tool::print(const Ogre::String& msg, Verbosity verbosity) const
     {
-        if (verbosity <= mVerbosity)
-        {
-            std::cout << msg << std::endl;
-        }
+		if (OgreEnvironment::getSingleton().isStandalone())
+		{
+			if (verbosity <= mVerbosity)
+			{
+				std::cout << msg << std::endl;
+			}
+		}
+
+		OgreEnvironment::getSingleton().getLog()
+			->logMessage(msg);
     }
 
     void Tool::warn(const Ogre::String& msg) const

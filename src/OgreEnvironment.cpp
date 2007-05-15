@@ -42,31 +42,59 @@ namespace meshmagick
           mSkeletonSerializer(NULL),
           mBufferManager(NULL)
     {
-        mLogMgr = new LogManager();
-	    mLogMgr->createLog("meshmagick.log", true, false, false); 
-        mResourceGroupMgr = new ResourceGroupManager();
-        mMath = new Math();
-        mMeshMgr = new MeshManager();
-	    mMeshMgr->setBoundsPaddingFactor(0.0f);
-        mMaterialMgr = new MaterialManager();
-        mMaterialMgr->initialise();
-        mSkeletonMgr = new SkeletonManager();
-        mMeshSerializer = new StatefulMeshSerializer();
-        mSkeletonSerializer = new StatefulSkeletonSerializer();
-        mBufferManager = new DefaultHardwareBufferManager();
     }
 
     OgreEnvironment::~OgreEnvironment()
     {
-        delete mBufferManager;
-        delete mSkeletonSerializer;
-        delete mMeshSerializer;
-        delete mMaterialMgr;
-        delete mMeshMgr;
-        delete mMath;
-        delete mResourceGroupMgr;
-        delete mLogMgr;
+		if (mStandalone)
+		{
+			delete mBufferManager;
+			delete mSkeletonSerializer;
+			delete mMeshSerializer;
+			delete mMaterialMgr;
+			delete mMeshMgr;
+			delete mMath;
+			delete mResourceGroupMgr;
+			mLogMgr->destroyLog(mLog);
+			delete mLogMgr;
+		}
     }
+
+	void OgreEnvironment::initialize(bool standalone, Ogre::Log* log)
+	{
+		if (standalone)
+		{
+			mLogMgr = new LogManager();
+			mLog = mLogMgr->createLog("meshmagick.log", true, false, false); 
+			mResourceGroupMgr = new ResourceGroupManager();
+			mMath = new Math();
+			mMeshMgr = new MeshManager();
+			mMeshMgr->setBoundsPaddingFactor(0.0f);
+			mMaterialMgr = new MaterialManager();
+			mMaterialMgr->initialise();
+			mSkeletonMgr = new SkeletonManager();
+			mBufferManager = new DefaultHardwareBufferManager();
+			mStandalone = true;
+		}
+		else
+		{
+			mLog = log; 
+			mStandalone = false;
+		}
+
+		mMeshSerializer = new StatefulMeshSerializer();
+        mSkeletonSerializer = new StatefulSkeletonSerializer();
+	}
+
+	bool OgreEnvironment::isStandalone() const
+	{
+		return mStandalone;
+	}
+
+	Ogre::Log* OgreEnvironment::getLog() const
+	{
+		return mLog;
+	}
 
     StatefulMeshSerializer* OgreEnvironment::getMeshSerializer() const
     {

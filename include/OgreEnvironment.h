@@ -27,17 +27,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace meshmagick
 {
-    class OgreEnvironment : public Ogre::Singleton<OgreEnvironment>
+    class _MeshMagickExport OgreEnvironment : public Ogre::Singleton<OgreEnvironment>
     {
     public:
         OgreEnvironment();
         ~OgreEnvironment();
 
+		/** Initializes the environment
+		 * @param standalone set to <code>true</code> if the environment should be set up
+		 * for standalone use (all managers are created in this case), if set to 
+		 * <code>false</code>, all managers must have been created in advance, a log must 
+		 * be set in the 2nd parameter
+		 * @param log a logfile (only used when standalone is <code>false</code>)
+		 */
+		void initialize(bool standalone = true, Ogre::Log* log = NULL);
+
         StatefulMeshSerializer* getMeshSerializer() const;
         StatefulSkeletonSerializer* getSkeletonSerializer() const;
+		Ogre::Log* getLog() const;
+		bool isStandalone() const;
 
     private:
         Ogre::LogManager* mLogMgr;
+        Ogre::Log* mLog;
         Ogre::ResourceGroupManager* mResourceGroupMgr;
         Ogre::Math* mMath;
         Ogre::MeshManager* mMeshMgr;
@@ -46,6 +58,7 @@ namespace meshmagick
         StatefulMeshSerializer* mMeshSerializer;
         StatefulSkeletonSerializer* mSkeletonSerializer;
         Ogre::DefaultHardwareBufferManager* mBufferManager;
+		bool mStandalone;
     };
 }
 

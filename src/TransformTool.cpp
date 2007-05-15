@@ -63,6 +63,7 @@ namespace meshmagick
             print("Loading mesh " + inFileNames[i] + "...");
             MeshPtr mesh = meshSerializer->loadMesh(inFileNames[i]);
             print("Processing mesh...");
+	        calculateTransform(mesh);
             processMesh(mesh);
             meshSerializer->saveMesh(outFileNames[i], mKeepVersion, true);
             print("Mesh saved as " + outFileNames[i] + ".");
@@ -114,9 +115,14 @@ namespace meshmagick
         }
     }
 
+	void TransformTool::transformMesh(Ogre::MeshPtr mesh, Ogre::Matrix4 transformation)
+	{
+		mTransform = transformation;
+		processMesh(mesh);
+	}
+
     void TransformTool::processMesh(Ogre::MeshPtr mesh)
     {
-        calculateTransform(mesh);
         mBoundingBox.setNull();
 
         if (mesh->sharedVertexData != NULL)

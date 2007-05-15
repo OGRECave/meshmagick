@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "MeshMagickPrerequisites.h"
 
+#include "MeshMergeToolFactory.h"
 #include "InfoToolFactory.h"
 #include "OgreEnvironment.h"
 #include "OptionsParser.h"
@@ -40,10 +41,9 @@ void printHelp(void)
     std::cout << "    -help=toolname   = Prints help for the specified tool" << std::endl;
     std::cout << "    -list            = Lists available tools" << std::endl;
     std::cout << "    -follow-skeleton = Follow Skeleton-Link (if applicable)" << std::endl;
-    std::cout << "    -quiet           = Supress all messages to cout.";
-    std::cout << "    -verbose         = Print more detailed messages.";
-    std::cout << "    -keep-version    = Do not update mesh/skeleton to latest format"
-        << std::endl;
+    std::cout << "    -quiet           = Supress all messages to cout." << std::endl;
+    std::cout << "    -verbose         = Print more detailed messages." << std::endl;
+    std::cout << "    -keep-version    = Do not update mesh/skeleton to latest format" << std::endl;
     std::cout << std::endl;
     std::cout << "If no outfile is specified, the infile is overwritten. (if applicable)" << std::endl;
     std::cout << std::endl;
@@ -160,10 +160,10 @@ int main(int argc, const char** argv)
     ToolManager manager;
     manager.registerToolFactory(new TransformToolFactory());
     manager.registerToolFactory(new InfoToolFactory());
-    // Tool not yet usable, so don't activate it in repos.
-    //manager.registerToolFactory(new MergeToolFactory());
+    manager.registerToolFactory(new MeshMergeToolFactory());
 
     OgreEnvironment* ogreEnv = new OgreEnvironment();
+	ogreEnv->initialize();
 
     CommandLine cmdLine = parseCommandLine(argc, argv);
 
@@ -188,7 +188,16 @@ int main(int argc, const char** argv)
             if (!toolName.empty())
             {
                 // toolhelp
-                manager.printToolHelp(toolName, std::cout);
+				try
+				{
+	                manager.printToolHelp(toolName, std::cout);
+				}
+				catch (std::exception& se)
+				{
+					std::cout << se.what() << std::endl << std::endl;
+					// global help
+					printHelp();
+				}
                 return 0;
             }
             else
