@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: meshmagic
+Description: Core library of meshmagic
+Version: @VERSION@
+Libs: -L${libdir} -lmeshmagick
+Cflags: -I${includedir}/meshmagick
