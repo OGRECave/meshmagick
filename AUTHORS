@@ -2,15 +2,16 @@ AUTHORS
 =======
 
 Daniel Wickert (haffax)
+Sascha Kolewa  (blakharaz)
 
 Contributions
 -------------
 The MergeTool was initially contributed by Henrik Hinrichs (harlequin)
-
+and integrated into MeshMagick by Sascha Kolewa (blakharaz)
+The Linux build environment was initially contributed by Jochen Schäfer (JoSch)
 
 MeshMagick - Copyright 2007 by Daniel Wickert.
-MergeTool  - Copyright 2006-2007 by Henrik Hinrichs, Daniel Wickert
-
+MergeTool  - Copyright 2006-2007 by Henrik Hinrichs, Sascha Kolewa
 
 This file is part of MeshMagick.
 

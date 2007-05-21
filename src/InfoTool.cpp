@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "StatefulSkeletonSerializer.h"
 
 #include <OgreAnimation.h>
+#include <OgreBone.h>
 #include <OgreStringConverter.h>
 
 #include <algorithm>
@@ -189,6 +190,17 @@ namespace meshmagick
         print("Analysing skeletonfile " + skeletonFileName + "...");
 
         print("Skeleton has " + StringConverter::toString(skeleton->getNumBones()) + " bones.");
+        if (mVerbosity == V_HIGH)
+        {
+            print("Bone names:", V_HIGH);
+            for (unsigned short i = 0, end = skeleton->getNumBones(); i < end; ++i)
+            {
+                Bone* bone = skeleton->getBone(i);
+                print("    " + bone->getName(), V_HIGH);
+            }
+            print(" ", V_HIGH);
+        }
+
         print("Skeleton has " + StringConverter::toString(skeleton->getNumAnimations())
             + " animations.");
         for (unsigned short i = 0, end = skeleton->getNumAnimations(); i < end; ++i)

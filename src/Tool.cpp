@@ -29,7 +29,7 @@ using namespace Ogre;
 
 namespace meshmagick
 {
-    Tool::Tool() : mVerbosity(V_NORMAL), mKeepVersion(false), mFollowSkeletonLink(false)
+    Tool::Tool() : mVerbosity(V_NORMAL), mKeepVersion(false), mFollowSkeletonLink(true)
     {
     }
 
@@ -49,13 +49,13 @@ namespace meshmagick
         // Reset to defaults..
         mVerbosity = V_NORMAL;
         mKeepVersion = false;
-        mFollowSkeletonLink = false;
+        mFollowSkeletonLink = true;
 
         for (OptionList::const_iterator it = globalOptions.begin(); it != globalOptions.end(); ++it)
         {
-            if (it->first == "follow-skeleton")
+            if (it->first == "no-follow-skeleton")
             {
-                mFollowSkeletonLink = true;
+                mFollowSkeletonLink = false;
             }
             else if (it->first == "keep-version")
             {

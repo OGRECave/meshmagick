@@ -37,13 +37,14 @@ void printHelp(void)
     std::cout << "Copyright 2007 by Daniel Wickert" << std::endl << std::endl;
     std::cout << "Usage: MeshMagick [global_options] toolname [tool_options] infile(s) -- [outfile(s)]" << std::endl;
     std::cout << "Global options:" << std::endl;
-    std::cout << "    -help            = Prints this help text" << std::endl;
-    std::cout << "    -help=toolname   = Prints help for the specified tool" << std::endl;
-    std::cout << "    -list            = Lists available tools" << std::endl;
-    std::cout << "    -follow-skeleton = Follow Skeleton-Link (if applicable)" << std::endl;
-    std::cout << "    -quiet           = Supress all messages to cout." << std::endl;
-    std::cout << "    -verbose         = Print more detailed messages." << std::endl;
-    std::cout << "    -keep-version    = Do not update mesh/skeleton to latest format" << std::endl;
+    std::cout << "    -help               = Prints this help text" << std::endl;
+    std::cout << "    -help=toolname      = Prints help for the specified tool" << std::endl;
+    std::cout << "    -list               = Lists available tools" << std::endl;
+    std::cout << "    -no-follow-skeleton = Do not follow Skeleton-Link (if applicable)" << std::endl;
+    std::cout << "    -quiet              = Supress all messages to cout." << std::endl;
+    std::cout << "    -verbose            = Print more detailed messages." << std::endl;
+    std::cout << "    -keep-version       = Do not update mesh/skeleton to latest format"
+        << std::endl;
     std::cout << std::endl;
     std::cout << "If no outfile is specified, the infile is overwritten. (if applicable)" << std::endl;
     std::cout << std::endl;
@@ -171,7 +172,7 @@ int main(int argc, const char** argv)
     OptionDefinitionSet globalOptionDefs = OptionDefinitionSet();
     globalOptionDefs.insert(OptionDefinition("help", OT_STRING, false, false, Any(String())));
     globalOptionDefs.insert(OptionDefinition("list"));
-    globalOptionDefs.insert(OptionDefinition("follow-skeleton"));
+    globalOptionDefs.insert(OptionDefinition("no-follow-skeleton"));
     globalOptionDefs.insert(OptionDefinition("keep-version"));
     globalOptionDefs.insert(OptionDefinition("quiet"));
     globalOptionDefs.insert(OptionDefinition("verbose"));
