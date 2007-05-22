@@ -55,12 +55,24 @@ namespace meshmagick
         // info tool doesn't write anything. Warn, if outfiles given.
         if (!outFileNames.empty())
         {
-            warn("info tool doesn't write anything. output files are ignored.");
+            warn("info tool doesn't write anything. Output files are ignored.");
         }
 
         for (size_t i = 0, end = inFileNames.size(); i < end; ++i)
         {
-            processMesh(inFileNames[i]);
+            if (StringUtil::endsWith(inFileNames[i], ".mesh", true))
+            {
+                processMesh(inFileNames[i]);
+            }
+            else if (StringUtil::endsWith(inFileNames[i], ".skeleton", true))
+            {
+                processSkeleton(inFileNames[i]);
+            }
+            else
+            {
+                warn("unrecognised name ending for file " + inFileNames[i]);
+                warn("file skipped.");
+            }
         }
     }
     //------------------------------------------------------------------------
@@ -69,7 +81,19 @@ namespace meshmagick
     {
         StatefulMeshSerializer* meshSerializer =
             OgreEnvironment::getSingleton().getMeshSerializer();
-        MeshPtr mesh = meshSerializer->loadMesh(meshFileName);
+
+        MeshPtr mesh;
+        try
+        {
+            mesh = meshSerializer->loadMesh(meshFileName);
+        }
+        catch(std::exception& e)
+        {
+            warn(e.what());
+            warn("Unable to open mesh file " + meshFileName);
+            warn("file skipped.");
+            return;
+        }
 
         print("Analysing meshfile " + meshFileName + "...");
         print("File version : " + meshSerializer->getMeshFileVersion());
@@ -184,6 +208,7 @@ namespace meshmagick
         {
             warn(e.what());
             warn("Unable to open skeleton file " + skeletonFileName);
+            warn("file skipped.");
             return;
         }
 

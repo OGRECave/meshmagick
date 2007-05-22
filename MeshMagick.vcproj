@@ -174,7 +174,7 @@
 		<Configuration
 			Name="Debug_DLL|Win32"
 			OutputDirectory="lib"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="obj\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
 			>
@@ -253,7 +253,7 @@
 		<Configuration
 			Name="Release_DLL|Win32"
 			OutputDirectory="lib"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="obj\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"

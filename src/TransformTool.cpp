@@ -52,33 +52,77 @@ namespace meshmagick
 
         StringVector outFileNames = outFileNamesArg.empty() ? inFileNames : outFileNamesArg;
 
-        StatefulMeshSerializer* meshSerializer =
-            OgreEnvironment::getSingleton().getMeshSerializer();
+        // Process the meshes
+        for (size_t i = 0, end = inFileNames.size(); i < end; ++i)
+        {
+            if (StringUtil::endsWith(inFileNames[i], ".mesh", true))
+            {
+                processMeshFile(inFileNames[i], outFileNames[i]);
+            }
+            else if (StringUtil::endsWith(inFileNames[i], ".skeleton", true))
+            {
+                processSkeletonFile(inFileNames[i], outFileNames[i]);
+            }
+            else
+            {
+                warn("unrecognised name ending for file " + inFileNames[i]);
+                warn("file skipped.");
+            }
+        }
+    }
+
+    void TransformTool::processSkeletonFile(Ogre::String inFile, Ogre::String outFile)
+    {
         StatefulSkeletonSerializer* skeletonSerializer =
             OgreEnvironment::getSingleton().getSkeletonSerializer();
 
-        // Process the meshes
-        for (size_t i = 0, end =inFileNames.size(); i < end; ++i)
+        print("Loading skeleton " + inFile + "...");
+        SkeletonPtr skeleton;
+        try
         {
-            print("Loading mesh " + inFileNames[i] + "...");
-            MeshPtr mesh = meshSerializer->loadMesh(inFileNames[i]);
-            print("Processing mesh...");
-	        calculateTransform(mesh);
-            processMesh(mesh);
-            meshSerializer->saveMesh(outFileNames[i], mKeepVersion, true);
-            print("Mesh saved as " + outFileNames[i] + ".");
+            skeleton = skeletonSerializer->loadSkeleton(inFile);
+        }
+        catch(std::exception& e)
+        {
+            warn(e.what());
+            warn("Unable to open skeleton file " + inFile);
+            warn("file skipped.");
+            return;
+        }
+        print("Processing skeleton...");
+        processSkeleton(skeleton);
+        skeletonSerializer->saveSkeleton(outFile, true);
+        print("Skeleton saved as " + outFile + ".");
+    }
 
-            if (mFollowSkeletonLink && mesh->hasSkeleton())
-            {
-                // Load and process Skeleton too
-                String skeletonName = mesh->getSkeletonName();
-                print("Loading skeleton " + skeletonName + "...");
-                SkeletonPtr skeleton = skeletonSerializer->loadSkeleton(skeletonName);
-                print("Processing skeleton...");
-                processSkeleton(skeleton);
-                skeletonSerializer->saveSkeleton(skeletonName, true);
-                print("Skeleton saved as " + skeletonName + ".");
-            }
+    void TransformTool::processMeshFile(Ogre::String inFile, Ogre::String outFile)
+    {
+        StatefulMeshSerializer* meshSerializer =
+            OgreEnvironment::getSingleton().getMeshSerializer();
+
+        print("Loading mesh " + inFile + "...");
+        MeshPtr mesh;
+        try
+        {
+            mesh = meshSerializer->loadMesh(inFile);
+        }
+        catch(std::exception& e)
+        {
+            warn(e.what());
+            warn("Unable to open mesh file " + inFile);
+            warn("file skipped.");
+            return;
+        }
+        print("Processing mesh...");
+        calculateTransform(mesh);
+        processMesh(mesh);
+        meshSerializer->saveMesh(outFile, mKeepVersion, true);
+        print("Mesh saved as " + outFile + ".");
+
+        if (mFollowSkeletonLink && mesh->hasSkeleton())
+        {
+            // In this case keep file name.
+            processSkeletonFile(mesh->getSkeletonName(), mesh->getSkeletonName());
         }
     }
 

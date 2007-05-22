@@ -44,6 +44,9 @@ namespace meshmagick
         bool mUpdateBoundingBox;
         OptionList mOptions;
 
+        void processSkeletonFile(Ogre::String file, Ogre::String outFile);
+        void processMeshFile(Ogre::String file, Ogre::String outFile);
+
         void processSkeleton(Ogre::SkeletonPtr skeleton);
         void processMesh(Ogre::MeshPtr mesh);
 
