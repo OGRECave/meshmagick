@@ -43,7 +43,7 @@ void printHelp(void)
     std::cout << "    -no-follow-skeleton = Do not follow Skeleton-Link (if applicable)" << std::endl;
     std::cout << "    -quiet              = Supress all messages to cout." << std::endl;
     std::cout << "    -verbose            = Print more detailed messages." << std::endl;
-    std::cout << "    -keep-version       = Do not update mesh/skeleton to latest format"
+    std::cout << "    -keep-file-version  = Do not update mesh/skeleton to latest format"
         << std::endl;
     std::cout << std::endl;
     std::cout << "If no outfile is specified, the infile is overwritten. (if applicable)" << std::endl;
@@ -173,7 +173,8 @@ int main(int argc, const char** argv)
     globalOptionDefs.insert(OptionDefinition("help", OT_STRING, false, false, Any(String())));
     globalOptionDefs.insert(OptionDefinition("list"));
     globalOptionDefs.insert(OptionDefinition("no-follow-skeleton"));
-    globalOptionDefs.insert(OptionDefinition("keep-version"));
+    globalOptionDefs.insert(OptionDefinition("version"));
+    globalOptionDefs.insert(OptionDefinition("keep-file-version"));
     globalOptionDefs.insert(OptionDefinition("quiet"));
     globalOptionDefs.insert(OptionDefinition("verbose"));
 
@@ -183,7 +184,20 @@ int main(int argc, const char** argv)
     // Evaluate global options (as far as they are of interest here...)
     for (OptionList::const_iterator it = globalOptions.begin(); it != globalOptions.end(); ++it)
     {
-        if (it->first == "help")
+        if (it->first == "version")
+        {
+			std::cout << "MeshMagic version "
+                << MESHMAGICK_VERSION_MAJOR << "."
+                << MESHMAGICK_VERSION_MINOR << std::endl;
+			std::cout << "using Ogre version "
+                << OGRE_VERSION_MAJOR << "."
+                << OGRE_VERSION_MINOR << "."
+                << OGRE_VERSION_PATCH
+                << " (" << OGRE_VERSION_NAME ")"
+                << std::endl;
+            return 0;
+        }
+        else if (it->first == "help")
         {
             String toolName = any_cast<String>(it->second);
             if (!toolName.empty())

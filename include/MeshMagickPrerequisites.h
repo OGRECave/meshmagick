@@ -40,4 +40,7 @@ namespace meshmagick
 #   define _MeshMagickExport
 #endif
 
+#define MESHMAGICK_VERSION_MAJOR 0
+#define MESHMAGICK_VERSION_MINOR 4
+
 #endif

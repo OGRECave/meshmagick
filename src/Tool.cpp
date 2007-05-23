@@ -57,7 +57,7 @@ namespace meshmagick
             {
                 mFollowSkeletonLink = false;
             }
-            else if (it->first == "keep-version")
+            else if (it->first == "keep-file-version")
             {
                 mKeepVersion = true;
             }
