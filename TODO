@@ -1,3 +1,4 @@
 * make info tool useful.
+* add vertex welding and submesh merging to meshmerge tool.
 * add reorganise tool that reorganises buffer layout in a flexible way.
 * proper documentation.
