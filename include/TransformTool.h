@@ -61,7 +61,11 @@ namespace meshmagick
         void processPose(Ogre::Pose* pose);
         void processVertexMorphKeyFrame(Ogre::VertexMorphKeyFrame* keyframe, size_t vertexCount);
 
-        void calculateTransform(Ogre::MeshPtr mesh);
+        /// Calculate transformation matrix from input arguments and, if given, a mesh.
+        /// The mesh is used to retrieve the AABB, which is needed for alignment operation.
+        /// Alignment operations are ignored, if no mesh is given.
+        /// This doesn't matter for skeletons, since translations don't apply there.
+        void calculateTransform(bool useMesh, Ogre::MeshPtr mesh = Ogre::MeshPtr());
 
         Ogre::AxisAlignedBox getTransformedMeshAabb(Ogre::MeshPtr mesh,
             const Ogre::Matrix4& transform);

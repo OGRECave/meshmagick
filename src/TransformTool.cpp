@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "StatefulSkeletonSerializer.h"
 #include "StatefulMeshSerializer.h"
 
+#include <OgreStringConverter.h>
 #include <OgreSubMesh.h>
 #include <OgreAnimation.h>
 
@@ -90,6 +91,7 @@ namespace meshmagick
             return;
         }
         print("Processing skeleton...");
+        calculateTransform(false);
         processSkeleton(skeleton);
         skeletonSerializer->saveSkeleton(outFile, true);
         print("Skeleton saved as " + outFile + ".");
@@ -114,7 +116,7 @@ namespace meshmagick
             return;
         }
         print("Processing mesh...");
-        calculateTransform(mesh);
+        calculateTransform(true, mesh);
         processMesh(mesh);
         meshSerializer->saveMesh(outFile, mKeepVersion, true);
         print("Mesh saved as " + outFile + ".");
@@ -134,10 +136,36 @@ namespace meshmagick
             processBone(it.peekNext());
             it.moveNext();
         }
+
+        // We only need to apply scaling on the transforms, no rotation and no translation.
+        Matrix3 m;
+        mTransform.extract3x3Matrix(m);
+        Vector3 scale = Vector3(
+            m.GetColumn(0).length(), m.GetColumn(1).length(), m.GetColumn(2).length());
+        for (unsigned short aniIdx = 0; aniIdx < skeleton->getNumAnimations(); ++aniIdx)
+        {
+            Animation* ani = skeleton->getAnimation(aniIdx);
+
+            print("Processing animation " + ani->getName() + "...", V_HIGH);
+
+            Animation::NodeTrackIterator trackIt = ani->getNodeTrackIterator();
+            while (trackIt.hasMoreElements())
+            {
+                NodeAnimationTrack* track = trackIt.getNext();
+                // An animation track for a skeleton is only supposed to have
+                // TransformKeyFrames, so just use these here.
+                for (unsigned short frameIdx = 0; frameIdx < track->getNumKeyFrames(); ++frameIdx)
+                {
+                    TransformKeyFrame* keyframe = track->getNodeKeyFrame(frameIdx);
+                    keyframe->setTranslate(keyframe->getTranslate() * scale);
+                }
+            }
+        }
     }
 
     void TransformTool::processBone(Ogre::Bone* bone)
     {
+        print("Processing bone " + bone->getName() + "...", V_HIGH);
         if (bone->getParent() == NULL)
         {
             // Is root bone, we need to apply full transform
@@ -349,10 +377,12 @@ namespace meshmagick
         }
     }
 
-    void TransformTool::calculateTransform(MeshPtr mesh)
+    void TransformTool::calculateTransform(bool useMesh, MeshPtr mesh)
     {
         // Calculate transform
         Matrix4 transform = Matrix4::IDENTITY;
+
+        print("Calculating transformation...", V_HIGH);
 
         for (OptionList::const_iterator it = mOptions.begin(); it != mOptions.end(); ++it)
         {
@@ -360,19 +390,29 @@ namespace meshmagick
             {
                 Vector3 scale = any_cast<Vector3>(it->second);
                 transform = Matrix4::getScale(scale) * transform;
+                print("Apply scaling " + StringConverter::toString(scale), V_HIGH);
             }
             else if (it->first == "translate")
             {
                 Vector3 translate = any_cast<Vector3>(it->second);
                 transform = Matrix4::getTrans(translate) * transform;
+                print("Apply translation " + StringConverter::toString(translate), V_HIGH);
             }
             else if (it->first == "rotate")
             {
                 Quaternion rotation = any_cast<Quaternion>(it->second);
                 transform = Matrix4(rotation) * transform;
+                print("Apply rotation (quat.) " + StringConverter::toString(rotation), V_HIGH);
             }
             else if (it->first == "xalign")
             {
+                //ignore, if no mesh given. Without we can't do this op.
+                if (!useMesh)
+                {
+                    print("Skipped alignment, operation can't be applied to skeletons", V_HIGH);
+                    continue;
+                }
+
                 String alignment = any_cast<String>(it->second);
                 Vector3 translate = Vector3::ZERO;
                 // Apply current transform to the mesh, to get the bounding box to
@@ -395,6 +435,13 @@ namespace meshmagick
             }
             else if (it->first == "yalign")
             {
+                //ignore, if no mesh given. Without we can't do this op.
+                if (!useMesh)
+                {
+                    print("Skipped alignment, operation can't be applied to skeletons", V_HIGH);
+                    continue;
+                }
+
                 String alignment = any_cast<String>(it->second);
                 Vector3 translate = Vector3::ZERO;
                 // Apply current transform to the mesh, to get the bounding box to
@@ -417,6 +464,13 @@ namespace meshmagick
             }
             else if (it->first == "zalign")
             {
+                //ignore, if no mesh given. Without we can't do this op.
+                if (!useMesh)
+                {
+                    print("Skipped alignment, operation can't be applied to skeletons", V_HIGH);
+                    continue;
+                }
+
                 String alignment = any_cast<String>(it->second);
                 Vector3 translate = Vector3::ZERO;
                 // Apply current transform to the mesh, to get the bounding box to
@@ -436,10 +490,13 @@ namespace meshmagick
                 }
 
                 transform = Matrix4::getTrans(translate) * transform;
+                print("Z-Alignment " + alignment + " - "
+                    + StringConverter::toString(translate), V_HIGH);
             }
         }
 
         mTransform = transform;
+        print("final transform " + StringConverter::toString(mTransform), V_HIGH);
     }
 
     AxisAlignedBox TransformTool::getTransformedMeshAabb(MeshPtr mesh,
