@@ -29,7 +29,7 @@ namespace meshmagick
 
 #include <OgrePlatform.h>
 
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && !OGRE_STATIC_LIB
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && !MESHMAGICK_STANDALONE
 // Export control
 #   if defined( MESHMAGICK_EXPORTS )
 #       define _MeshMagickExport __declspec( dllexport )
