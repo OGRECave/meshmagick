@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <iostream>
 #include <stdexcept>
 
+#include "EditableSkeleton.h"
+
 using namespace Ogre;
 
 namespace meshmagick
@@ -43,6 +45,8 @@ namespace meshmagick
                 ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         }
 
+		mSkeleton = SkeletonPtr(new EditableSkeleton(*mSkeleton.getPointer()));
+
         std::ifstream ifs;
         ifs.open(name.c_str(), std::ios_base::in | std::ios_base::binary);
         if (!ifs)
@@ -58,7 +62,7 @@ namespace meshmagick
 
         ifs.close();
 
-        return mSkeleton;
+		return mSkeleton;
     }
 
     void StatefulSkeletonSerializer::saveSkeleton(const String& name, bool keepEndianess)

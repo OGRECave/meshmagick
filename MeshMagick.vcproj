@@ -339,6 +339,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\src\EditableSkeleton.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\InfoTool.cpp"
 				>
 			</File>
@@ -364,6 +368,14 @@
 			</File>
 			<File
 				RelativePath=".\src\OptionsParser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\RenameTool.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\RenameToolFactory.cpp"
 				>
 			</File>
 			<File
@@ -397,6 +409,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\include\EditableSkeleton.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\InfoTool.h"
 				>
 			</File>
@@ -422,6 +438,14 @@
 			</File>
 			<File
 				RelativePath=".\include\OptionsParser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\RenameTool.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\RenameToolFactory.h"
 				>
 			</File>
 			<File

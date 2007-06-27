@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "InfoToolFactory.h"
 #include "OgreEnvironment.h"
 #include "OptionsParser.h"
+#include "RenameToolFactory.h"
 #include "Tool.h"
 #include "ToolManager.h"
 #include "TransformToolFactory.h"
@@ -162,6 +163,7 @@ int main(int argc, const char** argv)
     manager.registerToolFactory(new TransformToolFactory());
     manager.registerToolFactory(new InfoToolFactory());
     manager.registerToolFactory(new MeshMergeToolFactory());
+    manager.registerToolFactory(new RenameToolFactory());
 
     OgreEnvironment* ogreEnv = new OgreEnvironment();
 	ogreEnv->initialize();

@@ -2,12 +2,15 @@ INCLUDES = ${OGRE_CFLAGS} -I ../include
 
 lib_LTLIBRARIES = libmeshmagick.la
 libmeshmagick_la_SOURCES = \
+	EditableSkeleton.cpp \
 	InfoTool.cpp \
 	InfoToolFactory.cpp \
 	MeshMergeTool.cpp \
 	MeshMergeToolFactory.cpp \
 	OgreEnvironment.cpp \
 	OptionsParser.cpp \
+	RenameTool.cpp \
+	RenameToolFactory.cpp \
 	StatefulMeshSerializer.cpp \
 	StatefulSkeletonSerializer.cpp \
 	Tool.cpp \

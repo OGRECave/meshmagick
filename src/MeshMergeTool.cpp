@@ -91,17 +91,24 @@ namespace meshmagick
 			meshSkel = SkeletonManager::getSingleton().getByName(mesh->getSkeletonName());
 		}
 
-        if (meshSkel.isNull())
+		if (meshSkel.isNull() && !m_BaseSkeleton.isNull())
         {
 			print("Skipped: " + mesh->getName() + " has no skeleton", V_NORMAL);
 		    return;
         }
 
-        if (m_BaseSkeleton.isNull())
+		if (!meshSkel.isNull() && m_BaseSkeleton.isNull() && !m_Meshes.empty())
+        {
+			throw std::logic_error(
+				"Some meshes have a skeleton, but others have none, cannot merge.");
+        }
+
+		if (!meshSkel.isNull() && m_BaseSkeleton.isNull() && m_Meshes.empty())
         {
             m_BaseSkeleton = meshSkel;                    
 			print("Set: base skeleton (" + m_BaseSkeleton->getName()+")", V_HIGH);
         }
+
 
         if (meshSkel != m_BaseSkeleton)
         {
@@ -131,15 +138,13 @@ namespace meshmagick
     {    
         print("Baking: New Mesh started", V_HIGH);
 
-		if (m_BaseSkeleton.isNull())
-		{
-			throw std::logic_error(
-				"No base skeleton set. This is the case if none of the input meshes has a skeleton.");
-		}
-
         MeshPtr mp = MeshManager::getSingleton().
             createManual(meshname, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-        mp->setSkeletonName(m_BaseSkeleton->getName());
+		
+		if (!m_BaseSkeleton.isNull())
+		{
+			mp->setSkeletonName(m_BaseSkeleton->getName());
+		}
 
         AxisAlignedBox totalBounds = AxisAlignedBox();
         for (std::vector< Ogre::MeshPtr >::iterator it = m_Meshes.begin();
@@ -171,13 +176,16 @@ namespace meshmagick
                 {
                     newsub->vertexData = sub->vertexData->clone();
                 
-                    // build bone assignments
-                    SubMesh::BoneAssignmentIterator bit = sub->getBoneAssignmentIterator();
-                    while (bit.hasMoreElements())
-                    {
-                        VertexBoneAssignment vba = bit.getNext();
-                        newsub->addBoneAssignment(vba);
-                    }
+					if (!m_BaseSkeleton.isNull())
+					{
+						// build bone assignments
+						SubMesh::BoneAssignmentIterator bit = sub->getBoneAssignmentIterator();
+						while (bit.hasMoreElements())
+						{
+							VertexBoneAssignment vba = bit.getNext();
+							newsub->addBoneAssignment(vba);
+						}
+					}
                 }
 
                 newsub->setMaterialName(sub->getMaterialName());
@@ -194,12 +202,15 @@ namespace meshmagick
 					mp->sharedVertexData = (*it)->sharedVertexData->clone();
 				}
 
-                Mesh::BoneAssignmentIterator bit = (*it)->getBoneAssignmentIterator();
-                while (bit.hasMoreElements())
-                {
-                    VertexBoneAssignment vba = bit.getNext();
-                    mp->addBoneAssignment(vba);
-                }
+				if (!m_BaseSkeleton.isNull())
+				{
+					Mesh::BoneAssignmentIterator bit = (*it)->getBoneAssignmentIterator();
+					while (bit.hasMoreElements())
+					{
+						VertexBoneAssignment vba = bit.getNext();
+						mp->addBoneAssignment(vba);
+					}
+				}
             }
 
             print("Baking: adding bounds for " + (*it)->getName(), V_HIGH);
