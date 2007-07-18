@@ -49,6 +49,7 @@ namespace meshmagick
 		optionDefs.insert(OptionDefinition("animation", OT_STRING, false, true));
 		optionDefs.insert(OptionDefinition("bone", OT_STRING, false, true));
 		optionDefs.insert(OptionDefinition("skeleton", OT_STRING, false, false));
+		optionDefs.insert(OptionDefinition("material", OT_STRING, false, true));
 		return optionDefs;
 	}
 
@@ -70,6 +71,8 @@ namespace meshmagick
         out << "   -animation=before/after - renames animation 'before' to 'after'"
             << std::endl;
         out << "   -bone=before/after - renames bone 'before' to 'after'"
+            << std::endl;
+        out << "   -material=before/after - change all materials 'before' to 'after'"
             << std::endl;
         out << "   -skeleton=newname - renames mesh's skeleton to 'newname'"
             << std::endl;

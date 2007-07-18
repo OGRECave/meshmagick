@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <OgreBone.h>
 #include <OgreMesh.h>
 #include <OgreSkeleton.h>
+#include <OgreSubMesh.h>
 
 #include "EditableSkeleton.h"
 #include "OgreEnvironment.h"
@@ -106,7 +107,7 @@ namespace meshmagick
 				StringPair names = split(any_cast<String>(it->second));
 				Bone* bone = skeleton->getBone(names.first);
 				//bone->set
-				warn("Renaming bones in skeletons not implementes.");
+				warn("Renaming bones in skeletons not implemented.");
 			}
 			else if (it->first == "animation")
 			{
@@ -117,6 +118,10 @@ namespace meshmagick
 				Animation* newAnim = anim->clone(names.second);
 				eskel->addAnimation(newAnim);
 			}
+            else if (it->first == "material")
+            {
+                warn("Materials can only be renamed in meshes, skipped skeleton.");
+            }
 		}
         skeletonSerializer->saveSkeleton(outFile, true);
         print("Skeleton saved as " + outFile + ".");
@@ -160,6 +165,21 @@ namespace meshmagick
 			{
 				warn("Animations must be renamed in skeletons, skipped mesh.");
 			}
+            else if (it->first == "material")
+            {
+				StringPair names = split(any_cast<String>(it->second));
+                String before = names.first;
+                String after = names.second;
+                for (Mesh::SubMeshIterator it = mesh->getSubMeshIterator();
+                    it.hasMoreElements();)
+                {
+                    SubMesh* submesh = it.getNext();
+                    if (submesh->getMaterialName() == before)
+                    {
+                        submesh->setMaterialName(after);
+                    }
+                }
+            }
 		}
 		
 		meshSerializer->saveMesh(outFile, true, true);
