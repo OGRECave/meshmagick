@@ -100,10 +100,20 @@ namespace meshmagick
         print("Endian mode  : " + getEndianModeAsString(meshSerializer->getEndianMode()));
         print(" ");
 
+		// Build metadata for bone assignments
+		if (mesh->hasSkeleton())
+		{
+			// Cause mesh to sort out the number of bone assignments per vertex and
+			// the bone map to individual submeshes
+			mesh->_updateCompiledBoneAssignments();
+		}
+
         if (mesh->sharedVertexData != NULL)
         {
             print("Shared vertex data with " +
                 StringConverter::toString(mesh->sharedVertexData->vertexCount) + " vertices");
+			reportBoneAssignmentData(mesh->sharedVertexData, 
+				mesh->sharedBlendIndexToBoneIndexMap, Ogre::StringUtil::BLANK);
         }
         else
         {
@@ -174,6 +184,8 @@ namespace meshmagick
         {
             print("    " +
                 StringConverter::toString(submesh->vertexData->vertexCount) + " vertices.");
+			reportBoneAssignmentData(submesh->vertexData, submesh->blendIndexToBoneIndexMap, 
+				"    ");
         }
 
         // indices
@@ -257,4 +269,24 @@ namespace meshmagick
         }
     }
     //------------------------------------------------------------------------
+	void InfoTool::reportBoneAssignmentData(const Ogre::VertexData* vd, 
+		const Ogre::Mesh::IndexMap& blendIndexToBoneIndexMap, const Ogre::String& indent) const
+	{
+		// Report number of bones per vertex
+		const Ogre::VertexElement* elem = 
+			vd->vertexDeclaration->findElementBySemantic(VES_BLEND_WEIGHTS);
+		if (elem)
+		{
+			unsigned short numWeights = VertexElement::getTypeCount(elem->getType());
+			print(indent + "Number of bone assignments per vertex: " + StringConverter::toString(numWeights));
+
+			// Report number of bones referenced by this vertex data
+			print(indent + "Total number of bones referenced: " + 
+				StringConverter::toString(blendIndexToBoneIndexMap.size()));
+		}
+
+
+
+
+	}
 }

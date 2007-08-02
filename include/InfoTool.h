@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "OptionsParser.h"
 
 #include <OgreMeshSerializer.h>
+#include <OgreMesh.h>
 #include <OgreSubMesh.h>
 
 namespace meshmagick
@@ -38,6 +39,9 @@ namespace meshmagick
         void processSkeleton(const Ogre::String& skeletonFileName) const;
         void processMesh(const Ogre::String& meshFileName) const;
         void processSubMesh(Ogre::SubMesh* subMesh) const;
+		void reportBoneAssignmentData(const Ogre::VertexData* vd, 
+			const Ogre::Mesh::IndexMap& blendIndexToBoneIndexMap, 
+			const Ogre::String& indent) const;
 
         Ogre::String getEndianModeAsString(Ogre::MeshSerializer::Endian) const;
 
