@@ -175,6 +175,7 @@ namespace meshmagick
 
     void InfoTool::processSubMesh(Ogre::SubMesh* submesh) const
     {
+		print("    Default material: " + submesh->getMaterialName());
         // vertices
         if (submesh->useSharedVertices)
         {
