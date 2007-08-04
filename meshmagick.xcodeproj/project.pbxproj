@@ -53,6 +53,14 @@
 		445A0C470C4AAA500029E457 /* EditableSkeleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 445A0C410C4AAA500029E457 /* EditableSkeleton.cpp */; };
 		445A0C480C4AAA500029E457 /* RenameTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 445A0C420C4AAA500029E457 /* RenameTool.cpp */; };
 		445A0C490C4AAA500029E457 /* RenameToolFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 445A0C430C4AAA500029E457 /* RenameToolFactory.cpp */; };
+		AA48EDD50C65333600DD2220 /* OptimiseTool.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = AA48EDD30C65333600DD2220 /* OptimiseTool.h */; };
+		AA48EDD60C65333600DD2220 /* OptimiseToolFactory.h in Copy Headers */ = {isa = PBXBuildFile; fileRef = AA48EDD40C65333600DD2220 /* OptimiseToolFactory.h */; };
+		AA48EDD70C65333600DD2220 /* OptimiseTool.h in Headers */ = {isa = PBXBuildFile; fileRef = AA48EDD30C65333600DD2220 /* OptimiseTool.h */; };
+		AA48EDD80C65333600DD2220 /* OptimiseToolFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = AA48EDD40C65333600DD2220 /* OptimiseToolFactory.h */; };
+		AA48EDDB0C65334D00DD2220 /* OptimiseTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA48EDD90C65334D00DD2220 /* OptimiseTool.cpp */; };
+		AA48EDDC0C65334D00DD2220 /* OptimiseToolFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA48EDDA0C65334D00DD2220 /* OptimiseToolFactory.cpp */; };
+		AA48EDDD0C65334D00DD2220 /* OptimiseTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA48EDD90C65334D00DD2220 /* OptimiseTool.cpp */; };
+		AA48EDDE0C65334D00DD2220 /* OptimiseToolFactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA48EDDA0C65334D00DD2220 /* OptimiseToolFactory.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,7 +77,7 @@
 		440785A10C09D097006E496D /* Copy Headers */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 8;
-			dstPath = ../include;
+			dstPath = ./include;
 			dstSubfolderSpec = 16;
 			files = (
 				440785A30C09D0CF006E496D /* MeshMagickPrerequisites.h in Copy Headers */,
@@ -80,6 +88,8 @@
 				440785A80C09D0CF006E496D /* StatefulSkeletonSerializer.h in Copy Headers */,
 				440785A90C09D0CF006E496D /* Tool.h in Copy Headers */,
 				440785AA0C09D0CF006E496D /* TransformTool.h in Copy Headers */,
+				AA48EDD50C65333600DD2220 /* OptimiseTool.h in Copy Headers */,
+				AA48EDD60C65333600DD2220 /* OptimiseToolFactory.h in Copy Headers */,
 			);
 			name = "Copy Headers";
 			runOnlyForDeploymentPostprocessing = 1;
@@ -109,42 +119,46 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		44125A510C08405800C24C0A /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../src/main.cpp; sourceTree = SOURCE_ROOT; };
+		44125A510C08405800C24C0A /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ./src/main.cpp; sourceTree = SOURCE_ROOT; };
 		44125A570C0840B400C24C0A /* libmeshmagick.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmeshmagick.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		44125A5A0C0840ED00C24C0A /* InfoTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InfoTool.cpp; path = ../src/InfoTool.cpp; sourceTree = SOURCE_ROOT; };
-		44125A5B0C0840ED00C24C0A /* InfoToolFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InfoToolFactory.cpp; path = ../src/InfoToolFactory.cpp; sourceTree = SOURCE_ROOT; };
-		44125A5C0C0840ED00C24C0A /* MeshMergeTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MeshMergeTool.cpp; path = ../src/MeshMergeTool.cpp; sourceTree = SOURCE_ROOT; };
-		44125A5D0C0840ED00C24C0A /* MeshMergeToolFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MeshMergeToolFactory.cpp; path = ../src/MeshMergeToolFactory.cpp; sourceTree = SOURCE_ROOT; };
-		44125A5E0C0840ED00C24C0A /* OgreEnvironment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OgreEnvironment.cpp; path = ../src/OgreEnvironment.cpp; sourceTree = SOURCE_ROOT; };
-		44125A5F0C0840ED00C24C0A /* OptionsParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OptionsParser.cpp; path = ../src/OptionsParser.cpp; sourceTree = SOURCE_ROOT; };
-		44125A600C0840ED00C24C0A /* StatefulMeshSerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StatefulMeshSerializer.cpp; path = ../src/StatefulMeshSerializer.cpp; sourceTree = SOURCE_ROOT; };
-		44125A610C0840ED00C24C0A /* StatefulSkeletonSerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StatefulSkeletonSerializer.cpp; path = ../src/StatefulSkeletonSerializer.cpp; sourceTree = SOURCE_ROOT; };
-		44125A620C0840ED00C24C0A /* Tool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Tool.cpp; path = ../src/Tool.cpp; sourceTree = SOURCE_ROOT; };
-		44125A630C0840ED00C24C0A /* ToolManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ToolManager.cpp; path = ../src/ToolManager.cpp; sourceTree = SOURCE_ROOT; };
-		44125A640C0840ED00C24C0A /* TransformTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TransformTool.cpp; path = ../src/TransformTool.cpp; sourceTree = SOURCE_ROOT; };
-		44125A650C0840ED00C24C0A /* TransformToolFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TransformToolFactory.cpp; path = ../src/TransformToolFactory.cpp; sourceTree = SOURCE_ROOT; };
-		44125A750C08410200C24C0A /* InfoTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InfoTool.h; path = ../include/InfoTool.h; sourceTree = SOURCE_ROOT; };
-		44125A760C08410200C24C0A /* InfoToolFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InfoToolFactory.h; path = ../include/InfoToolFactory.h; sourceTree = SOURCE_ROOT; };
-		44125A770C08410200C24C0A /* MeshMagickPrerequisites.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshMagickPrerequisites.h; path = ../include/MeshMagickPrerequisites.h; sourceTree = SOURCE_ROOT; };
-		44125A780C08410200C24C0A /* MeshMergeTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshMergeTool.h; path = ../include/MeshMergeTool.h; sourceTree = SOURCE_ROOT; };
-		44125A790C08410200C24C0A /* MeshMergeToolFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshMergeToolFactory.h; path = ../include/MeshMergeToolFactory.h; sourceTree = SOURCE_ROOT; };
-		44125A7A0C08410200C24C0A /* OgreEnvironment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OgreEnvironment.h; path = ../include/OgreEnvironment.h; sourceTree = SOURCE_ROOT; };
-		44125A7B0C08410200C24C0A /* OptionsParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OptionsParser.h; path = ../include/OptionsParser.h; sourceTree = SOURCE_ROOT; };
-		44125A7C0C08410200C24C0A /* StatefulMeshSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StatefulMeshSerializer.h; path = ../include/StatefulMeshSerializer.h; sourceTree = SOURCE_ROOT; };
-		44125A7D0C08410200C24C0A /* StatefulSkeletonSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StatefulSkeletonSerializer.h; path = ../include/StatefulSkeletonSerializer.h; sourceTree = SOURCE_ROOT; };
-		44125A7E0C08410200C24C0A /* Tool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tool.h; path = ../include/Tool.h; sourceTree = SOURCE_ROOT; };
-		44125A7F0C08410200C24C0A /* ToolFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ToolFactory.h; path = ../include/ToolFactory.h; sourceTree = SOURCE_ROOT; };
-		44125A800C08410200C24C0A /* ToolManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ToolManager.h; path = ../include/ToolManager.h; sourceTree = SOURCE_ROOT; };
-		44125A810C08410200C24C0A /* TransformTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TransformTool.h; path = ../include/TransformTool.h; sourceTree = SOURCE_ROOT; };
-		44125A820C08410200C24C0A /* TransformToolFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TransformToolFactory.h; path = ../include/TransformToolFactory.h; sourceTree = SOURCE_ROOT; };
+		44125A5A0C0840ED00C24C0A /* InfoTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InfoTool.cpp; path = ./src/InfoTool.cpp; sourceTree = SOURCE_ROOT; };
+		44125A5B0C0840ED00C24C0A /* InfoToolFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InfoToolFactory.cpp; path = ./src/InfoToolFactory.cpp; sourceTree = SOURCE_ROOT; };
+		44125A5C0C0840ED00C24C0A /* MeshMergeTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MeshMergeTool.cpp; path = ./src/MeshMergeTool.cpp; sourceTree = SOURCE_ROOT; };
+		44125A5D0C0840ED00C24C0A /* MeshMergeToolFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MeshMergeToolFactory.cpp; path = ./src/MeshMergeToolFactory.cpp; sourceTree = SOURCE_ROOT; };
+		44125A5E0C0840ED00C24C0A /* OgreEnvironment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OgreEnvironment.cpp; path = ./src/OgreEnvironment.cpp; sourceTree = SOURCE_ROOT; };
+		44125A5F0C0840ED00C24C0A /* OptionsParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OptionsParser.cpp; path = ./src/OptionsParser.cpp; sourceTree = SOURCE_ROOT; };
+		44125A600C0840ED00C24C0A /* StatefulMeshSerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StatefulMeshSerializer.cpp; path = ./src/StatefulMeshSerializer.cpp; sourceTree = SOURCE_ROOT; };
+		44125A610C0840ED00C24C0A /* StatefulSkeletonSerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StatefulSkeletonSerializer.cpp; path = ./src/StatefulSkeletonSerializer.cpp; sourceTree = SOURCE_ROOT; };
+		44125A620C0840ED00C24C0A /* Tool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Tool.cpp; path = ./src/Tool.cpp; sourceTree = SOURCE_ROOT; };
+		44125A630C0840ED00C24C0A /* ToolManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ToolManager.cpp; path = ./src/ToolManager.cpp; sourceTree = SOURCE_ROOT; };
+		44125A640C0840ED00C24C0A /* TransformTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TransformTool.cpp; path = ./src/TransformTool.cpp; sourceTree = SOURCE_ROOT; };
+		44125A650C0840ED00C24C0A /* TransformToolFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TransformToolFactory.cpp; path = ./src/TransformToolFactory.cpp; sourceTree = SOURCE_ROOT; };
+		44125A750C08410200C24C0A /* InfoTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InfoTool.h; path = ./include/InfoTool.h; sourceTree = SOURCE_ROOT; };
+		44125A760C08410200C24C0A /* InfoToolFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InfoToolFactory.h; path = ./include/InfoToolFactory.h; sourceTree = SOURCE_ROOT; };
+		44125A770C08410200C24C0A /* MeshMagickPrerequisites.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshMagickPrerequisites.h; path = ./include/MeshMagickPrerequisites.h; sourceTree = SOURCE_ROOT; };
+		44125A780C08410200C24C0A /* MeshMergeTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshMergeTool.h; path = ./include/MeshMergeTool.h; sourceTree = SOURCE_ROOT; };
+		44125A790C08410200C24C0A /* MeshMergeToolFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshMergeToolFactory.h; path = ./include/MeshMergeToolFactory.h; sourceTree = SOURCE_ROOT; };
+		44125A7A0C08410200C24C0A /* OgreEnvironment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OgreEnvironment.h; path = ./include/OgreEnvironment.h; sourceTree = SOURCE_ROOT; };
+		44125A7B0C08410200C24C0A /* OptionsParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OptionsParser.h; path = ./include/OptionsParser.h; sourceTree = SOURCE_ROOT; };
+		44125A7C0C08410200C24C0A /* StatefulMeshSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StatefulMeshSerializer.h; path = ./include/StatefulMeshSerializer.h; sourceTree = SOURCE_ROOT; };
+		44125A7D0C08410200C24C0A /* StatefulSkeletonSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StatefulSkeletonSerializer.h; path = ./include/StatefulSkeletonSerializer.h; sourceTree = SOURCE_ROOT; };
+		44125A7E0C08410200C24C0A /* Tool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tool.h; path = ./include/Tool.h; sourceTree = SOURCE_ROOT; };
+		44125A7F0C08410200C24C0A /* ToolFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ToolFactory.h; path = ./include/ToolFactory.h; sourceTree = SOURCE_ROOT; };
+		44125A800C08410200C24C0A /* ToolManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ToolManager.h; path = ./include/ToolManager.h; sourceTree = SOURCE_ROOT; };
+		44125A810C08410200C24C0A /* TransformTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TransformTool.h; path = ./include/TransformTool.h; sourceTree = SOURCE_ROOT; };
+		44125A820C08410200C24C0A /* TransformToolFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TransformToolFactory.h; path = ./include/TransformToolFactory.h; sourceTree = SOURCE_ROOT; };
 		44125AAF0C08418200C24C0A /* Ogre.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Ogre.framework; path = /Library/Frameworks/Ogre.framework; sourceTree = "<absolute>"; };
-		445A0C3E0C4AAA500029E457 /* EditableSkeleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EditableSkeleton.h; path = ../include/EditableSkeleton.h; sourceTree = SOURCE_ROOT; };
-		445A0C3F0C4AAA500029E457 /* RenameTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RenameTool.h; path = ../include/RenameTool.h; sourceTree = SOURCE_ROOT; };
-		445A0C400C4AAA500029E457 /* RenameToolFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RenameToolFactory.h; path = ../include/RenameToolFactory.h; sourceTree = SOURCE_ROOT; };
-		445A0C410C4AAA500029E457 /* EditableSkeleton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EditableSkeleton.cpp; path = ../src/EditableSkeleton.cpp; sourceTree = SOURCE_ROOT; };
-		445A0C420C4AAA500029E457 /* RenameTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RenameTool.cpp; path = ../src/RenameTool.cpp; sourceTree = SOURCE_ROOT; };
-		445A0C430C4AAA500029E457 /* RenameToolFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RenameToolFactory.cpp; path = ../src/RenameToolFactory.cpp; sourceTree = SOURCE_ROOT; };
+		445A0C3E0C4AAA500029E457 /* EditableSkeleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EditableSkeleton.h; path = ./include/EditableSkeleton.h; sourceTree = SOURCE_ROOT; };
+		445A0C3F0C4AAA500029E457 /* RenameTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RenameTool.h; path = ./include/RenameTool.h; sourceTree = SOURCE_ROOT; };
+		445A0C400C4AAA500029E457 /* RenameToolFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RenameToolFactory.h; path = ./include/RenameToolFactory.h; sourceTree = SOURCE_ROOT; };
+		445A0C410C4AAA500029E457 /* EditableSkeleton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EditableSkeleton.cpp; path = ./src/EditableSkeleton.cpp; sourceTree = SOURCE_ROOT; };
+		445A0C420C4AAA500029E457 /* RenameTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RenameTool.cpp; path = ./src/RenameTool.cpp; sourceTree = SOURCE_ROOT; };
+		445A0C430C4AAA500029E457 /* RenameToolFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RenameToolFactory.cpp; path = ./src/RenameToolFactory.cpp; sourceTree = SOURCE_ROOT; };
 		8DD76F6C0486A84900D96B5E /* meshmagick */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = meshmagick; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA48EDD30C65333600DD2220 /* OptimiseTool.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OptimiseTool.h; path = include/OptimiseTool.h; sourceTree = "<group>"; };
+		AA48EDD40C65333600DD2220 /* OptimiseToolFactory.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = OptimiseToolFactory.h; path = include/OptimiseToolFactory.h; sourceTree = "<group>"; };
+		AA48EDD90C65334D00DD2220 /* OptimiseTool.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OptimiseTool.cpp; path = src/OptimiseTool.cpp; sourceTree = "<group>"; };
+		AA48EDDA0C65334D00DD2220 /* OptimiseToolFactory.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = OptimiseToolFactory.cpp; path = src/OptimiseToolFactory.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -181,6 +195,10 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				AA48EDD90C65334D00DD2220 /* OptimiseTool.cpp */,
+				AA48EDDA0C65334D00DD2220 /* OptimiseToolFactory.cpp */,
+				AA48EDD30C65333600DD2220 /* OptimiseTool.h */,
+				AA48EDD40C65333600DD2220 /* OptimiseToolFactory.h */,
 				445A0C3E0C4AAA500029E457 /* EditableSkeleton.h */,
 				445A0C3F0C4AAA500029E457 /* RenameTool.h */,
 				445A0C400C4AAA500029E457 /* RenameToolFactory.h */,
@@ -259,6 +277,8 @@
 				445A0C440C4AAA500029E457 /* EditableSkeleton.h in Headers */,
 				445A0C450C4AAA500029E457 /* RenameTool.h in Headers */,
 				445A0C460C4AAA500029E457 /* RenameToolFactory.h in Headers */,
+				AA48EDD70C65333600DD2220 /* OptimiseTool.h in Headers */,
+				AA48EDD80C65333600DD2220 /* OptimiseToolFactory.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -339,6 +359,8 @@
 				445A0C470C4AAA500029E457 /* EditableSkeleton.cpp in Sources */,
 				445A0C480C4AAA500029E457 /* RenameTool.cpp in Sources */,
 				445A0C490C4AAA500029E457 /* RenameToolFactory.cpp in Sources */,
+				AA48EDDD0C65334D00DD2220 /* OptimiseTool.cpp in Sources */,
+				AA48EDDE0C65334D00DD2220 /* OptimiseToolFactory.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,6 +369,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				44125A520C08405800C24C0A /* main.cpp in Sources */,
+				AA48EDDB0C65334D00DD2220 /* OptimiseTool.cpp in Sources */,
+				AA48EDDC0C65334D00DD2220 /* OptimiseToolFactory.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

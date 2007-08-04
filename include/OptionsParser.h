@@ -62,7 +62,7 @@ namespace meshmagick
          *  @param n Name of the option.
          *  @param t Type of the option.
          *  @param im Whether the option is mandatory.
-         *  @param im Whether multiple occurrences of the option are allowed.
+         *  @param am Whether multiple occurrences of the option are allowed.
          *  @param dv default value returned, if option is not set.
          *  @param s if Type t is OT_SELECTION, this string contains the valid options.
          *  @see OptionDefinition#selection

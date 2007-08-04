@@ -8,6 +8,8 @@ libmeshmagick_la_SOURCES = \
 	MeshMergeTool.cpp \
 	MeshMergeToolFactory.cpp \
 	OgreEnvironment.cpp \
+	OptimiseTool.cpp \
+	OptimiseToolFactory.cpp \
 	OptionsParser.cpp \
 	RenameTool.cpp \
 	RenameToolFactory.cpp \

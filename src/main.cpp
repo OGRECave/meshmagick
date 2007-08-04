@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Tool.h"
 #include "ToolManager.h"
 #include "TransformToolFactory.h"
+#include "OptimiseToolFactory.h"
 
 using namespace Ogre;
 using namespace meshmagick;
@@ -164,6 +165,7 @@ int main(int argc, const char** argv)
     manager.registerToolFactory(new InfoToolFactory());
     manager.registerToolFactory(new MeshMergeToolFactory());
     manager.registerToolFactory(new RenameToolFactory());
+	manager.registerToolFactory(new OptimiseToolFactory());
 
     OgreEnvironment* ogreEnv = new OgreEnvironment();
 	ogreEnv->initialize();
