@@ -309,9 +309,6 @@ namespace meshmagick
 			bufferLocks[bindi->first] = lock;
 		}
 
-		// set up comparator
-		mUniqueVertexMap.key_comp().tolerance = mTolerance;
-
 		for (uint32 v = 0; v < mTargetVertexData->vertexCount; ++v)
 		{
 			UniqueVertex uniqueVertex;
@@ -362,8 +359,11 @@ namespace meshmagick
 
 			if (v == 0)
 			{
-				// tell comparator how many uvs to look for
-				mUniqueVertexMap.key_comp().uvSets = uvSets;
+				// set up comparator
+				UniqueVertexLess lessObj;
+				lessObj.tolerance = mTolerance;
+				lessObj.uvSets = uvSets;
+				mUniqueVertexMap = UniqueVertexMap(lessObj);
 			}
 
 			// try to locate equivalent vertex in the list already
