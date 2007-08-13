@@ -42,6 +42,8 @@ namespace meshmagick
 		void reportBoneAssignmentData(const Ogre::VertexData* vd, 
 			const Ogre::Mesh::IndexMap& blendIndexToBoneIndexMap, 
 			const Ogre::String& indent) const;
+		void reportVertexDeclaration(const Ogre::VertexDeclaration* vd,
+            const Ogre::String& indent) const;
 
         Ogre::String getEndianModeAsString(Ogre::MeshSerializer::Endian) const;
 

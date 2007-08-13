@@ -25,10 +25,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <OgreAnimation.h>
 #include <OgreBone.h>
+#include <OgreHardwareVertexBuffer.h>
 #include <OgreStringConverter.h>
 
 #include <algorithm>
 #include <functional>
+#include <map>
 
 using namespace Ogre;
 
@@ -114,6 +116,8 @@ namespace meshmagick
                 StringConverter::toString(mesh->sharedVertexData->vertexCount) + " vertices");
 			reportBoneAssignmentData(mesh->sharedVertexData, 
 				mesh->sharedBlendIndexToBoneIndexMap, Ogre::StringUtil::BLANK);
+            reportVertexDeclaration(mesh->sharedVertexData->vertexDeclaration,
+                Ogre::StringUtil::BLANK);
         }
         else
         {
@@ -187,6 +191,7 @@ namespace meshmagick
                 StringConverter::toString(submesh->vertexData->vertexCount) + " vertices.");
 			reportBoneAssignmentData(submesh->vertexData, submesh->blendIndexToBoneIndexMap, 
 				"    ");
+            reportVertexDeclaration(submesh->vertexData->vertexDeclaration, "    ");
         }
 
         // indices
@@ -279,15 +284,123 @@ namespace meshmagick
 		if (elem)
 		{
 			unsigned short numWeights = VertexElement::getTypeCount(elem->getType());
-			print(indent + "Number of bone assignments per vertex: " + StringConverter::toString(numWeights));
+			print(indent + "Number of bone assignments per vertex: "
+                + StringConverter::toString(numWeights));
 
 			// Report number of bones referenced by this vertex data
 			print(indent + "Total number of bones referenced: " + 
 				StringConverter::toString(blendIndexToBoneIndexMap.size()));
 		}
-
-
-
-
 	}
+
+	/// @todo externalise this function, when reorganise-tool is integrated,
+    /// because both use the same format
+    void InfoTool::reportVertexDeclaration(const VertexDeclaration* vd, const String& indent) const
+    {
+        // First: source-ID, second: offset
+        typedef std::pair<unsigned short, size_t> ElementPosition;
+        typedef std::pair<VertexElementSemantic, VertexElementType> Element;
+        typedef std::map<ElementPosition, Element> ElementMap;
+
+        // This map holds the results from iterating all elements in the declaration.
+        // Having them stored in the map makes it easy to create the layout string.
+        ElementMap elements;
+
+        // Iterate over declaration elements and put them into the map.
+        // We do this, because we don't know in what order the elements are stored, but
+        // in order to create the layout string we need them in order of their source and offset.
+        const VertexDeclaration::VertexElementList& elementList = vd->getElements();
+        for (VertexDeclaration::VertexElementList::const_iterator it = elementList.begin(),
+            end = elementList.end(); it != end; ++it)
+        {
+            elements[std::make_pair((*it).getSource(), (*it).getOffset())] = 
+                std::make_pair((*it).getSemantic(), (*it).getType());
+        }
+
+        // Create the layout string
+        String layout;
+        unsigned short source = 0;
+        for (ElementMap::const_iterator it = elements.begin(), end = elements.end();
+            it != end; ++it)
+        {
+            // If source changed, we append a hyphen to indicate a new buffer.
+            if (it->first.first != source)
+            {
+                layout += '-';
+                source = it->first.first;
+            }
+
+            // Append char indicating the element semantic
+            switch (it->second.first)
+            {
+            case VES_POSITION:
+                layout += "p";
+                break;
+            case VES_BLEND_WEIGHTS:
+                layout += "w";
+                break;
+            case VES_BLEND_INDICES:
+                layout += "i";
+                break;
+            case VES_NORMAL:
+                layout += "n";
+                break;
+            case VES_DIFFUSE:
+                layout += "d";
+                break;
+            case VES_SPECULAR:
+                layout += "s";
+                break;
+            case VES_TEXTURE_COORDINATES:
+                layout += "u";
+                break;
+            case VES_BINORMAL:
+                layout += "b";
+                break;
+            case VES_TANGENT:
+                layout += "t";
+                break;
+            }
+            // Append substring indicating the element type
+            switch (it->second.second)
+            {
+            case VET_FLOAT1:
+                layout += "(f1)";
+                break;
+            case VET_FLOAT2:
+                layout += "(f2)";
+                break;
+            case VET_FLOAT3:
+                layout += "(f3)";
+                break;
+            case VET_FLOAT4:
+                layout += "(f4)";
+                break;
+            case VET_SHORT1:
+                layout += "(s1)";
+                break;
+            case VET_SHORT2:
+                layout += "(s2)";
+                break;
+            case VET_SHORT3:
+                layout += "(s3)";
+                break;
+            case VET_SHORT4:
+                layout += "(s4)";
+                break;
+            case VET_UBYTE4:
+                layout += "(u4)";
+                break;
+            case VET_COLOUR_ARGB:
+                layout += "(dx)";
+                break;
+            case VET_COLOUR_ABGR:
+                layout += "(gl)";
+                break;
+            }
+        }
+
+        // and print it
+        print(indent + "buffer layout: " + layout);
+    }
 }
