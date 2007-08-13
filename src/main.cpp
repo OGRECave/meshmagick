@@ -45,8 +45,6 @@ void printHelp(void)
     std::cout << "    -no-follow-skeleton = Do not follow Skeleton-Link (if applicable)" << std::endl;
     std::cout << "    -quiet              = Supress all messages to cout." << std::endl;
     std::cout << "    -verbose            = Print more detailed messages." << std::endl;
-    std::cout << "    -keep-file-version  = Do not update mesh/skeleton to latest format"
-        << std::endl;
     std::cout << std::endl;
     std::cout << "If no outfile is specified, the infile is overwritten. (if applicable)" << std::endl;
     std::cout << std::endl;
@@ -178,7 +176,6 @@ int main(int argc, const char** argv)
     globalOptionDefs.insert(OptionDefinition("list"));
     globalOptionDefs.insert(OptionDefinition("no-follow-skeleton"));
     globalOptionDefs.insert(OptionDefinition("version"));
-    globalOptionDefs.insert(OptionDefinition("keep-file-version"));
     globalOptionDefs.insert(OptionDefinition("quiet"));
     globalOptionDefs.insert(OptionDefinition("verbose"));
 

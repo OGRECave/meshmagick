@@ -41,7 +41,6 @@ namespace meshmagick
     protected:
         typedef enum {V_QUIET, V_NORMAL, V_HIGH} Verbosity;
         Verbosity mVerbosity;
-        bool mKeepVersion;
         bool mFollowSkeletonLink;
 
         void print(const Ogre::String& msg, Verbosity verbosity=V_NORMAL) const;

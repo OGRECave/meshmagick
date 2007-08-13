@@ -47,7 +47,7 @@ namespace meshmagick
 		const Ogre::StringVector &inFileNames, 
 		const Ogre::StringVector &outFileNamesArg)
 	{
-		        // Name count has to match, else we have no way to figure out how to apply output
+        // Name count has to match, else we have no way to figure out how to apply output
         // names to input files.
         if (!(outFileNamesArg.empty() || inFileNames.size() == outFileNamesArg.size()))
         {
@@ -182,7 +182,7 @@ namespace meshmagick
             }
 		}
 		
-		meshSerializer->saveMesh(outFile, true, true);
+		meshSerializer->saveMesh(outFile, true);
         print("Mesh saved as " + outFile + ".");
     }
 

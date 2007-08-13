@@ -32,7 +32,7 @@ namespace meshmagick
     {
     public:
         Ogre::MeshPtr loadMesh(const Ogre::String& name);
-        void saveMesh(const Ogre::String& name, bool keepVersion, bool keepEndianess);
+        void saveMesh(const Ogre::String& name, bool keepEndianess);
         void clear();
         Ogre::MeshPtr getMesh() const;
         Ogre::String getMeshFileVersion() const;

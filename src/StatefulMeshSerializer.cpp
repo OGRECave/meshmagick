@@ -55,22 +55,15 @@ namespace meshmagick
         return mMesh;
     }
 
-    void StatefulMeshSerializer::saveMesh(const Ogre::String& name,
-        bool keepVersion, bool keepEndianess)
+    void StatefulMeshSerializer::saveMesh(const Ogre::String& name, bool keepEndianess)
     {
         if (mMesh.isNull())
         {
             throw std::logic_error("No mesh to save set.");
         }
 
-        String version = keepVersion ? mMeshFileVersion : msCurrentVersion;
         Endian endianMode = keepEndianess ? mMeshFileEndian : ENDIAN_NATIVE;
-
-        /// HACK. In order to save in the correct file version, we have to rig msCurrentVersion.
-        String oldVersion = msCurrentVersion;
-        msCurrentVersion = version;
         exportMesh(mMesh.getPointer(), name, endianMode);
-        msCurrentVersion = oldVersion;
     }
 
     void StatefulMeshSerializer::clear()

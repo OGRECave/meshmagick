@@ -118,7 +118,7 @@ namespace meshmagick
         print("Processing mesh...");
         calculateTransform(true, mesh);
         processMesh(mesh);
-        meshSerializer->saveMesh(outFile, mKeepVersion, true);
+        meshSerializer->saveMesh(outFile, true);
         print("Mesh saved as " + outFile + ".");
 
         if (mFollowSkeletonLink && mesh->hasSkeleton())
