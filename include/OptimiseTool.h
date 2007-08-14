@@ -38,7 +38,7 @@ namespace meshmagick
 		OptimiseTool();
 
 	protected:
-		float mTolerance;
+		float mPosTolerance, mNormTolerance, mUVTolerance;
 		bool mKeepIdentityTracks;
 
 		void processMeshFile(Ogre::String file, Ogre::String outFile);
@@ -67,20 +67,30 @@ namespace meshmagick
 		};
 		struct UniqueVertexLess
 		{
-			float tolerance;
+			float pos_tolerance, norm_tolerance, uv_tolerance;
 			unsigned short uvSets;
 			bool operator()(const UniqueVertex& a, const UniqueVertex& b) const;
 
-			bool equals(const Ogre::Vector3& a, const Ogre::Vector3& b) const;
-			bool equals(const Ogre::Vector4& a, const Ogre::Vector4& b) const;
-			bool less(const Ogre::Vector3& a, const Ogre::Vector3& b) const;
-			bool less(const Ogre::Vector4& a, const Ogre::Vector4& b) const;
+			bool equals(const Ogre::Vector3& a, const Ogre::Vector3& b, Ogre::Real tolerance) const;
+			bool equals(const Ogre::Vector4& a, const Ogre::Vector4& b, Ogre::Real tolerance) const;
+			bool less(const Ogre::Vector3& a, const Ogre::Vector3& b, Ogre::Real tolerance) const;
+			bool less(const Ogre::Vector4& a, const Ogre::Vector4& b, Ogre::Real tolerance) const;
 		};
 
+
+		struct VertexInfo
+		{
+			Ogre::uint32 oldIndex;
+			Ogre::uint32 newIndex;
+
+			VertexInfo(Ogre::uint32 o, Ogre::uint32 n) : oldIndex(o), newIndex(n) {}
+			VertexInfo() {}
+
+		};
 		/** Map used to efficiently look up vertices that have the same components.
 		The second element is the source vertex index.
 		*/
-		typedef std::map<UniqueVertex, Ogre::uint32, UniqueVertexLess> UniqueVertexMap;
+		typedef std::map<UniqueVertex, VertexInfo, UniqueVertexLess> UniqueVertexMap;
 		UniqueVertexMap mUniqueVertexMap;
 
 		Ogre::VertexData* mTargetVertexData;

@@ -42,6 +42,9 @@ namespace meshmagick
 		OptionDefinitionSet optionDefs;
 
 		optionDefs.insert(OptionDefinition("tolerance", OT_REAL, false, false, Ogre::Any(1e-06)));
+		optionDefs.insert(OptionDefinition("pos_tolerance", OT_REAL, false, false, Ogre::Any(1e-06)));
+		optionDefs.insert(OptionDefinition("norm_tolerance", OT_REAL, false, false, Ogre::Any(1e-06)));
+		optionDefs.insert(OptionDefinition("uv_tolerance", OT_REAL, false, false, Ogre::Any(1e-06)));
 		optionDefs.insert(OptionDefinition("keep-identity-tracks", OT_BOOL, false, false));
 
 		return optionDefs;
@@ -52,7 +55,13 @@ namespace meshmagick
 		out << std::endl;
 		out << "Allows you to optimise meshes and skeletons" << std::endl << std::endl;
 		out << "Options:" << std::endl;
-		out << "   -tolerance=val - Tolerance value for treating vertices as equivalent"
+		out << "   -tolerance=val - Tolerance value for treating vertices as equal (all components)"
+			<< std::endl;
+		out << "   -pos_tolerance=val - Tolerance value for treating positions as equal"
+			<< std::endl;
+		out << "   -norm_tolerance=val - Tolerance value for treating normals as equal"
+			<< std::endl;
+		out << "   -uv_tolerance=val - Tolerance value for treating uvs as equal"
 			<< std::endl;
 		out << "   -keep-identity-tracks - When optimising skeletons, keep tracks which do nothing"
 			<< std::endl;

@@ -47,13 +47,25 @@ namespace meshmagick
 			fail("number of output files must match number of input files.");
 		}
 
-		mTolerance = 1e-06f;
+		mPosTolerance = mNormTolerance = mUVTolerance = 1e-06f;
 		mKeepIdentityTracks = OptionsUtil::isOptionSet(toolOptions, "keep-identity-tracks");
 		for (OptionList::const_iterator it = toolOptions.begin(); it != toolOptions.end(); ++it)
 		{
 			if (it->first == "tolerance")
 			{
-				mTolerance = static_cast<float>(any_cast<Real>(it->second));
+				mPosTolerance = mNormTolerance = mUVTolerance = static_cast<float>(any_cast<Real>(it->second));
+			}
+			else if (it->first == "pos_tolerance")
+			{
+				mPosTolerance = static_cast<float>(any_cast<Real>(it->second));
+			}
+			else if (it->first == "norm_tolerance")
+			{
+				mNormTolerance = static_cast<float>(any_cast<Real>(it->second));
+			}
+			else if (it->first == "uv_tolerance")
+			{
+				mUVTolerance = static_cast<float>(any_cast<Real>(it->second));
 			}
 		}
 
@@ -231,6 +243,7 @@ namespace meshmagick
 			l != lodFaces.end(); ++l)
 		{
 			IndexData* idata = *l;
+			print("    fixing LOD...");
 			remapIndexes(idata);
 		}
 
@@ -277,7 +290,9 @@ namespace meshmagick
 		{
 			size_t numDupes = mTargetVertexData->vertexCount - 
 				mUniqueVertexMap.size();
+			print("    " + StringConverter::toString(mTargetVertexData->vertexCount) + " source vertices.");
 			print("    " + StringConverter::toString(numDupes) + " duplicate vertices to be removed.");
+			print("    " + StringConverter::toString(mUniqueVertexMap.size()) + " vertices will remain.");
 			print("    rebuilding vertex buffers...");
 			rebuildVertexBuffers();
 			print("    re-indexing faces...");
@@ -361,7 +376,9 @@ namespace meshmagick
 			{
 				// set up comparator
 				UniqueVertexLess lessObj;
-				lessObj.tolerance = mTolerance;
+				lessObj.pos_tolerance = mPosTolerance;
+				lessObj.norm_tolerance = mNormTolerance;
+				lessObj.uv_tolerance = mUVTolerance;
 				lessObj.uvSets = uvSets;
 				mUniqueVertexMap = UniqueVertexMap(lessObj);
 			}
@@ -372,15 +389,15 @@ namespace meshmagick
 			if (ui != mUniqueVertexMap.end())
 			{
 				// re-use vertex, remap
-				indexUsed = ui->second;
+				indexUsed = ui->second.newIndex;
 				duplicates = true;
 			}
 			else
 			{
 				// new vertex
 				indexUsed = static_cast<uint32>(mUniqueVertexMap.size());
-				// store the originating vertex index in the unique map
-				mUniqueVertexMap[uniqueVertex] = v;
+				// store the originating and new vertex index in the unique map
+				mUniqueVertexMap[uniqueVertex] = VertexInfo(v, indexUsed);
 			}
 			// Insert remap entry (may map to itself)
 			mIndexRemap.push_back(indexUsed);
@@ -445,7 +462,7 @@ namespace meshmagick
 		for (UniqueVertexMap::iterator ui = mUniqueVertexMap.begin(); 
 			ui != mUniqueVertexMap.end(); ++ui)
 		{
-			uint32 origVertexIndex = ui->second;
+			uint32 origVertexIndex = ui->second.oldIndex;
 			// copy vertex from each buffer in turn
 			VertexBufferBinding::VertexBufferBindingMap::const_iterator srci = 
 				srcBindings.begin();
@@ -483,6 +500,9 @@ namespace meshmagick
 		mTargetVertexData->vertexBufferBinding = newBind;
 		HardwareBufferManager::getSingleton().destroyVertexBufferBinding(oldBind);
 
+		// Update vertex count in data
+		mTargetVertexData->vertexCount = mUniqueVertexMap.size();
+
 
 	}
 	//---------------------------------------------------------------------
@@ -517,6 +537,7 @@ namespace meshmagick
 		{
 			uint32 oldIndex = p32? *p32 : *p16;
 			uint32 newIndex = static_cast<uint32>(mIndexRemap[oldIndex]);
+			assert(newIndex < mUniqueVertexMap.size());
 			if (newIndex != oldIndex)
 			{
 				if (p32)
@@ -534,7 +555,7 @@ namespace meshmagick
 
 	}
 	//---------------------------------------------------------------------
-	bool OptimiseTool::UniqueVertexLess::equals(const Vector3& a, const Vector3& b) const
+	bool OptimiseTool::UniqueVertexLess::equals(const Vector3& a, const Vector3& b, Real tolerance) const
 	{
 		// note during this comparison we treat directions as positions
 		// becuase we're interested in numerical equality, not semantics
@@ -542,7 +563,7 @@ namespace meshmagick
 		return a.positionEquals(b, tolerance);
 	}
 	//---------------------------------------------------------------------
-	bool OptimiseTool::UniqueVertexLess::equals(const Vector4& a, const Vector4& b) const
+	bool OptimiseTool::UniqueVertexLess::equals(const Vector4& a, const Vector4& b, Real tolerance) const
 	{
 		// no built-in position equals
 		for (int i = 0; i < 4; ++i)
@@ -553,7 +574,7 @@ namespace meshmagick
 		return false;
 	}
 	//---------------------------------------------------------------------
-	bool OptimiseTool::UniqueVertexLess::less(const Vector3& a, const Vector3& b) const
+	bool OptimiseTool::UniqueVertexLess::less(const Vector3& a, const Vector3& b, Real tolerance) const
 	{
 		// don't use built-in operator, we need sorting
 		for (int i = 0; i < 3; ++i)
@@ -565,7 +586,7 @@ namespace meshmagick
 		return a.x < b.x;
 	}
 	//---------------------------------------------------------------------
-	bool OptimiseTool::UniqueVertexLess::less(const Vector4& a, const Vector4& b) const
+	bool OptimiseTool::UniqueVertexLess::less(const Vector4& a, const Vector4& b, Real tolerance) const
 	{
 		// don't use built-in operator, we need sorting
 		for (int i = 0; i < 4; ++i)
@@ -581,26 +602,26 @@ namespace meshmagick
 		const OptimiseTool::UniqueVertex &a, 
 		const OptimiseTool::UniqueVertex &b) const
 	{
-		if (!equals(a.position, b.position))
+		if (!equals(a.position, b.position, pos_tolerance))
 		{
-			return less(a.position, b.position);
+			return less(a.position, b.position, pos_tolerance);
 		}
-		else if (!equals(a.normal, b.normal))
+		else if (!equals(a.normal, b.normal, norm_tolerance))
 		{
-			return less(a.normal, b.normal);
+			return less(a.normal, b.normal, norm_tolerance);
 		}
-		else if (!equals(a.tangent, b.tangent))
+		else if (!equals(a.tangent, b.tangent, norm_tolerance))
 		{
-			return less(a.tangent, b.tangent);
+			return less(a.tangent, b.tangent, norm_tolerance);
 		}
 		else
 		{
 			// position, normal and tangent are all the same, try UVs
 			for (unsigned short i = 0; i < uvSets; ++i)
 			{
-				if (!equals(a.uv[i], b.uv[i]))
+				if (!equals(a.uv[i], b.uv[i], uv_tolerance))
 				{
-					return less(a.uv[i], b.uv[i]);
+					return less(a.uv[i], b.uv[i], uv_tolerance);
 				}
 			}
 
