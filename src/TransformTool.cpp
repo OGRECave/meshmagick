@@ -157,7 +157,7 @@ namespace meshmagick
                 for (unsigned short frameIdx = 0; frameIdx < track->getNumKeyFrames(); ++frameIdx)
                 {
                     TransformKeyFrame* keyframe = track->getNodeKeyFrame(frameIdx);
-                    keyframe->setTranslate(keyframe->getTranslate() * scale);
+                    keyframe->setTranslate(m * keyframe->getTranslate());
                 }
             }
         }
