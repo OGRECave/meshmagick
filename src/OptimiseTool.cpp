@@ -167,7 +167,7 @@ namespace meshmagick
 			
 			if (optimiseGeometry())
 			{
-				if (mesh->hasSkeleton())
+				if (mesh->getSkeletonName() != StringUtil::BLANK)
 				{
 					print("    fixing bone assignments...");
 					Mesh::BoneAssignmentIterator currentIt = mesh->getBoneAssignmentIterator();
@@ -206,7 +206,7 @@ namespace meshmagick
 				addIndexData(sm->indexData);
 				if (optimiseGeometry())
 				{
-					if (mesh->hasSkeleton())
+					if (mesh->getSkeletonName() != StringUtil::BLANK)
 					{
 						print("    fixing bone assignments...");
 						Mesh::BoneAssignmentIterator currentIt = sm->getBoneAssignmentIterator();
@@ -256,10 +256,20 @@ namespace meshmagick
 		while (it.hasMoreElements())
 		{
 			VertexBoneAssignment ass = it.getNext();
-			// remap
-			ass.vertexIndex = static_cast<unsigned int>(mIndexRemap[ass.vertexIndex]);
-			newList.insert(Mesh::VertexBoneAssignmentList::value_type(
-				ass.vertexIndex, it.getNext()));
+			IndexInfo& ii = mIndexRemap[ass.vertexIndex];
+
+			// If this is the originating vertex index  we want to add the (adjusted)
+			// bone assignments. If it's another vertex that was collapsed onto another
+			// then we want to skip the bone assignment since it will just be a duplication.
+			if (ii.isOriginal)
+			{
+				ass.vertexIndex = static_cast<unsigned int>(ii.targetIndex);
+				assert (ass.vertexIndex < mUniqueVertexMap.size());
+				newList.insert(Mesh::VertexBoneAssignmentList::value_type(
+					ass.vertexIndex, ass));
+
+			}
+			
 		}
 
 		return newList;
@@ -386,6 +396,7 @@ namespace meshmagick
 			// try to locate equivalent vertex in the list already
 			uint32 indexUsed;
 			UniqueVertexMap::iterator ui = mUniqueVertexMap.find(uniqueVertex);
+			bool isOrig = false;
 			if (ui != mUniqueVertexMap.end())
 			{
 				// re-use vertex, remap
@@ -395,12 +406,13 @@ namespace meshmagick
 			else
 			{
 				// new vertex
+				isOrig = true;
 				indexUsed = static_cast<uint32>(mUniqueVertexMap.size());
 				// store the originating and new vertex index in the unique map
 				mUniqueVertexMap[uniqueVertex] = VertexInfo(v, indexUsed);
 			}
 			// Insert remap entry (may map to itself)
-			mIndexRemap.push_back(indexUsed);
+			mIndexRemap.push_back(IndexInfo(indexUsed, isOrig));
 
 
 			// increment buffer lock pointers
@@ -536,7 +548,7 @@ namespace meshmagick
 		for (size_t j = 0; j < idata->indexCount; ++j)
 		{
 			uint32 oldIndex = p32? *p32 : *p16;
-			uint32 newIndex = static_cast<uint32>(mIndexRemap[oldIndex]);
+			uint32 newIndex = static_cast<uint32>(mIndexRemap[oldIndex].targetIndex);
 			assert(newIndex < mUniqueVertexMap.size());
 			if (newIndex != oldIndex)
 			{

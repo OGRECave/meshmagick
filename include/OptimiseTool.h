@@ -47,8 +47,16 @@ namespace meshmagick
 		void processMesh(Ogre::MeshPtr mesh);
 		void processSkeleton(Ogre::SkeletonPtr skeleton);
 
+		struct IndexInfo
+		{
+			Ogre::uint32 targetIndex;
+			bool isOriginal; // was this index the one that created the vertex in the first place
+
+			IndexInfo(Ogre::uint32 targIdx, bool orig) : targetIndex(targIdx), isOriginal(orig) {}
+			IndexInfo() {}
+		};
 		/** Mapping from original vertex index to new (potentially shared) vertex index */
-		typedef std::vector<Ogre::uint32> IndexRemap;
+		typedef std::vector<IndexInfo> IndexRemap;
 		IndexRemap mIndexRemap;
 
 		struct UniqueVertex
