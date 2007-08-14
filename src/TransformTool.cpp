@@ -137,11 +137,9 @@ namespace meshmagick
             it.moveNext();
         }
 
-        // We only need to apply scaling on the transforms, no rotation and no translation.
+        // We only need to apply scaling and rotation, no translation.
         Matrix3 m;
         mTransform.extract3x3Matrix(m);
-        Vector3 scale = Vector3(
-            m.GetColumn(0).length(), m.GetColumn(1).length(), m.GetColumn(2).length());
         for (unsigned short aniIdx = 0; aniIdx < skeleton->getNumAnimations(); ++aniIdx)
         {
             Animation* ani = skeleton->getAnimation(aniIdx);
