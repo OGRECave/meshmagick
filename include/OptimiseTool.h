@@ -96,10 +96,14 @@ namespace meshmagick
 
 		};
 		/** Map used to efficiently look up vertices that have the same components.
-		The second element is the source vertex index.
+		The second element is the source vertex info.
 		*/
 		typedef std::map<UniqueVertex, VertexInfo, UniqueVertexLess> UniqueVertexMap;
 		UniqueVertexMap mUniqueVertexMap;
+		/** Ordered list of unique vertices used to write the final reorganised vertex buffer
+		*/
+		typedef std::vector<VertexInfo> UniqueVertexList;
+		UniqueVertexList mUniqueVertexList;
 
 		Ogre::VertexData* mTargetVertexData;
 		typedef std::list<Ogre::IndexData*> IndexDataList;

@@ -285,6 +285,7 @@ namespace meshmagick
 	{
 		mTargetVertexData = vd;
 		mUniqueVertexMap.clear();
+		mUniqueVertexList.clear();
 		mIndexDataList.clear();
 		mIndexRemap.clear();
 	}
@@ -409,7 +410,12 @@ namespace meshmagick
 				isOrig = true;
 				indexUsed = static_cast<uint32>(mUniqueVertexMap.size());
 				// store the originating and new vertex index in the unique map
-				mUniqueVertexMap[uniqueVertex] = VertexInfo(v, indexUsed);
+				VertexInfo newInfo(v, indexUsed);
+				// lookup
+				mUniqueVertexMap[uniqueVertex] = newInfo;
+				// ordered
+				mUniqueVertexList.push_back(newInfo);
+
 			}
 			// Insert remap entry (may map to itself)
 			mIndexRemap.push_back(IndexInfo(indexUsed, isOrig));
@@ -459,7 +465,7 @@ namespace meshmagick
 			HardwareVertexBufferSharedPtr newBuf = 
 				HardwareBufferManager::getSingleton().createVertexBuffer(
 					bindi->second->getVertexSize(), 
-					mUniqueVertexMap.size(), 
+					mUniqueVertexList.size(), 
 					bindi->second->getUsage(),
 					bindi->second->hasShadowBuffer());
 			newBind->setBinding(bindi->first, newBuf);
@@ -471,10 +477,10 @@ namespace meshmagick
 
 
 		// Iterate over the new vertices
-		for (UniqueVertexMap::iterator ui = mUniqueVertexMap.begin(); 
-			ui != mUniqueVertexMap.end(); ++ui)
+		for (UniqueVertexList::iterator ui = mUniqueVertexList.begin(); 
+			ui != mUniqueVertexList.end(); ++ui)
 		{
-			uint32 origVertexIndex = ui->second.oldIndex;
+			uint32 origVertexIndex = ui->oldIndex;
 			// copy vertex from each buffer in turn
 			VertexBufferBinding::VertexBufferBindingMap::const_iterator srci = 
 				srcBindings.begin();
@@ -513,7 +519,7 @@ namespace meshmagick
 		HardwareBufferManager::getSingleton().destroyVertexBufferBinding(oldBind);
 
 		// Update vertex count in data
-		mTargetVertexData->vertexCount = mUniqueVertexMap.size();
+		mTargetVertexData->vertexCount = mUniqueVertexList.size();
 
 
 	}
