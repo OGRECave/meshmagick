@@ -209,15 +209,15 @@ namespace meshmagick
             }
         }
 
+        // Process poses, if there are any
+        for (unsigned short i = 0; i < mesh->getPoseCount(); ++i)
+        {
+            processPose(mesh->getPose(i));
+        }
+
         // If there are vertex animations, process these too.
         if (mesh->hasVertexAnimation())
         {
-            // First process poses, if there are any
-            for (unsigned short i = 0; i < mesh->getPoseCount(); ++i)
-            {
-                processPose(mesh->getPose(i));
-            }
-
             // Then process morph targets
             unsigned short count = mesh->getNumAnimations();
             for (unsigned short i = 0; i < count; ++i)
@@ -342,7 +342,8 @@ namespace meshmagick
         while (it.hasMoreElements())
         {
             Vector3 offset = it.peekNextValue();
-            *it.peekNextValuePtr() = m3x3 * offset;
+            Vector3 newOffset = m3x3 * offset;
+            *it.peekNextValuePtr() = newOffset;
             it.moveNext();
         }
     }
