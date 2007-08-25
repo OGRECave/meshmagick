@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <OgreSkeleton.h>
 #include <OgreSubMesh.h>
 
+#include "EditableBone.h"
 #include "EditableSkeleton.h"
 #include "OgreEnvironment.h"
 #include "StatefulMeshSerializer.h"
@@ -104,10 +105,15 @@ namespace meshmagick
 			}
 			else if (it->first == "bone")
 			{
+                // This approach to rename a bone is very brittle.
+                // It largely uses the effect, that animations usebone handles instead
+                // of their names and that the serializer gets the bones by handle too.
+                // The skeleton will only really work again after the serialised version
+                // is reloaded, as its lookup-by-name-map is inconsistent as are the entries
+                // in this bone's parents' lists.
 				StringPair names = split(any_cast<String>(it->second));
-				Bone* bone = skeleton->getBone(names.first);
-				//bone->set
-				warn("Renaming bones in skeletons not implemented.");
+				EditableBone* bone = static_cast<EditableBone*>(skeleton->getBone(names.first));
+                bone->setName(names.second);
 			}
 			else if (it->first == "animation")
 			{
@@ -157,9 +163,7 @@ namespace meshmagick
 			}
 			else if (it->first == "bone")
 			{
-				StringPair names = split(any_cast<String>(it->second));
-				//@todo mesh->getBoneAssignmentIterator()
-				warn("Renaming bones in meshes not implementes.");
+				warn("Bones can only be renamed in skeletons, skipped mesh.");
 			}
 			else if (it->first == "animation")
 			{

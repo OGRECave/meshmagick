@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="MeshMagick"
 	ProjectGUID="{BBDFCAFA-96E2-420D-83D7-E9D7A0BE9C27}"
 	RootNamespace="MeshMagick"
@@ -339,6 +339,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\src\EditableBone.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\EditableSkeleton.cpp"
 				>
 			</File>
@@ -416,6 +420,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\include\EditableBone.h"
+				>
+			</File>
 			<File
 				RelativePath=".\include\EditableSkeleton.h"
 				>
