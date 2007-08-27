@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Tool.h"
 #include "OptionsParser.h"
 
+#include <OgreAnimation.h>
 #include <OgreMesh.h>
 #include <OgreSkeleton.h>
 #include <OgreBone.h>
@@ -57,6 +58,8 @@ namespace meshmagick
             const Ogre::VertexElement* vertexElem);
         void processDirectionElement(Ogre::VertexData* vertexData,
             const Ogre::VertexElement* vertexElem);
+
+        void processAnimation(Ogre::Animation* ani);
         void processBone(Ogre::Bone* bone);
         void processPose(Ogre::Pose* pose);
         void processVertexMorphKeyFrame(Ogre::VertexMorphKeyFrame* keyframe, size_t vertexCount);
