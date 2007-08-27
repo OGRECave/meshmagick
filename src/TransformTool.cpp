@@ -149,13 +149,17 @@ namespace meshmagick
         print("Processing animation " + ani->getName() + "...", V_HIGH);
 
         // We only need to apply scaling and rotation, no translation.
-        Matrix3 m;
-        mTransform.extract3x3Matrix(m);
+        Matrix3 m3x3;
+        mTransform.extract3x3Matrix(m3x3);
+        Vector3 scale(
+            m3x3.GetColumn(0).length(),
+            m3x3.GetColumn(1).length(),
+            m3x3.GetColumn(2).length());
         Animation::NodeTrackIterator trackIt = ani->getNodeTrackIterator();
         while (trackIt.hasMoreElements())
         {
             NodeAnimationTrack* track = trackIt.getNext();
-            // We need to transform only tracks of root bones.
+            // We need to apply full transform to root bone translations and only scale to the others.
             if (track->getAssociatedNode()->getParent() == NULL)
             {
                 // An animation track for a skeleton is only supposed to have
@@ -163,7 +167,15 @@ namespace meshmagick
                 for (unsigned short frameIdx = 0; frameIdx < track->getNumKeyFrames(); ++frameIdx)
                 {
                     TransformKeyFrame* keyframe = track->getNodeKeyFrame(frameIdx);
-                    keyframe->setTranslate(m * keyframe->getTranslate());
+                    keyframe->setTranslate(m3x3 * keyframe->getTranslate());
+                }
+            }
+            else
+            {
+                for (unsigned short frameIdx = 0; frameIdx < track->getNumKeyFrames(); ++frameIdx)
+                {
+                    TransformKeyFrame* keyframe = track->getNodeKeyFrame(frameIdx);
+                    keyframe->setTranslate(scale * keyframe->getTranslate());
                 }
             }
         }
