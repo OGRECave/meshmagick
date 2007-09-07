@@ -185,6 +185,20 @@ namespace meshmagick
 				for (unsigned short i = 0; i < mesh->getNumSubMeshes(); ++i)
 				{
 					SubMesh* sm = mesh->getSubMesh(i);
+					if (mesh->getSkeletonName() != StringUtil::BLANK)
+					{
+						print("    fixing bone assignments...");
+						Mesh::BoneAssignmentIterator currentIt = sm->getBoneAssignmentIterator();
+						Mesh::VertexBoneAssignmentList newList = 
+							getAdjustedBoneAssignments(currentIt);
+						sm->clearBoneAssignments();
+						for (Mesh::VertexBoneAssignmentList::iterator bi = newList.begin();
+							bi != newList.end(); ++bi)
+						{
+							sm->addBoneAssignment(bi->second);
+						}
+
+					}
 					if (sm->useSharedVertices)
 					{
 						fixLOD(sm->mLodFaceList);
