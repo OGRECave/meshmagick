@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "MeshUtils.h"
 
-#include <OgreSubmesh.h>
+#include <OgreSubMesh.h>
 
 using namespace Ogre;
 
