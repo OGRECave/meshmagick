@@ -8,6 +8,7 @@ libmeshmagick_la_SOURCES = \
 	InfoToolFactory.cpp \
 	MeshMergeTool.cpp \
 	MeshMergeToolFactory.cpp \
+	MeshUtils.cpp \
 	OgreEnvironment.cpp \
 	OptimiseTool.cpp \
 	OptimiseToolFactory.cpp \
@@ -18,6 +19,7 @@ libmeshmagick_la_SOURCES = \
 	StatefulSkeletonSerializer.cpp \
 	Tool.cpp \
 	ToolManager.cpp \
+	ToolsUtils.cpp \
 	TransformTool.cpp \
 	TransformToolFactory.cpp 
 libmeshmagick_la_LIBADD = ${OGRE_LIBS}

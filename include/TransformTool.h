@@ -45,7 +45,8 @@ namespace meshmagick
         bool mUpdateBoundingBox;
         OptionList mOptions;
 
-        void processSkeletonFile(Ogre::String file, Ogre::String outFile);
+        void processSkeletonFile(Ogre::String file, Ogre::String outFile,
+            bool calcTransform);
         void processMeshFile(Ogre::String file, Ogre::String outFile);
 
         void processSkeleton(Ogre::SkeletonPtr skeleton);
@@ -65,15 +66,13 @@ namespace meshmagick
         void processVertexMorphKeyFrame(Ogre::VertexMorphKeyFrame* keyframe, size_t vertexCount);
 
         /// Calculate transformation matrix from input arguments and, if given, a mesh.
-        /// The mesh is used to retrieve the AABB, which is needed for alignment operation.
-        /// Alignment operations are ignored, if no mesh is given.
-        /// This doesn't matter for skeletons, since translations don't apply there.
-        void calculateTransform(bool useMesh, Ogre::MeshPtr mesh = Ogre::MeshPtr());
-
-        Ogre::AxisAlignedBox getTransformedMeshAabb(Ogre::MeshPtr mesh,
-            const Ogre::Matrix4& transform);
-        Ogre::AxisAlignedBox getTransformedVertexDataAabb(Ogre::VertexData* vd,
-            const Ogre::Matrix4& transform);
+        /// The mesh is used to retrieve the AABB, which is needed for alignment operation
+        /// and for resize.
+        /// Alignment and resize operations are ignored, if no mesh is given.
+        /// This doesn't matter for algnment operations on skeletons,
+        /// since translations don't apply there. But resizing a skeleton seperately from the mesh
+        /// is not possible and the result will look weird.
+        void calculateTransform(Ogre::MeshPtr mesh = Ogre::MeshPtr());
 
 		void doInvoke(const OptionList& toolOptions,
             const Ogre::StringVector& inFileNames,

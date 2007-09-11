@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "TransformTool.h"
 
+#include "MeshUtils.h"
 #include "OgreEnvironment.h"
 #include "StatefulSkeletonSerializer.h"
 #include "StatefulMeshSerializer.h"
@@ -62,7 +63,7 @@ namespace meshmagick
             }
             else if (StringUtil::endsWith(inFileNames[i], ".skeleton", true))
             {
-                processSkeletonFile(inFileNames[i], outFileNames[i]);
+                processSkeletonFile(inFileNames[i], outFileNames[i], true);
             }
             else
             {
@@ -72,7 +73,7 @@ namespace meshmagick
         }
     }
 
-    void TransformTool::processSkeletonFile(Ogre::String inFile, Ogre::String outFile)
+    void TransformTool::processSkeletonFile(String inFile, String outFile, bool calcTransform)
     {
         StatefulSkeletonSerializer* skeletonSerializer =
             OgreEnvironment::getSingleton().getSkeletonSerializer();
@@ -91,7 +92,10 @@ namespace meshmagick
             return;
         }
         print("Processing skeleton...");
-        calculateTransform(false);
+        if (calcTransform)
+        {
+            calculateTransform();
+        }
         processSkeleton(skeleton);
         skeletonSerializer->saveSkeleton(outFile, true);
         print("Skeleton saved as " + outFile + ".");
@@ -116,15 +120,15 @@ namespace meshmagick
             return;
         }
         print("Processing mesh...");
-        calculateTransform(true, mesh);
+        calculateTransform(mesh);
         processMesh(mesh);
         meshSerializer->saveMesh(outFile, true);
         print("Mesh saved as " + outFile + ".");
 
         if (mFollowSkeletonLink && mesh->hasSkeleton())
         {
-            // In this case keep file name.
-            processSkeletonFile(mesh->getSkeletonName(), mesh->getSkeletonName());
+            // In this case keep file name and also keep already determined transform
+            processSkeletonFile(mesh->getSkeletonName(), mesh->getSkeletonName(), false);
         }
     }
 
@@ -396,7 +400,7 @@ namespace meshmagick
         }
     }
 
-    void TransformTool::calculateTransform(bool useMesh, MeshPtr mesh)
+    void TransformTool::calculateTransform(MeshPtr mesh)
     {
         // Calculate transform
         Matrix4 transform = Matrix4::IDENTITY;
@@ -426,7 +430,7 @@ namespace meshmagick
             else if (it->first == "xalign")
             {
                 //ignore, if no mesh given. Without we can't do this op.
-                if (!useMesh)
+                if (mesh.isNull())
                 {
                     print("Skipped alignment, operation can't be applied to skeletons", V_HIGH);
                     continue;
@@ -436,7 +440,7 @@ namespace meshmagick
                 Vector3 translate = Vector3::ZERO;
                 // Apply current transform to the mesh, to get the bounding box to
                 // base te translation on.
-                AxisAlignedBox aabb = getTransformedMeshAabb(mesh, transform);
+                AxisAlignedBox aabb = MeshUtils::getMeshAabb(mesh, transform);
                 if (alignment == "left")
                 {
                     translate = Vector3(-aabb.getMinimum().x, 0, 0);
@@ -455,7 +459,7 @@ namespace meshmagick
             else if (it->first == "yalign")
             {
                 //ignore, if no mesh given. Without we can't do this op.
-                if (!useMesh)
+                if (mesh.isNull())
                 {
                     print("Skipped alignment, operation can't be applied to skeletons", V_HIGH);
                     continue;
@@ -465,7 +469,7 @@ namespace meshmagick
                 Vector3 translate = Vector3::ZERO;
                 // Apply current transform to the mesh, to get the bounding box to
                 // base te translation on.
-                AxisAlignedBox aabb = getTransformedMeshAabb(mesh, transform);
+                AxisAlignedBox aabb = MeshUtils::getMeshAabb(mesh, transform);
                 if (alignment == "bottom")
                 {
                     translate = Vector3(0, -aabb.getMinimum().y, 0);
@@ -484,7 +488,7 @@ namespace meshmagick
             else if (it->first == "zalign")
             {
                 //ignore, if no mesh given. Without we can't do this op.
-                if (!useMesh)
+                if (mesh.isNull())
                 {
                     print("Skipped alignment, operation can't be applied to skeletons", V_HIGH);
                     continue;
@@ -493,8 +497,8 @@ namespace meshmagick
                 String alignment = any_cast<String>(it->second);
                 Vector3 translate = Vector3::ZERO;
                 // Apply current transform to the mesh, to get the bounding box to
-                // base te translation on.
-                AxisAlignedBox aabb = getTransformedMeshAabb(mesh, transform);
+                // base the translation on.
+                AxisAlignedBox aabb = MeshUtils::getMeshAabb(mesh, transform);
                 if (alignment == "front")
                 {
                     translate = Vector3(0, 0, -aabb.getMinimum().z);
@@ -512,53 +516,69 @@ namespace meshmagick
                 print("Z-Alignment " + alignment + " - "
                     + StringConverter::toString(translate), V_HIGH);
             }
+            else if (it->first == "resize")
+            {
+                //ignore, if no mesh given. Without we can't do this op.
+                if (mesh.isNull())
+                {
+                    print("Skipped resize, operation can't be applied to skeletons", V_HIGH);
+                    continue;
+                }
+
+                // determine the components of the resize-argument.
+                String resizeString = any_cast<String>(it->second);
+                std::vector<String> resizeAxes = StringUtil::split(resizeString, "/");
+                if (resizeAxes.size() != 3)
+                {
+                    warn("unrecongnized -resize option value. skipping..");
+                    // Skip this, check next option.
+                    continue;
+                }
+
+                // determine mean scale value in case we meet an 's' on an axis.
+                unsigned short numValues = 0;
+                Real valueSum = 0;
+                Vector3 meshSize = MeshUtils::getMeshAabb(mesh, transform).getSize();
+                for (size_t i = 0; i < 3; ++i)
+                {
+                    if (StringConverter::isNumber(resizeAxes[i]))
+                    {
+                        Real newSize = StringConverter::parseReal(resizeAxes[i]);
+                        valueSum += newSize / meshSize[i];
+                        ++numValues;
+                    }
+                }
+                Real meanScale = valueSum / numValues;
+
+                // now check each axis component and apply it to the scale vector accordingly
+                Vector3 scale = Vector3::UNIT_SCALE;
+                for (size_t i = 0; i < 3; ++i)
+                {
+                    if (StringConverter::isNumber(resizeAxes[i]))
+                    {
+                        // Scale this axis according to the length / value quotient
+                        Real newSize = StringConverter::parseReal(resizeAxes[i]);
+                        scale[i] = newSize / meshSize[i];
+                    }
+                    else if (resizeAxes[i].at(0) == 's' || resizeAxes[i].at(0) == 'S')
+                    {
+                        scale[i] = meanScale;
+                    }
+                    else if (resizeAxes[i].at(0) == 'k' || resizeAxes[i].at(0) == 'K')
+                    {
+                        // Do nothing with this axis.
+                    }
+                    else
+                    {
+                        warn("unrecongnized -resize option value. skipping..");
+                    }
+                }
+
+                transform = Matrix4::getScale(scale) * transform;
+            }
         }
 
         mTransform = transform;
         print("final transform " + StringConverter::toString(mTransform), V_HIGH);
-    }
-
-    AxisAlignedBox TransformTool::getTransformedMeshAabb(MeshPtr mesh,
-        const Matrix4& transform)
-    {
-        AxisAlignedBox aabb;
-        if (mesh->sharedVertexData != 0)
-        {
-            aabb.merge(getTransformedVertexDataAabb(mesh->sharedVertexData, transform));
-        }
-        for (unsigned int i = 0; i < mesh->getNumSubMeshes(); ++i)
-        {
-            SubMesh* sm = mesh->getSubMesh(i);
-            if (sm->vertexData != 0)
-            {
-                aabb.merge(getTransformedVertexDataAabb(sm->vertexData, transform));
-            }
-        }
-
-        return aabb;
-    }
-
-    AxisAlignedBox TransformTool::getTransformedVertexDataAabb(Ogre::VertexData* vd,
-        const Matrix4& transform)
-    {
-        AxisAlignedBox aabb;
-
-        const VertexElement* ve = vd->vertexDeclaration->findElementBySemantic(VES_POSITION);
-        HardwareVertexBufferSharedPtr vb = vd->vertexBufferBinding->getBuffer(ve->getSource());
-
-        unsigned char* data = static_cast<unsigned char*>(
-            vb->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
-
-        for (size_t i = 0; i < vd->vertexCount; ++i)
-        {
-            float* v;
-            ve->baseVertexPointerToElement(data, &v);
-            aabb.merge(transform * Vector3(v[0], v[1], v[2]));
-
-            data += vb->getVertexSize();
-        }
-        vb->unlock();
-
-        return aabb;
     }
 }

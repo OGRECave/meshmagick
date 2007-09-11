@@ -19,9 +19,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "InfoTool.h"
 
+#include "MeshUtils.h"
 #include "OgreEnvironment.h"
 #include "StatefulMeshSerializer.h"
 #include "StatefulSkeletonSerializer.h"
+#include "ToolUtils.h"
 
 #include <OgreAnimation.h>
 #include <OgreBone.h>
@@ -102,7 +104,19 @@ namespace meshmagick
         print("Endian mode  : " + getEndianModeAsString(meshSerializer->getEndianMode()));
         print(" ");
 
-		// Build metadata for bone assignments
+        AxisAlignedBox meshAabb = mesh->getBounds();
+        AxisAlignedBox actualAabb = MeshUtils::getMeshAabb(mesh);
+        // If AABB set to the mesh and actual AABB are equal only print one, else print both
+        if (meshAabb == actualAabb)
+        {
+            print("Bounding box: " + ToolUtils::getPrettyAabbString(meshAabb));
+        }
+        else
+        {
+            print("Mesh bounding box: " + ToolUtils::getPrettyAabbString(meshAabb));
+            print("Actual bounding box: " + ToolUtils::getPrettyAabbString(actualAabb));
+        }
+        // Build metadata for bone assignments
 		if (mesh->hasSkeleton())
 		{
 			// Cause mesh to sort out the number of bone assignments per vertex and
