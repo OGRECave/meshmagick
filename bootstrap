@@ -17,7 +17,7 @@ if test -z "`autoconf --version 2>&1|head -n 1|egrep '2.[5-6]'`"; then
    exit 1;
 fi
 
-if test -z "`automake --version 2>&1|head -n 1|egrep '1.[6-9]'`"; then
+if test -z "`automake --version 2>&1|head -n 1|egrep '1.([6-9]|[1-9][0-9])'`"; then
        echo "Automake 1.6 or above is required. Aborting build...";
        exit 1;
 fi
