@@ -179,8 +179,23 @@ int main(int argc, const char** argv)
     globalOptionDefs.insert(OptionDefinition("quiet"));
     globalOptionDefs.insert(OptionDefinition("verbose"));
 
-    OptionList globalOptions = OptionsParser::parseOptions(
-        cmdLine.globalArgc, cmdLine.globalArgv, globalOptionDefs);
+	OptionList globalOptions;
+	try
+	{
+        globalOptions = OptionsParser::parseOptions(
+            cmdLine.globalArgc, cmdLine.globalArgv, globalOptionDefs);
+	}
+    catch (std::exception& se)
+    {
+		std::cout << "Parsing global options failed:" << std::endl;
+        std::cout << se.what() << std::endl;
+        return -1;
+    }
+    catch (...)
+    {
+		std::cout << "Parsing global options failed." << std::endl;
+        return -1;
+    }
 
     // Evaluate global options (as far as they are of interest here...)
     for (OptionList::const_iterator it = globalOptions.begin(); it != globalOptions.end(); ++it)
