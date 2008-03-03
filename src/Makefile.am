@@ -3,6 +3,7 @@ INCLUDES = ${OGRE_CFLAGS} -I ../include
 lib_LTLIBRARIES = libmeshmagick.la
 libmeshmagick_la_SOURCES = \
 	EditableBone.cpp \
+	EditableMesh.cpp \
 	EditableSkeleton.cpp \
 	InfoTool.cpp \
 	InfoToolFactory.cpp \
