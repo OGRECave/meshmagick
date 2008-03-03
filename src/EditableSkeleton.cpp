@@ -25,8 +25,9 @@ namespace meshmagick
 {
 
 	EditableSkeleton::EditableSkeleton(const Ogre::Skeleton& skel)
-	: Skeleton(skel)
+	:   Skeleton()
 	{
+        skel.copyParametersTo(this);
 	}
 
 	void EditableSkeleton::addAnimation(Ogre::Animation* anim)
