@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <OgreSubMesh.h>
 
 #include "EditableBone.h"
+#include "EditableMesh.h"
 #include "EditableSkeleton.h"
 #include "OgreEnvironment.h"
 #include "StatefulMeshSerializer.h"
@@ -184,6 +185,17 @@ namespace meshmagick
                     }
                 }
             }
+            else if (it->first == "submesh")
+            {
+				StringPair names = split(any_cast<String>(it->second));
+                String before = names.first;
+                String after = names.second;
+
+                Mesh::SubMeshNameMap smnn = mesh->getSubMeshNameMap();
+                Mesh::SubMeshNameMap::iterator it = smnn.find(before);
+                EditableMesh* pMesh = dynamic_cast<EditableMesh*>(mesh.getPointer());
+                pMesh->renameSubmesh(before, after);
+            }
 		}
 		
 		meshSerializer->saveMesh(outFile, true);
@@ -192,8 +204,8 @@ namespace meshmagick
 
 	RenameTool::StringPair RenameTool::split(const Ogre::String& value) const
 	{
-        // We expect two string components delimited by '/'
-        StringVector components = StringUtil::split(value, "/");
+        // We expect two string components delimited by '|'
+        StringVector components = StringUtil::split(value, ":");
 		if (components.size() == 1)
 		{
 			return make_pair(components[0], components[0]);

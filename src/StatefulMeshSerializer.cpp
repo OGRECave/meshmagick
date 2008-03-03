@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <iostream>
 #include <stdexcept>
 
+#include "EditableMesh.h"
+
 using namespace Ogre;
 
 namespace meshmagick
@@ -34,8 +36,9 @@ namespace meshmagick
 
     MeshPtr StatefulMeshSerializer::loadMesh(const String& name)
     {
-        mMesh = MeshManager::getSingleton().create(name, 
-            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        MeshManager* mm = MeshManager::getSingletonPtr();
+        MeshPtr mesh = mm->create(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        mMesh = MeshPtr(new EditableMesh(mm, name, mesh->getHandle(), ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
 
         std::ifstream ifs;
         ifs.open(name.c_str(), std::ios_base::in | std::ios_base::binary);
