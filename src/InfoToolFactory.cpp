@@ -45,7 +45,8 @@ namespace meshmagick
 
     void InfoToolFactory::printToolHelp(std::ostream& out) const
     {
-        out << "blablabla" << std::endl;
+        out << "Print information about the mesh" << std::endl
+            << "info has no options, use the global option -verbose for a more detailed output" <<std::endl;
     }
 
     Ogre::String InfoToolFactory::getToolName() const
