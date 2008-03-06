@@ -343,6 +343,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\EditableMesh.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\EditableSkeleton.cpp"
 				>
 			</File>
