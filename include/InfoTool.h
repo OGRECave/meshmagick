@@ -91,8 +91,10 @@ namespace meshmagick
 		bool hasSkeleton;
 		SkeletonInfo skeleton;
 
-		MeshInfo() : name(), version(), endian(), storedBoundingBox(Ogre::AxisAlignedBox::BOX_NULL),
-			actualBoundingBox(Ogre::AxisAlignedBox::BOX_NULL), hasEdgeList(false), numLodLevels(0),
+		MeshInfo() : name(), version(), endian(),
+			storedBoundingBox(Ogre::AxisAlignedBox::BOX_NULL),
+			actualBoundingBox(Ogre::AxisAlignedBox::BOX_NULL),
+			hasEdgeList(false), numLodLevels(0),
 			hasSharedVertices(false), sharedVertices(), submeshes(),
 			morphAnimations(), poseNames(), hasSkeleton(false), skeleton() {}
 	};
@@ -104,8 +106,6 @@ namespace meshmagick
         InfoTool();
 
     protected:
-		typedef std::vector<Ogre::String> ListFieldList;
-
         SkeletonInfo processSkeleton(const Ogre::String& skeletonFileName) const;
         MeshInfo processMesh(const Ogre::String& meshFileName) const;
         void processSubMesh(SubMeshInfo&, Ogre::SubMesh* subMesh) const;
@@ -119,8 +119,13 @@ namespace meshmagick
 		void reportMeshInfo(const MeshInfo& info) const;
 		void reportSkeletonInfo(const SkeletonInfo& info) const;
 
-		void listMeshInfo(const ListFieldList& listFields, char delim, const MeshInfo& info) const;
-		void listSkeletonInfo(const ListFieldList& listFields, char delim, const SkeletonInfo& info) const;
+		void listMeshInfo(const Ogre::StringVector& listFields, char delim,
+			const MeshInfo& info) const;
+		void listSkeletonInfo(const Ogre::StringVector& listFields, char delim,
+			const SkeletonInfo& info) const;
+
+		void printMeshInfoList(const Ogre::StringVector& listFields, char delim,
+			const MeshInfo& info, size_t submeshIndex) const;
 
         Ogre::String getEndianModeAsString(Ogre::MeshSerializer::Endian) const;
 

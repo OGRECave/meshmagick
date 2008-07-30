@@ -415,18 +415,30 @@ namespace meshmagick
 
 	void InfoTool::printMeshInfo(const OptionList& toolOptions, const MeshInfo& info) const
 	{
-		if (OptionsUtil::getStringOption(toolOptions, "list") == StringUtil::BLANK)
+		const String list = OptionsUtil::getStringOption(toolOptions, "list");
+		if (list == StringUtil::BLANK)
 		{
 			reportMeshInfo(info);
+		}
+		else
+		{
+			StringVector listItems = StringUtil::split(list, "/");
+			listMeshInfo(listItems, '\t', info);
 		}
 	}
     //------------------------------------------------------------------------
 
 	void InfoTool::printSkeletonInfo(const OptionList& toolOptions, const SkeletonInfo& info) const
 	{
-		if (OptionsUtil::getStringOption(toolOptions, "list") == StringUtil::BLANK)
+		const String list = OptionsUtil::getStringOption(toolOptions, "list");
+		if (list == StringUtil::BLANK)
 		{
 			reportSkeletonInfo(info);
+		}
+		else
+		{
+			StringVector listItems = StringUtil::split(list, "/");
+			listSkeletonInfo(listItems, '\t', info);
 		}
 	}
     //------------------------------------------------------------------------
@@ -630,6 +642,232 @@ namespace meshmagick
 			print(indent + "name: " + info.animations[i].first + " / length: "
 				+ StringConverter::toString(info.animations[i].second));
 		}
+	}
+    //------------------------------------------------------------------------
+
+	void InfoTool::listMeshInfo(const Ogre::StringVector& listFields, char delim,
+		const MeshInfo& info) const
+	{
+		// First determine whether there are submesh level infos asked about.
+		StringVector submeshLevelFields;
+		submeshLevelFields.push_back("submesh_index");
+		submeshLevelFields.push_back("submesh_name");
+		submeshLevelFields.push_back("submesh_material");
+		submeshLevelFields.push_back("submesh_use_shared_vertices");
+		submeshLevelFields.push_back("submesh_vertex_count");
+		submeshLevelFields.push_back("submesh_bone_assignment_count");
+		submeshLevelFields.push_back("submesh_bone_references_count");
+		submeshLevelFields.push_back("submesh_vertex_layout");
+		submeshLevelFields.push_back("submesh_operation_type");
+		submeshLevelFields.push_back("submesh_element_count");
+		submeshLevelFields.push_back("submesh_index_width");
+		bool submeshLevel = std::find_first_of(listFields.begin(), listFields.end(),
+			submeshLevelFields.begin(), submeshLevelFields.end()) != listFields.end();
+		if (submeshLevel)
+		{
+			for (size_t i = 0; i < info.submeshes.size(); ++i)
+			{
+				printMeshInfoList(listFields, delim, info, i);
+			}
+		}
+		else
+		{
+			printMeshInfoList(listFields, delim, info, -1);
+		}
+	}
+    //------------------------------------------------------------------------
+
+	void InfoTool::printMeshInfoList(const Ogre::StringVector& listFields, char delim,
+		const MeshInfo& info, size_t submeshIndex) const
+	{
+		String out;
+
+		for (size_t i = 0; i < listFields.size(); ++i)
+		{
+			const String field = listFields[i];
+			if (field == "name")
+			{
+				out += info.name;
+			}
+			else if (field == "version")
+			{
+				out += info.version;
+			}
+			else if (field == "endian")
+			{
+				out += info.endian;
+			}
+			else if (field == "stored_bounding_box")
+			{
+				out += ToolUtils::getPrettyAabbString(info.storedBoundingBox);
+			}
+			else if (field == "actual_bounding_box")
+			{
+				out += ToolUtils::getPrettyAabbString(info.actualBoundingBox);
+			}
+			else if (field == "edge_list")
+			{
+				out += info.hasEdgeList ? "yes" : "no";
+			}
+			else if (field == "lod_level_count")
+			{
+				out += StringConverter::toString(info.numLodLevels);
+			}
+			else if (field == "shared_vertices")
+			{
+				out += info.hasSharedVertices ? "yes" : "no";
+			}
+			else if (field == "shared_vertex_count" && info.hasSharedVertices)
+			{
+				out += StringConverter::toString(info.sharedVertices.numVertices);
+			}
+			else if (field == "shared_bone_assignment_count" && info.hasSharedVertices)
+			{
+				out += StringConverter::toString(info.sharedVertices.numBoneAssignments);
+			}
+			else if (field == "shared_bone_references_count" && info.hasSharedVertices)
+			{
+				out += StringConverter::toString(info.sharedVertices.numBonesReferenced);
+			}
+			else if (field == "shared_vertex_layout" && info.hasSharedVertices)
+			{
+				out += info.sharedVertices.layout;
+			}
+			else if (field == "submesh_count")
+			{
+				out += StringConverter::toString(info.submeshes.size());
+			}
+			else if (field == "submesh_index")
+			{
+				out += StringConverter::toString(submeshIndex);
+			}
+			else if (field == "submesh_name")
+			{
+				out += info.submeshes[submeshIndex].name;
+			}
+			else if (field == "submesh_material")
+			{
+				out += info.submeshes[submeshIndex].materialName;
+			}
+			else if (field == "submesh_use_shared_vertices")
+			{
+				out += info.submeshes[submeshIndex].usesSharedVertices ? "yes" : "no";
+			}
+			else if (field == "submesh_vertex_count")
+			{
+				out += StringConverter::toString(
+					info.submeshes[submeshIndex].vertices.numVertices);
+			}
+			else if (field == "submesh_bone_assignment_count")
+			{
+				out += StringConverter::toString(
+					info.submeshes[submeshIndex].vertices.numBoneAssignments);
+			}
+			else if (field == "submesh_bone_references_count")
+			{
+				out += StringConverter::toString(
+					info.submeshes[submeshIndex].vertices.numBonesReferenced);
+			}
+			else if (field == "submesh_vertex_layout")
+			{
+				out += info.submeshes[submeshIndex].vertices.layout;
+			}
+			else if (field == "submesh_operation_type")
+			{
+				out += info.submeshes[submeshIndex].operationType;
+			}
+			else if (field == "submesh_elements_count")
+			{
+				out += StringConverter::toString(info.submeshes[submeshIndex].numElements);
+			}
+			else if (field == "submesh_index_width")
+			{
+				out += StringConverter::toString(info.submeshes[submeshIndex].indexBitWidth);
+			}
+			else if (field == "morph_animation_count")
+			{
+				out += StringConverter::toString(info.morphAnimations.size());
+			}
+			else if (field == "pose_count")
+			{
+				out += StringConverter::toString(info.poseNames.size());
+			}
+			else if (field == "total_vertex_count")
+			{
+				size_t count = 0;
+				if (info.hasSharedVertices) count += info.sharedVertices.numVertices;
+				for (size_t i = 0; i < info.submeshes.size(); ++i)
+				{
+					count += info.submeshes[i].vertices.numVertices;
+				}
+				out += StringConverter::toString(count);
+			}
+			else if (field == "total_element_count")
+			{
+				size_t count = 0;
+				for (size_t i = 0; i < info.submeshes.size(); ++i)
+				{
+					count += info.submeshes[i].numElements;
+				}
+				out += StringConverter::toString(count);
+			}
+			else if (field == "skeleton")
+			{
+				out += info.hasSkeleton ? "yes" : "no";
+			}
+			else if (field == "skeleton_name" && info.hasSkeleton)
+			{
+				out += info.skeleton.name;
+			}
+			else if (field == "skeleton_bone_count" && info.hasSkeleton)
+			{
+				out += StringConverter::toString(info.skeleton.boneNames.size());
+			}
+			else if (field == "skeleton_animation_count" && info.hasSkeleton)
+			{
+				out += StringConverter::toString(info.skeleton.animations.size());
+			}
+			else
+			{
+				continue;
+			}
+
+			out += delim;
+		}
+
+		print(out);
+	}
+    //------------------------------------------------------------------------
+
+	void InfoTool::listSkeletonInfo(const Ogre::StringVector& listFields, char delim,
+		const SkeletonInfo& info) const
+	{
+		String out;
+
+		for (size_t i = 0; i < listFields.size(); ++i)
+		{
+			const String field = listFields[i];
+			if (field == "skeleton_name")
+			{
+				out += info.name;
+			}
+			else if (field == "skeleton_bone_count")
+			{
+				out += StringConverter::toString(info.boneNames.size());
+			}
+			else if (field == "skeleton_animation_count")
+			{
+				out += StringConverter::toString(info.animations.size());
+			}
+			else
+			{
+				continue;
+			}
+
+			out += delim;
+		}
+
+		print(out);
 	}
     //------------------------------------------------------------------------
 }
