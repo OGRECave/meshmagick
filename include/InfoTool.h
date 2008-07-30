@@ -28,22 +28,99 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <OgreMesh.h>
 #include <OgreSubMesh.h>
 
+#include <vector>
+
 namespace meshmagick
 {
+	struct VertexInfo
+	{
+		size_t numVertices;
+		size_t numBoneAssignments;
+		size_t numBonesReferenced;
+		Ogre::String layout;
+
+		VertexInfo() : numVertices(0), numBoneAssignments(0), numBonesReferenced(0) {}
+	};
+
+	struct SubMeshInfo
+	{
+		Ogre::String name;
+		Ogre::String materialName;
+		bool usesSharedVertices;
+		VertexInfo vertices;
+
+		Ogre::String operationType;
+		size_t numElements;
+		Ogre::String elementType;
+		size_t indexBitWidth;
+
+		SubMeshInfo() : name(), materialName(), usesSharedVertices(false),
+			vertices(), operationType(), numElements(0), elementType(), indexBitWidth(16) {}
+	};
+
+	struct SkeletonInfo
+	{
+		Ogre::String name;
+		std::vector<Ogre::String> boneNames;
+		/// first: animation name, second: animation length
+		std::vector<std::pair<Ogre::String, Ogre::Real> > animations;
+
+		SkeletonInfo() : name(), boneNames(), animations() {}
+	};
+
+	struct MeshInfo
+	{
+		Ogre::String name;
+		Ogre::String version;
+		Ogre::String endian;
+
+		Ogre::AxisAlignedBox storedBoundingBox;
+		Ogre::AxisAlignedBox actualBoundingBox;
+
+		bool hasEdgeList;
+		unsigned short numLodLevels;
+
+		bool hasSharedVertices;
+		VertexInfo sharedVertices;
+		std::vector<SubMeshInfo> submeshes;
+
+		/// first: animation name, second: animation length
+		std::vector<std::pair<Ogre::String, Ogre::Real> > morphAnimations;
+		std::vector<Ogre::String> poseNames;
+
+		bool hasSkeleton;
+		SkeletonInfo skeleton;
+
+		MeshInfo() : name(), version(), endian(), storedBoundingBox(Ogre::AxisAlignedBox::BOX_NULL),
+			actualBoundingBox(Ogre::AxisAlignedBox::BOX_NULL), hasEdgeList(false), numLodLevels(0),
+			hasSharedVertices(false), sharedVertices(), submeshes(),
+			morphAnimations(), poseNames(), hasSkeleton(false), skeleton() {}
+	};
+
+
     class InfoTool : public Tool
     {
     public:
         InfoTool();
 
     protected:
-        void processSkeleton(const Ogre::String& skeletonFileName) const;
-        void processMesh(const Ogre::String& meshFileName) const;
-        void processSubMesh(Ogre::SubMesh* subMesh) const;
-		void reportBoneAssignmentData(const Ogre::VertexData* vd, 
-			const Ogre::Mesh::IndexMap& blendIndexToBoneIndexMap, 
-			const Ogre::String& indent) const;
-		void reportVertexDeclaration(const Ogre::VertexDeclaration* vd,
-            const Ogre::String& indent) const;
+		typedef std::vector<Ogre::String> ListFieldList;
+
+        SkeletonInfo processSkeleton(const Ogre::String& skeletonFileName) const;
+        MeshInfo processMesh(const Ogre::String& meshFileName) const;
+        void processSubMesh(SubMeshInfo&, Ogre::SubMesh* subMesh) const;
+		void processBoneAssignmentData(VertexInfo&, const Ogre::VertexData* vd, 
+			const Ogre::Mesh::IndexMap& blendIndexToBoneIndexMap) const;
+		void processVertexDeclaration(VertexInfo&, const Ogre::VertexDeclaration* vd) const;
+
+		void printMeshInfo(const OptionList& toolOptions, const MeshInfo& info) const;
+		void printSkeletonInfo(const OptionList& toolOptions, const SkeletonInfo& info) const;
+
+		void reportMeshInfo(const MeshInfo& info) const;
+		void reportSkeletonInfo(const SkeletonInfo& info) const;
+
+		void listMeshInfo(const ListFieldList& listFields, char delim, const MeshInfo& info) const;
+		void listSkeletonInfo(const ListFieldList& listFields, char delim, const SkeletonInfo& info) const;
 
         Ogre::String getEndianModeAsString(Ogre::MeshSerializer::Endian) const;
 

@@ -39,15 +39,15 @@ using namespace Ogre;
 namespace meshmagick
 {
     struct FindSubMeshNameByIndex
-        : public std::binary_function<Mesh::SubMeshNameMap::value_type, unsigned short, bool>
+        : std::binary_function<Mesh::SubMeshNameMap::value_type, unsigned short, bool>
     {
         bool operator()(const Mesh::SubMeshNameMap::value_type& entry, unsigned short index) const
         {
             return entry.second == index;
         }
     };
-
     //------------------------------------------------------------------------
+
     InfoTool::InfoTool()
     {
     }
@@ -66,11 +66,13 @@ namespace meshmagick
         {
             if (StringUtil::endsWith(inFileNames[i], ".mesh", true))
             {
-                processMesh(inFileNames[i]);
+				MeshInfo meshInfo = processMesh(inFileNames[i]);
+				printMeshInfo(toolOptions, meshInfo);
             }
             else if (StringUtil::endsWith(inFileNames[i], ".skeleton", true))
             {
-                processSkeleton(inFileNames[i]);
+				SkeletonInfo skeletonInfo = processSkeleton(inFileNames[i]);
+				printSkeletonInfo(toolOptions, skeletonInfo);
             }
             else
             {
@@ -81,41 +83,21 @@ namespace meshmagick
     }
     //------------------------------------------------------------------------
 
-    void InfoTool::processMesh(const String& meshFileName) const
+    MeshInfo InfoTool::processMesh(const String& meshFileName) const
     {
         StatefulMeshSerializer* meshSerializer =
             OgreEnvironment::getSingleton().getMeshSerializer();
 
-        MeshPtr mesh;
-        try
-        {
-            mesh = meshSerializer->loadMesh(meshFileName);
-        }
-        catch(std::exception& e)
-        {
-            warn(e.what());
-            warn("Unable to open mesh file " + meshFileName);
-            warn("file skipped.");
-            return;
-        }
+        MeshPtr mesh = meshSerializer->loadMesh(meshFileName);
 
-        print("Analysing meshfile " + meshFileName + "...");
-        print("File version : " + meshSerializer->getMeshFileVersion());
-        print("Endian mode  : " + getEndianModeAsString(meshSerializer->getEndianMode()));
-        print(" ");
+		MeshInfo rval;
+		rval.name = meshFileName;
+		rval.version = meshSerializer->getMeshFileVersion();
+		rval.endian = getEndianModeAsString(meshSerializer->getEndianMode());
 
-        AxisAlignedBox meshAabb = mesh->getBounds();
-        AxisAlignedBox actualAabb = MeshUtils::getMeshAabb(mesh);
-        // If AABB set to the mesh and actual AABB are equal only print one, else print both
-        if (meshAabb == actualAabb)
-        {
-            print("Bounding box: " + ToolUtils::getPrettyAabbString(meshAabb));
-        }
-        else
-        {
-            print("Mesh bounding box: " + ToolUtils::getPrettyAabbString(meshAabb));
-            print("Actual bounding box: " + ToolUtils::getPrettyAabbString(actualAabb));
-        }
+        rval.storedBoundingBox = mesh->getBounds();
+		rval.actualBoundingBox = MeshUtils::getMeshAabb(mesh);
+
         // Build metadata for bone assignments
 		if (mesh->hasSkeleton())
 		{
@@ -126,33 +108,29 @@ namespace meshmagick
 
         if (mesh->sharedVertexData != NULL)
         {
-            print("Shared vertex data with " +
-                StringConverter::toString(mesh->sharedVertexData->vertexCount) + " vertices");
-			reportBoneAssignmentData(mesh->sharedVertexData, 
-				mesh->sharedBlendIndexToBoneIndexMap, Ogre::StringUtil::BLANK);
-            reportVertexDeclaration(mesh->sharedVertexData->vertexDeclaration,
-                Ogre::StringUtil::BLANK);
+			rval.hasSharedVertices = true;
+			rval.sharedVertices.numVertices = mesh->sharedVertexData->vertexCount;
+			processBoneAssignmentData(rval.sharedVertices, mesh->sharedVertexData, 
+				mesh->sharedBlendIndexToBoneIndexMap);
+            processVertexDeclaration(rval.sharedVertices, mesh->sharedVertexData->vertexDeclaration);
         }
         else
         {
-            print("No shared vertices.");
+			rval.hasSharedVertices = false;
         }
-
-        print(" ");
 
         const Mesh::SubMeshNameMap& subMeshNames = mesh->getSubMeshNameMap();
         for(int i = 0;i < mesh->getNumSubMeshes();i++)
         {
+			SubMeshInfo subMeshInfo;
             // Has the submesh got a name?
             Mesh::SubMeshNameMap::const_iterator it = std::find_if(subMeshNames.begin(),
                 subMeshNames.end(), std::bind2nd(FindSubMeshNameByIndex(), i));
 
-            String name = it == subMeshNames.end() ? String("unnamed") : it->first;
-            print("Submesh " + StringConverter::toString(i) + " (" + name + ") : ");
-            processSubMesh(mesh->getSubMesh(i));
+            subMeshInfo.name = it == subMeshNames.end() ? String() : it->first;
+            processSubMesh(subMeshInfo, mesh->getSubMesh(i));
+			rval.submeshes.push_back(subMeshInfo);
         }
-
-        print(" ");
 
         // Animation detection
 
@@ -163,71 +141,98 @@ namespace meshmagick
             for (unsigned short i = 0, end = mesh->getNumAnimations(); i < end; ++i)
             {
                 Animation* ani = mesh->getAnimation(i);
-                print("Morph animation " + ani->getName() + " with length of " +
-                    StringConverter::toString(ani->getLength()) + " seconds.");
+				rval.morphAnimations.push_back(std::make_pair(ani->getName(), ani->getLength()));
             }
-        }
-        else
-        {
-            print("Mesh does not have morph animations.");
         }
 
         // Poses?
         PoseList poses = mesh->getPoseList();
-        if (!poses.empty())
-        {
-            print("Mesh has " + StringConverter::toString(poses.size()) + " poses.");
-        }
-        else
-        {
-            print("Mesh does not have poses.");
-        }
+		for (size_t i = 0; i < poses.size(); ++i)
+		{
+			rval.poseNames.push_back(poses[i]->getName());
+		}
 
         // Is there a skeleton linked and are we supposed to follow it?
         if (mFollowSkeletonLink && mesh->hasSkeleton())
         {
-            processSkeleton(mesh->getSkeletonName());
+			rval.hasSkeleton = true;
+            rval.skeleton = processSkeleton(mesh->getSkeletonName());
         }
+		else
+		{
+			rval.hasSkeleton = false;
+		}
+
+		return rval;
     }
     //------------------------------------------------------------------------
 
-    void InfoTool::processSubMesh(Ogre::SubMesh* submesh) const
+    void InfoTool::processSubMesh(SubMeshInfo& info, Ogre::SubMesh* submesh) const
     {
-		print("    Default material: " + submesh->getMaterialName());
-        // vertices
-        if (submesh->useSharedVertices)
+		info.materialName = submesh->getMaterialName();
+		info.usesSharedVertices = submesh->useSharedVertices;
+        if (!info.usesSharedVertices)
         {
-            print("    shared vertex data used.");
-        }
-        else if (submesh->vertexData != NULL)
-        {
-            print("    " +
-                StringConverter::toString(submesh->vertexData->vertexCount) + " vertices.");
-			reportBoneAssignmentData(submesh->vertexData, submesh->blendIndexToBoneIndexMap, 
-				"    ");
-            reportVertexDeclaration(submesh->vertexData->vertexDeclaration, "    ");
+			info.vertices.numVertices = submesh->vertexData->vertexCount;
+			processBoneAssignmentData(info.vertices, submesh->vertexData, submesh->blendIndexToBoneIndexMap);
+            processVertexDeclaration(info.vertices, submesh->vertexData->vertexDeclaration);
         }
 
         // indices
         if (submesh->indexData != NULL)
         {
             HardwareIndexBufferSharedPtr indexBuffer = submesh->indexData->indexBuffer;
-            print("    " + StringConverter::toString(indexBuffer->getNumIndexes() / 3) +
-                " triangles.");
             if (indexBuffer->getType() == HardwareIndexBuffer::IT_16BIT)
             {
-                print("    16 bit index buffer");
+				info.indexBitWidth = 16;
             }
             else
             {
-                print("    32 bit index buffer");
+				info.indexBitWidth = 32;
             }
+
+			size_t numIndices = indexBuffer->getNumIndexes();
+			switch(submesh->operationType)
+			{
+			case RenderOperation::OT_LINE_LIST:
+				info.operationType = "OT_LINE_LIST";
+				info.numElements = numIndices / 2;
+				info.elementType = "lines";
+				break;
+			case RenderOperation::OT_LINE_STRIP:
+				info.operationType = "OT_LINE_STRIP";
+				info.numElements = numIndices / 2;
+				info.elementType = "lines";
+				break;
+			case RenderOperation::OT_POINT_LIST:
+				info.operationType = "OT_POINT_LIST";
+				info.numElements = numIndices;
+				info.elementType = "points";
+				break;
+			case RenderOperation::OT_TRIANGLE_FAN:
+				info.operationType = "OT_TRIANGLE_FAN";
+				info.numElements = numIndices - 2;
+				info.elementType = "triangles";
+				break;
+			case RenderOperation::OT_TRIANGLE_LIST:
+				info.operationType = "OT_TRIANGLE_LIST";
+				info.numElements = numIndices / 3;
+				info.elementType = "triangles";
+				break;
+			case RenderOperation::OT_TRIANGLE_STRIP:
+				info.operationType = "OT_TRIANGLE_STRIP";
+				info.numElements = numIndices - 2;
+				info.elementType = "triangles";
+				break;
+			}
         }
     }
     //------------------------------------------------------------------------
 
-    void InfoTool::processSkeleton(const String& skeletonFileName) const
+    SkeletonInfo InfoTool::processSkeleton(const String& skeletonFileName) const
     {
+		SkeletonInfo rval;
+
         StatefulSkeletonSerializer* skeletonSerializer =
             OgreEnvironment::getSingleton().getSkeletonSerializer();
 
@@ -241,31 +246,24 @@ namespace meshmagick
             warn(e.what());
             warn("Unable to open skeleton file " + skeletonFileName);
             warn("file skipped.");
-            return;
+			throw;
         }
 
-        print("Analysing skeletonfile " + skeletonFileName + "...");
+		rval.name = skeletonFileName;
 
-        print("Skeleton has " + StringConverter::toString(skeleton->getNumBones()) + " bones.");
-        if (mVerbosity == V_HIGH)
+        for (unsigned short i = 0, end = skeleton->getNumBones(); i < end; ++i)
         {
-            print("Bone names:", V_HIGH);
-            for (unsigned short i = 0, end = skeleton->getNumBones(); i < end; ++i)
-            {
-                Bone* bone = skeleton->getBone(i);
-                print("    " + bone->getName(), V_HIGH);
-            }
-            print(" ", V_HIGH);
+            Bone* bone = skeleton->getBone(i);
+			rval.boneNames.push_back(bone->getName());
         }
 
-        print("Skeleton has " + StringConverter::toString(skeleton->getNumAnimations())
-            + " animations.");
         for (unsigned short i = 0, end = skeleton->getNumAnimations(); i < end; ++i)
         {
             Animation* ani = skeleton->getAnimation(i);
-            print("    " + ani->getName() + " with length of " +
-                StringConverter::toString(ani->getLength()) + " seconds.");
+			rval.animations.push_back(std::make_pair(ani->getName(), ani->getLength()));
         }
+
+		return rval;
     }
     //------------------------------------------------------------------------
 
@@ -289,27 +287,24 @@ namespace meshmagick
         }
     }
     //------------------------------------------------------------------------
-	void InfoTool::reportBoneAssignmentData(const Ogre::VertexData* vd, 
-		const Ogre::Mesh::IndexMap& blendIndexToBoneIndexMap, const Ogre::String& indent) const
+
+	void InfoTool::processBoneAssignmentData(VertexInfo& info, const Ogre::VertexData* vd,
+		const Ogre::Mesh::IndexMap& blendIndexToBoneIndexMap) const
 	{
 		// Report number of bones per vertex
 		const Ogre::VertexElement* elem = 
 			vd->vertexDeclaration->findElementBySemantic(VES_BLEND_WEIGHTS);
 		if (elem)
 		{
-			unsigned short numWeights = VertexElement::getTypeCount(elem->getType());
-			print(indent + "Number of bone assignments per vertex: "
-                + StringConverter::toString(numWeights));
-
-			// Report number of bones referenced by this vertex data
-			print(indent + "Total number of bones referenced: " + 
-				StringConverter::toString(blendIndexToBoneIndexMap.size()));
+			info.numBoneAssignments = VertexElement::getTypeCount(elem->getType());
+			info.numBonesReferenced = blendIndexToBoneIndexMap.size();
 		}
 	}
+    //------------------------------------------------------------------------
 
 	/// @todo externalise this function, when reorganise-tool is integrated,
     /// because both use the same format
-    void InfoTool::reportVertexDeclaration(const VertexDeclaration* vd, const String& indent) const
+    void InfoTool::processVertexDeclaration(VertexInfo& info, const VertexDeclaration* vd) const
     {
         // First: source-ID, second: offset
         typedef std::pair<unsigned short, size_t> ElementPosition;
@@ -414,7 +409,227 @@ namespace meshmagick
             }
         }
 
-        // and print it
-        print(indent + "buffer layout: " + layout);
+		info.layout = layout;
     }
+    //------------------------------------------------------------------------
+
+	void InfoTool::printMeshInfo(const OptionList& toolOptions, const MeshInfo& info) const
+	{
+		if (OptionsUtil::getStringOption(toolOptions, "list") == StringUtil::BLANK)
+		{
+			reportMeshInfo(info);
+		}
+	}
+    //------------------------------------------------------------------------
+
+	void InfoTool::printSkeletonInfo(const OptionList& toolOptions, const SkeletonInfo& info) const
+	{
+		if (OptionsUtil::getStringOption(toolOptions, "list") == StringUtil::BLANK)
+		{
+			reportSkeletonInfo(info);
+		}
+	}
+    //------------------------------------------------------------------------
+
+	void InfoTool::reportMeshInfo(const MeshInfo& meshInfo) const
+	{
+		// total amount counters
+		size_t numVertices = 0;
+		size_t numTriangles = 0;
+		size_t numLines = 0;
+		size_t numPoints = 0;
+		
+		// formatting helpers
+		const String& indent = "    ";
+
+		// header info
+		print("Mesh file name: " + meshInfo.name);
+		print("Mesh file version: " + meshInfo.version);
+		print("Endian mode: " + meshInfo.endian);
+		print("");
+
+		// bounding box(es)
+		if (meshInfo.actualBoundingBox == meshInfo.storedBoundingBox)
+		{
+			print("Bounding box: "
+				+ ToolUtils::getPrettyAabbString(meshInfo.actualBoundingBox));
+		}
+		else
+		{
+			print("Stored bounding box: "
+				+ ToolUtils::getPrettyAabbString(meshInfo.storedBoundingBox));
+			print("Actual bounding box: "
+				+ ToolUtils::getPrettyAabbString(meshInfo.actualBoundingBox));
+		}
+		print("");
+
+		// shared vertices
+		if (meshInfo.hasSharedVertices)
+		{
+			print("Shared vertices:");
+			print(indent + StringConverter::toString(meshInfo.sharedVertices.numVertices)
+				+ " vertices");
+			print(indent
+				+ StringConverter::toString(meshInfo.sharedVertices.numBonesReferenced)
+				+ " bones referenced.");
+			print(indent
+				+ StringConverter::toString(meshInfo.sharedVertices.numBoneAssignments)
+				+ " bone assignments per vertex.");
+			print(indent + "Buffer layout: " + meshInfo.sharedVertices.layout);
+
+			numVertices += meshInfo.sharedVertices.numVertices;
+		}
+		else
+		{
+			print("No shared vertices.");
+		}
+		print("");
+
+		// submesh info
+		const size_t numSubmeshes = meshInfo.submeshes.size();
+		print(StringConverter::toString(numSubmeshes)
+			+ (numSubmeshes > 1 ? " submeshes." : "submesh."));
+		for (size_t i = 0; i < numSubmeshes; ++i)
+		{
+			const SubMeshInfo& info = meshInfo.submeshes[i];
+
+			print("submesh " + StringConverter::toString(i) + "(" + info.name + ")");
+			print(indent + "material " + info.materialName);
+			if (info.usesSharedVertices)
+			{
+				print(indent + "submesh uses shared vertices.");
+			}
+			else
+			{
+				print(indent + StringConverter::toString(info.vertices.numVertices)
+					+ " vertices");
+				print(indent + StringConverter::toString(info.vertices.numBonesReferenced)
+					+ " bones referenced.");
+				print(indent + StringConverter::toString(info.vertices.numBoneAssignments)
+					+ " bone assignments per vertex.");
+				print(indent + "Buffer layout: " + info.vertices.layout);
+
+				numVertices += info.vertices.numVertices;
+			}
+
+			print(indent + "OperationType: " + info.operationType);
+			print(indent + StringConverter::toString(info.numElements)
+				+ " " + info.elementType);
+			print(indent + StringConverter::toString(info.indexBitWidth) + " bit index width");
+
+			// Discriminate element type for total element counts
+			if (info.elementType == "triangles")
+			{
+				numTriangles += info.numElements;
+			}
+			else if (info.elementType == "lines")
+			{
+				numLines += info.numElements;
+			}
+			else if (info.elementType == "points")
+			{
+				numPoints += info.numElements;
+			}
+			print("");
+		}
+
+		// Print total counts
+		print(StringConverter::toString(numVertices) + " vertices in total.");
+		if (numTriangles > 0)
+		{
+			print(StringConverter::toString(numTriangles) + " triangles in total.");
+		}
+		if (numLines > 0)
+		{
+			print(StringConverter::toString(numLines) + " lines in total.");
+		}
+		if (numPoints > 0)
+		{
+			print(StringConverter::toString(numPoints) + " points in total.");
+		}
+		print("");
+
+		// Other mesh properties
+
+		if (meshInfo.hasEdgeList)
+		{
+			print("Edge list stored in file.");
+		}
+		else
+		{
+			print("No edge list stored in file.");
+		}
+
+		if (meshInfo.numLodLevels > 0)
+		{
+			print(StringConverter::toString(meshInfo.numLodLevels)
+				+ " LOD levels stored in file.");
+		}
+		else
+		{
+			print("No LOD info stored in file.");
+		}
+		print("");
+
+		if (meshInfo.morphAnimations.empty())
+		{
+			print("No morph animations");
+		}
+		else
+		{
+			print(StringConverter::toString(meshInfo.morphAnimations.size())
+				+ " morph animations");
+			for (size_t i = 0; i < meshInfo.morphAnimations.size(); ++i)
+			{
+				std::pair<Ogre::String, Ogre::Real> ani = meshInfo.morphAnimations[i];
+				print(indent + "name: " + ani.first
+					+ " / length: " + StringConverter::toString(ani.second));
+			}
+			print("");
+		}
+
+		if (meshInfo.poseNames.empty())
+		{
+			print("No poses.");
+		}
+		else
+		{
+			print(StringConverter::toString(meshInfo.poseNames.size())
+				+ " poses.");
+			for (size_t i = 0; i < meshInfo.poseNames.size(); ++i)
+			{
+				print(indent + meshInfo.poseNames[i]);
+			}
+		}
+		print("");
+		print("");
+
+		if (meshInfo.hasSkeleton)
+		{
+			reportSkeletonInfo(meshInfo.skeleton);
+		}
+	}
+    //------------------------------------------------------------------------
+
+	void InfoTool::reportSkeletonInfo(const SkeletonInfo& info) const
+	{
+		const String& indent = "    ";
+		print("Skeleton file name: " + info.name);
+		print("");
+
+		print(StringConverter::toString(info.boneNames.size()) + " bones");
+		for (size_t i = 0; i < info.animations.size(); ++i)
+		{
+			print(indent + info.boneNames[i]);
+		}
+		print("");
+
+		print(StringConverter::toString(info.animations.size()) + " animations");
+		for (size_t i = 0; i < info.animations.size(); ++i)
+		{
+			print(indent + "name: " + info.animations[i].first + " / length: "
+				+ StringConverter::toString(info.animations[i].second));
+		}
+	}
+    //------------------------------------------------------------------------
 }
