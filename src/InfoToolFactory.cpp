@@ -47,7 +47,61 @@ namespace meshmagick
     void InfoToolFactory::printToolHelp(std::ostream& out) const
     {
         out << "Print information about the mesh" << std::endl
-            << "info has no options, use the global option -verbose for a more detailed output" <<std::endl;
+            << "without further options, info tool prints informations in report style" << std::endl
+			<< "-delim=<delimiter> : delimiter character used by the -list option. Default is tab." << std::endl
+			<< "-list=<field-key1>/<field-key2>/.. : print delim separated fields" << std::endl
+			<< "    The following field-keys are available:" << std::endl
+			<< std::endl
+			<< "         name" << std::endl
+			<< "         version" << std::endl
+			<< "         endian" << std::endl
+			<< std::endl
+			<< "         stored_bounding_box" << std::endl
+			<< "         actual_bounding_box" << std::endl
+			<< "         stored_mesh_extent" << std::endl
+			<< "         actual_mesh_extent" << std::endl
+			<< std::endl
+			<< "         shared_vertices" << std::endl
+			<< "         shared_vertex_count" << std::endl
+			<< "         shared_bone_assignment_count" << std::endl
+			<< "         shared_bone_references_count" << std::endl
+			<< "         shared_vertex_layout" << std::endl
+			<< std::endl
+			<< "         submesh_count" << std::endl
+			<< "         submesh_index" << std::endl
+			<< "         submesh_name" << std::endl
+			<< "         submesh_material" << std::endl
+			<< "         submesh_use_shared_vertices" << std::endl
+			<< "         submesh_vertex_count" << std::endl
+			<< "         submesh_bone_assignment_count" << std::endl
+			<< "         submesh_bone_references_count" << std::endl
+			<< "         submesh_vertex_layout" << std::endl
+			<< "         submesh_operation_type" << std::endl
+			<< "         submesh_element_count" << std::endl
+			<< "         submesh_triangle_count" << std::endl
+			<< "         submesh_line_count" << std::endl
+			<< "         submesh_point_count" << std::endl
+			<< "         submesh_index_width" << std::endl
+			<< std::endl
+			<< "         max_bone_assignments" << std::endl
+			<< "         max_bone_references" << std::endl
+			<< "         total_vertex_count" << std::endl
+			<< "         total_element_count" << std::endl
+			<< "         total_triangle_count" << std::endl
+			<< "         total_line_count" << std::endl
+			<< "         total_point_count" << std::endl
+			<< std::endl
+			<< "         morph_animation_count" << std::endl
+			<< "         pose_count" << std::endl
+			<< std::endl
+			<< "         edge_list" << std::endl
+			<< "         lod_level_count" << std::endl
+			<< std::endl
+			<< "         skeleton" << std::endl
+			<< "         skeleton_name" << std::endl
+			<< "         skeleton_bone_count" << std::endl
+			<< "         skeleton_animation_count" << std::endl
+			<< std::endl;
     }
 
     Ogre::String InfoToolFactory::getToolName() const

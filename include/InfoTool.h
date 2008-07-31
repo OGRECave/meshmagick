@@ -88,6 +88,14 @@ namespace meshmagick
 		std::vector<std::pair<Ogre::String, Ogre::Real> > morphAnimations;
 		std::vector<Ogre::String> poseNames;
 
+		size_t numVertices;
+		size_t numElements;
+		size_t numTrianlges;
+		size_t numLines;
+		size_t numPoints;
+		size_t maxNumBoneAssignments;
+		size_t maxNumBonesReferenced;
+
 		bool hasSkeleton;
 		SkeletonInfo skeleton;
 
@@ -96,7 +104,9 @@ namespace meshmagick
 			actualBoundingBox(Ogre::AxisAlignedBox::BOX_NULL),
 			hasEdgeList(false), numLodLevels(0),
 			hasSharedVertices(false), sharedVertices(), submeshes(),
-			morphAnimations(), poseNames(), hasSkeleton(false), skeleton() {}
+			morphAnimations(), poseNames(),
+			numVertices(0), numElements(0), numTrianlges(0), numLines(0), numPoints(0),
+			hasSkeleton(false), skeleton() {}
 	};
 
 

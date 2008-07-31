@@ -112,7 +112,13 @@ namespace meshmagick
 			rval.sharedVertices.numVertices = mesh->sharedVertexData->vertexCount;
 			processBoneAssignmentData(rval.sharedVertices, mesh->sharedVertexData, 
 				mesh->sharedBlendIndexToBoneIndexMap);
-            processVertexDeclaration(rval.sharedVertices, mesh->sharedVertexData->vertexDeclaration);
+            processVertexDeclaration(rval.sharedVertices,
+				mesh->sharedVertexData->vertexDeclaration);
+			rval.maxNumBoneAssignments =
+				std::max(rval.maxNumBoneAssignments, rval.sharedVertices.numBoneAssignments);
+			rval.maxNumBonesReferenced =
+				std::max(rval.maxNumBonesReferenced, rval.sharedVertices.numBonesReferenced);
+			rval.numVertices += rval.sharedVertices.numVertices;
         }
         else
         {
@@ -120,7 +126,7 @@ namespace meshmagick
         }
 
         const Mesh::SubMeshNameMap& subMeshNames = mesh->getSubMeshNameMap();
-        for(int i = 0;i < mesh->getNumSubMeshes();i++)
+        for (int i = 0; i < mesh->getNumSubMeshes(); ++i)
         {
 			SubMeshInfo subMeshInfo;
             // Has the submesh got a name?
@@ -130,6 +136,25 @@ namespace meshmagick
             subMeshInfo.name = it == subMeshNames.end() ? String() : it->first;
             processSubMesh(subMeshInfo, mesh->getSubMesh(i));
 			rval.submeshes.push_back(subMeshInfo);
+
+			rval.maxNumBoneAssignments =
+				std::max(rval.maxNumBoneAssignments, subMeshInfo.vertices.numBoneAssignments);
+			rval.maxNumBonesReferenced =
+				std::max(rval.maxNumBonesReferenced, subMeshInfo.vertices.numBonesReferenced);
+
+			if (subMeshInfo.elementType == "triangles")
+			{
+				rval.numTrianlges += subMeshInfo.numElements;
+			}
+			else if (subMeshInfo.elementType == "lines")
+			{
+				rval.numLines += subMeshInfo.numElements;
+			}
+			else if (subMeshInfo.elementType == "points")
+			{
+				rval.numPoints += subMeshInfo.numElements;
+			}
+			rval.numElements += subMeshInfo.numElements;
         }
 
         // Animation detection
@@ -705,6 +730,14 @@ namespace meshmagick
 			{
 				out += ToolUtils::getPrettyAabbString(info.actualBoundingBox);
 			}
+			else if (field == "stored_mesh_extent")
+			{
+				out += ToolUtils::getPrettyVectorString(info.storedBoundingBox.getSize());
+			}
+			else if (field == "actual_mesh_extent")
+			{
+				out += ToolUtils::getPrettyVectorString(info.actualBoundingBox.getSize());
+			}
 			else if (field == "edge_list")
 			{
 				out += info.hasEdgeList ? "yes" : "no";
@@ -776,9 +809,42 @@ namespace meshmagick
 			{
 				out += info.submeshes[submeshIndex].operationType;
 			}
-			else if (field == "submesh_elements_count")
+			else if (field == "submesh_element_count")
 			{
 				out += StringConverter::toString(info.submeshes[submeshIndex].numElements);
+			}
+			else if (field == "submesh_triangle_count")
+			{
+				if (info.submeshes[submeshIndex].elementType == "triangles")
+				{
+					out += StringConverter::toString(info.submeshes[submeshIndex].numElements);
+				}
+				else
+				{
+					out += "0";
+				}
+			}
+			else if (field == "submesh_line_count")
+			{
+				if (info.submeshes[submeshIndex].elementType == "lines")
+				{
+					out += StringConverter::toString(info.submeshes[submeshIndex].numElements);
+				}
+				else
+				{
+					out += "0";
+				}
+			}
+			else if (field == "submesh_point_count")
+			{
+				if (info.submeshes[submeshIndex].elementType == "points")
+				{
+					out += StringConverter::toString(info.submeshes[submeshIndex].numElements);
+				}
+				else
+				{
+					out += "0";
+				}
 			}
 			else if (field == "submesh_index_width")
 			{
@@ -792,24 +858,33 @@ namespace meshmagick
 			{
 				out += StringConverter::toString(info.poseNames.size());
 			}
+			else if (field == "max_bone_assignments")
+			{
+				out += StringConverter::toString(info.maxNumBoneAssignments);
+			}
+			else if (field == "max_bone_references")
+			{
+				out += StringConverter::toString(info.maxNumBonesReferenced);
+			}
 			else if (field == "total_vertex_count")
 			{
-				size_t count = 0;
-				if (info.hasSharedVertices) count += info.sharedVertices.numVertices;
-				for (size_t i = 0; i < info.submeshes.size(); ++i)
-				{
-					count += info.submeshes[i].vertices.numVertices;
-				}
-				out += StringConverter::toString(count);
+				out += StringConverter::toString(info.numVertices);
 			}
 			else if (field == "total_element_count")
 			{
-				size_t count = 0;
-				for (size_t i = 0; i < info.submeshes.size(); ++i)
-				{
-					count += info.submeshes[i].numElements;
-				}
-				out += StringConverter::toString(count);
+				out += StringConverter::toString(info.numElements);
+			}
+			else if (field == "total_triangle_count")
+			{
+				out += StringConverter::toString(info.numTrianlges);
+			}
+			else if (field == "total_line_count")
+			{
+				out += StringConverter::toString(info.numLines);
+			}
+			else if (field == "total_point_count")
+			{
+				out += StringConverter::toString(info.numPoints);
 			}
 			else if (field == "skeleton")
 			{
