@@ -155,6 +155,7 @@ namespace meshmagick
 				rval.numPoints += subMeshInfo.numElements;
 			}
 			rval.numElements += subMeshInfo.numElements;
+			rval.numVertices += subMeshInfo.vertices.numVertices;
         }
 
         // Animation detection
@@ -447,8 +448,10 @@ namespace meshmagick
 		}
 		else
 		{
+			const String delimOpt = OptionsUtil::getStringOption(toolOptions, "delim");
+			char delim = delimOpt.empty() ? '/t' : delimOpt[0];
 			StringVector listItems = StringUtil::split(list, "/");
-			listMeshInfo(listItems, '\t', info);
+			listMeshInfo(listItems, delim, info);
 		}
 	}
     //------------------------------------------------------------------------
@@ -462,8 +465,10 @@ namespace meshmagick
 		}
 		else
 		{
+			const String delimOpt = OptionsUtil::getStringOption(toolOptions, "delim");
+			char delim = delimOpt.empty() ? '/t' : delimOpt[0];
 			StringVector listItems = StringUtil::split(list, "/");
-			listSkeletonInfo(listItems, '\t', info);
+			listSkeletonInfo(listItems, delim, info);
 		}
 	}
     //------------------------------------------------------------------------
@@ -907,7 +912,7 @@ namespace meshmagick
 				continue;
 			}
 
-			out += delim;
+			if (i < listFields.size() - 1) out += delim;
 		}
 
 		print(out);
@@ -939,7 +944,7 @@ namespace meshmagick
 				continue;
 			}
 
-			out += delim;
+			if (i < listFields.size() - 1) out += delim;
 		}
 
 		print(out);

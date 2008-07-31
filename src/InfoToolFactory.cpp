@@ -40,7 +40,8 @@ namespace meshmagick
     OptionDefinitionSet InfoToolFactory::getOptionDefinitions() const
     {
         OptionDefinitionSet optionDefs;
-        optionDefs.insert(OptionDefinition("list", OT_STRING, false, true));
+        optionDefs.insert(OptionDefinition("list", OT_STRING));
+        optionDefs.insert(OptionDefinition("delim", OT_STRING));
         return optionDefs;
     }
 
