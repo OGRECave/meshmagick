@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "TransformTool.h"
 
 #include "MeshUtils.h"
+#include "ToolUtils.h"
 #include "OgreEnvironment.h"
 #include "StatefulSkeletonSerializer.h"
 #include "StatefulMeshSerializer.h"
@@ -128,7 +129,8 @@ namespace meshmagick
         if (mFollowSkeletonLink && mesh->hasSkeleton())
         {
             // In this case keep file name and also keep already determined transform
-            processSkeletonFile(mesh->getSkeletonName(), mesh->getSkeletonName(), false);
+            String skeletonFileName = ToolUtils::getSkeletonFileName(mesh, inFile);            
+            processSkeletonFile(skeletonFileName, skeletonFileName, false);
         }
     }
 

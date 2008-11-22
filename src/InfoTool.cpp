@@ -449,7 +449,7 @@ namespace meshmagick
 		else
 		{
 			const String delimOpt = OptionsUtil::getStringOption(toolOptions, "delim");
-			char delim = delimOpt.empty() ? '/t' : delimOpt[0];
+			char delim = delimOpt.empty() ? '\t' : delimOpt[0];
 			StringVector listItems = StringUtil::split(list, "/");
 			listMeshInfo(listItems, delim, info);
 		}
@@ -466,7 +466,7 @@ namespace meshmagick
 		else
 		{
 			const String delimOpt = OptionsUtil::getStringOption(toolOptions, "delim");
-			char delim = delimOpt.empty() ? '/t' : delimOpt[0];
+			char delim = delimOpt.empty() ? '\t' : delimOpt[0];
 			StringVector listItems = StringUtil::split(list, "/");
 			listSkeletonInfo(listItems, delim, info);
 		}

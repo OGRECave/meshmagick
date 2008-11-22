@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "ToolUtils.h"
 
+#include <OgreMesh.h>
 #include <OgreStringConverter.h>
 
 using namespace Ogre;
@@ -82,4 +83,42 @@ namespace meshmagick
         }
         return rval;
     }
+
+    String ToolUtils::getSkeletonFileName(const MeshPtr mesh, const String& meshFileName)
+    {
+        String rval;
+        String skeletonName = mesh->getSkeletonName();
+        // Decompose meshfilename into path and basename.
+        String basename, path;
+        StringUtil::splitFilename(meshFileName, basename, path);
+        if (fileExists(path + skeletonName))
+        {
+            rval = path + skeletonName;
+        }
+        else if (fileExists(skeletonName))
+        {
+            rval = skeletonName;
+        }
+        else
+        {
+            rval = StringUtil::BLANK;
+        }
+        return rval;
+    }
+
+    // Code taken from http://www.codepedia.com/1/CppFileExists
+    // Code is public domain according to codepedia terms of use.
+    bool ToolUtils::fileExists(const Ogre::String& fileName)
+    {
+        std::fstream fin;
+        fin.open(fileName.c_str(),std::ios::in);
+        if( fin.is_open() )
+        {
+            fin.close();
+            return true;
+        }
+        fin.close();
+        return false;
+    }
 }
+

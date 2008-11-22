@@ -36,14 +36,28 @@ namespace meshmagick
     public:
         static Ogre::String getPrettyVectorString(const Ogre::Vector3&, unsigned short precision=2,
             unsigned short width=0, char fill= ' ', std::ios::fmtflags flags=std::ios::fmtflags(0));
+
         static Ogre::String getPrettyVectorString(const Ogre::Vector4&, unsigned short precision=2,
             unsigned short width=0, char fill= ' ', std::ios::fmtflags flags=std::ios::fmtflags(0));
+
         static Ogre::String getPrettyAabbString(const Ogre::AxisAlignedBox&, unsigned short precision=2,
             unsigned short width=0, char fill= ' ', std::ios::fmtflags flags=std::ios::fmtflags(0));
+
         static Ogre::String getPrettyMatrixString(const Ogre::Matrix4&, unsigned short precision=2,
             unsigned short width=0, char fill= ' ', std::ios::fmtflags flags=std::ios::fmtflags(0));
+
         static Ogre::String getPrettyMatrixString(const Ogre::Matrix3&, unsigned short precision=2,
             unsigned short width=0, char fill= ' ', std::ios::fmtflags flags=std::ios::fmtflags(0));
+
+        static bool fileExists(const Ogre::String& fileName);
+        
+        /// Returns the guessed fully qualified file name of the skeleton file referenced by
+        /// given mesh.
+        /// It first tries to find the skeleton file in the same directory as the mesh file.
+        /// If not found there, it is searched in working dir,
+        /// if not found there, Ogre::StringUtil::BLANK is returned.
+        static Ogre::String getSkeletonFileName(const Ogre::MeshPtr, const Ogre::String& meshFileName);
+
     };
 }
 #endif
