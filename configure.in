@@ -1,9 +1,9 @@
 AC_PREREQ(2.50)
 
-AC_INIT(meshmagick, 0.4.0)
+AC_INIT(meshmagick, 0.5.0)
 AC_CANONICAL_TARGET
 #AM_INIT_AUTOMAKE([1.6.1 foreign no-installinfo no-installman])
-AM_INIT_AUTOMAKE([meshmagick], 0.4.0)
+AM_INIT_AUTOMAKE([meshmagick], 0.5.0)
 
 dnl Check for programs
 AC_LANG([C++])
@@ -24,7 +24,7 @@ fi
 CXXFLAGS="$CXXFLAGS -pthread"
 
 # Ogre
-PKG_CHECK_MODULES([OGRE], [OGRE >= 1.4.0])
+PKG_CHECK_MODULES([OGRE], [OGRE >= 1.6.0])
 AC_ARG_WITH([ogre-plugins], [AS_HELP_STRING([--with-ogre-plugins=@<:@=DIR@:>@], [set location of Ogre plugins])] ,[OGRE_PLUGINDIR="$withval"], [OGRE_PLUGINDIR=`pkg-config OGRE --variable=plugindir`])
 AC_SUBST(OGRE_PLUGINDIR)
 
