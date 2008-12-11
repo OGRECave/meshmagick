@@ -20,7 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __MM_EDITABLE_BONE_H__
 #define __MM_EDITABLE_BONE_H__
 
-#include <OgreBone.h>
+#ifdef __APPLE__
+#	include <Ogre/OgreBone.h>
+#else
+#	include <OgreBone.h>
+#endif
 
 namespace meshmagick
 {

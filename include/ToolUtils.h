@@ -22,11 +22,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "MeshMagickPrerequisites.h"
 
-#include <OgreAxisAlignedBox.h>
-#include <OgreMatrix3.h>
-#include <OgreMatrix4.h>
-#include <OgreVector3.h>
-#include <OgreVector4.h>
+#ifdef __APPLE__
+#	include <Ogre/OgreAxisAlignedBox.h>
+#	include <Ogre/OgreMatrix3.h>
+#	include <Ogre/OgreMatrix4.h>
+#	include <Ogre/OgreVector3.h>
+#	include <Ogre/OgreVector4.h>
+#else
+#	include <OgreAxisAlignedBox.h>
+#	include <OgreMatrix3.h>
+#	include <OgreMatrix4.h>
+#	include <OgreVector3.h>
+#	include <OgreVector4.h>
+#endif
+
 
 namespace meshmagick
 {

@@ -24,6 +24,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Tool.h"
 #include "OptionsParser.h"
 
+#ifdef __APPLE__
+#	include <Ogre/OgreMesh.h>
+#	include <Ogre/OgreSkeleton.h>
+#else
+#	include <OgreMesh.h>
+#	include <OgreSkeleton.h>
+#endif
+
 namespace meshmagick
 {
 	class _MeshMagickExport MeshMergeTool : public Tool

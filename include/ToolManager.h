@@ -24,7 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "OptionsParser.h"
 #include "Tool.h"
 
-#include <OgreStringVector.h>
+#ifdef __APPLE__
+#	include <Ogre/OgreStringVector.h>
+#else
+#	include <OgreStringVector.h>
+#endif
+
+
 
 namespace meshmagick
 {

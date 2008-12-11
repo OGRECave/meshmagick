@@ -23,7 +23,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "MeshMagickPrerequisites.h"
 #include "StatefulMeshSerializer.h"
 #include "StatefulSkeletonSerializer.h"
-#include <OgreDefaultHardwareBufferManager.h>
+
+#ifdef __APPLE__
+#	include <Ogre/OgreDefaultHardwareBufferManager.h>
+#else
+#	include <OgreDefaultHardwareBufferManager.h>
+#endif
 
 namespace meshmagick
 {

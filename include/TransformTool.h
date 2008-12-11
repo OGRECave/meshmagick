@@ -24,10 +24,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "Tool.h"
 #include "OptionsParser.h"
 
-#include <OgreAnimation.h>
-#include <OgreMesh.h>
-#include <OgreSkeleton.h>
-#include <OgreBone.h>
+#ifdef __APPLE__
+#	include <Ogre/OgreAnimation.h>
+#	include <Ogre/OgreMesh.h>
+#	include <Ogre/OgreSkeleton.h>
+#	include <Ogre/OgreBone.h>
+#else
+#	include <OgreAnimation.h>
+#	include <OgreMesh.h>
+#	include <OgreSkeleton.h>
+#	include <OgreBone.h>
+#endif
+
 
 namespace meshmagick
 {

@@ -22,8 +22,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "MeshMagickPrerequisites.h"
 
-#include <OgreString.h>
-#include <OgreAny.h>
+#ifdef __APPLE__
+#	include <Ogre/OgreString.h>
+#	include <Ogre/OgreAny.h>
+#else
+#	include <OgreString.h>
+#	include <OgreAny.h>
+#endif
+
 
 #include <vector>
 #include <set>

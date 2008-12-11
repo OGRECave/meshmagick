@@ -23,9 +23,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "MeshMagickPrerequisites.h"
 #include "OptionsParser.h"
 
-#include <OgreSkeleton.h>
-#include <OgreSkeletonSerializer.h>
-#include <OgreString.h>
+#ifdef __APPLE__
+#	include <Ogre/OgreSkeleton.h>
+#	include <Ogre/OgreSkeletonSerializer.h>
+#	include <Ogre/OgreString.h>
+#else
+#	include <OgreSkeleton.h>
+#	include <OgreSkeletonSerializer.h>
+#	include <OgreString.h>
+#endif
+
 
 namespace meshmagick
 {

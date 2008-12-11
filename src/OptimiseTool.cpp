@@ -23,7 +23,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "StatefulMeshSerializer.h"
 #include "StatefulSkeletonSerializer.h"
 
-#include <OgreStringConverter.h>
+#ifdef __APPLE__
+#	include <Ogre/OgreStringConverter.h>
+#else
+#	include <OgreStringConverter.h>
+#endif
 
 #include <algorithm>
 #include <functional>

@@ -27,7 +27,11 @@ namespace meshmagick
     class ToolFactory;
 }
 
-#include <OgrePlatform.h>
+#ifdef __APPLE__
+#	include <Ogre/OgrePlatform.h>
+#else
+#	include <OgrePlatform.h>
+#endif
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && !MESHMAGICK_STANDALONE
 // Export control
