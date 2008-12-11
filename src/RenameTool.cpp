@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "RenameTool.h"
 
 #include <OgreBone.h>
+#include <OgreLog.h>
 #include <OgreMesh.h>
 #include <OgreSkeleton.h>
 #include <OgreSubMesh.h>
@@ -204,13 +205,18 @@ namespace meshmagick
 
 	RenameTool::StringPair RenameTool::split(const Ogre::String& value) const
 	{
-        // We expect two string components delimited by '|'
-        StringVector components = StringUtil::split(value, ":");
-		if (components.size() == 1)
-		{
-			return make_pair(components[0], components[0]);
-		}
-
-		return make_pair(components[0], components[1]);
+        // We expect two string components delimited by the first character like /foo/bar/ or ~foo~bar~
+        if (value.size() > 0)
+        {            
+            String delimiter = value.substr(0, 1);
+            StringVector components = StringUtil::split(value, delimiter);
+            if (components.size() == 1)
+            {
+                return make_pair(components[0], components[0]);
+            }
+            
+            return make_pair(components[0], components[1]);
+        }
+        return make_pair(String(""), String(""));
 	}
 }

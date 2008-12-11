@@ -69,17 +69,19 @@ namespace meshmagick
         out << std::endl;
         out << "Rename different elements of meshes and skeletons" << std::endl << std::endl;
         out << "possible renamings:" << std::endl;
-        out << "   -animation=before|after - renames animation 'before' to 'after'"
+        out << "   -animation=/before/after/ - renames animation 'before' to 'after'"
             << std::endl;
-        out << "   -bone=before|after - renames bone 'before' to 'after'"
+        out << "   -bone=/before/after/ - renames bone 'before' to 'after'"
             << std::endl;
-        out << "   -material=before|after - change all materials 'before' to 'after'"
+        out << "   -material=/before/after/ - change all materials 'before' to 'after'"
             << std::endl;
         out << "   -skeleton=newname - renames mesh's skeleton to 'newname'"
             << std::endl;
-        out << "   -submesh=before|after - renames all submeshes 'before' to 'after'"
+        out << "   -submesh=/before/after/ - renames all submeshes 'before' to 'after'"
             << std::endl;
-        out << "(All options can be used more than once to execute multiple renamings at once.)"
+        out << "Any other char can be used instead of '/', just be careful that it is not part of any name."
+            << std::endl;
+        out << "All options can be used more than once to execute multiple renamings at once."
             << std::endl
             << std::endl;
 	}
