@@ -46,7 +46,8 @@ namespace meshmagick
         Verbosity mVerbosity;
         bool mFollowSkeletonLink;
 
-        void print(const Ogre::String& msg, Verbosity verbosity=V_NORMAL) const;
+        void print(const Ogre::String& msg, Verbosity verbosity=V_NORMAL,
+			std::ostream& out = std::cout) const;
         void warn(const Ogre::String& msg) const;
         void fail(const Ogre::String& msg) const;
 

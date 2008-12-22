@@ -37,7 +37,8 @@ void printHelp(void)
     // Print help message
     std::cout << std::endl << "MeshMagick "
 		<< MESHMAGICK_VERSION_MAJOR << "."
-		<< MESHMAGICK_VERSION_MINOR << " - versatile Ogre mesh manipulation tool." << std::endl;
+		<< MESHMAGICK_VERSION_MINOR << "."
+		<< MESHMAGICK_VERSION_PATCH << " - versatile Ogre mesh manipulation tool." << std::endl;
     std::cout << "Copyright 2007-2008 by Daniel Wickert" << std::endl << std::endl;
     std::cout << "Usage: MeshMagick [global_options] toolname [tool_options] infile(s) -- [outfile(s)]" << std::endl;
     std::cout << "Global options:" << std::endl;
@@ -207,7 +208,8 @@ int main(int argc, const char** argv)
         {
 			std::cout << "MeshMagic version "
                 << MESHMAGICK_VERSION_MAJOR << "."
-                << MESHMAGICK_VERSION_MINOR << std::endl;
+                << MESHMAGICK_VERSION_MINOR << "."
+                << MESHMAGICK_VERSION_PATCH << std::endl;
 			std::cout << "using Ogre version "
                 << OGRE_VERSION_MAJOR << "."
                 << OGRE_VERSION_MINOR << "."

@@ -67,13 +67,13 @@ namespace meshmagick
         }
     }
 
-    void Tool::print(const Ogre::String& msg, Verbosity verbosity) const
+    void Tool::print(const Ogre::String& msg, Verbosity verbosity, std::ostream& out) const
     {
 		if (OgreEnvironment::getSingleton().isStandalone())
 		{
 			if (verbosity <= mVerbosity)
 			{
-				std::cout << msg << std::endl;
+				out << msg << std::endl;
 			}
 		}
 
@@ -83,12 +83,12 @@ namespace meshmagick
 
     void Tool::warn(const Ogre::String& msg) const
     {
-        print("warning: " + msg, V_NORMAL);
+        print("warning: " + msg, V_NORMAL, std::cerr);
     }
 
     void Tool::fail(const Ogre::String& msg) const
     {
-        std::cerr << "fatal error: " << msg << std::endl;
+        print("fatal error: " + msg, V_QUIET, std::cerr);
         throw std::logic_error(msg);
     }
 }

@@ -97,6 +97,8 @@ namespace meshmagick
 		size_t maxNumBonesReferenced;
 
 		bool hasSkeleton;
+		Ogre::String skeletonName;
+		bool skeletonValid;
 		SkeletonInfo skeleton;
 
 		MeshInfo() : name(), version(), endian(),
@@ -106,7 +108,7 @@ namespace meshmagick
 			hasSharedVertices(false), sharedVertices(), submeshes(),
 			morphAnimations(), poseNames(),
 			numVertices(0), numElements(0), numTrianlges(0), numLines(0), numPoints(0),
-			hasSkeleton(false), skeleton() {}
+			hasSkeleton(false), skeletonName(""), skeletonValid(false), skeleton() {}
 	};
 
 
@@ -119,7 +121,7 @@ namespace meshmagick
         SkeletonInfo processSkeleton(const Ogre::String& skeletonFileName) const;
         MeshInfo processMesh(const Ogre::String& meshFileName) const;
         void processSubMesh(SubMeshInfo&, Ogre::SubMesh* subMesh) const;
-		void processBoneAssignmentData(VertexInfo&, const Ogre::VertexData* vd, 
+		void processBoneAssignmentData(VertexInfo&, const Ogre::VertexData* vd,
 			const Ogre::Mesh::IndexMap& blendIndexToBoneIndexMap) const;
 		void processVertexDeclaration(VertexInfo&, const Ogre::VertexDeclaration* vd) const;
 

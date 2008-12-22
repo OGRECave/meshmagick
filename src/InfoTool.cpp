@@ -101,6 +101,9 @@ namespace meshmagick
         // Build metadata for bone assignments
 		if (mesh->hasSkeleton())
 		{
+			rval.hasSkeleton = true;
+			rval.skeletonName = mesh->getSkeletonName();
+
 			// Cause mesh to sort out the number of bone assignments per vertex and
 			// the bone map to individual submeshes
 			mesh->_updateCompiledBoneAssignments();
@@ -110,7 +113,7 @@ namespace meshmagick
         {
 			rval.hasSharedVertices = true;
 			rval.sharedVertices.numVertices = mesh->sharedVertexData->vertexCount;
-			processBoneAssignmentData(rval.sharedVertices, mesh->sharedVertexData, 
+			processBoneAssignmentData(rval.sharedVertices, mesh->sharedVertexData,
 				mesh->sharedBlendIndexToBoneIndexMap);
             processVertexDeclaration(rval.sharedVertices,
 				mesh->sharedVertexData->vertexDeclaration);
@@ -181,12 +184,20 @@ namespace meshmagick
         // Is there a skeleton linked and are we supposed to follow it?
         if (mFollowSkeletonLink && mesh->hasSkeleton())
         {
-			rval.hasSkeleton = true;
-            rval.skeleton = processSkeleton(mesh->getSkeletonName());
+			try
+			{
+				rval.skeleton = processSkeleton(mesh->getSkeletonName());
+				rval.skeletonValid = true;
+			}
+			catch (std::exception& e)
+			{
+				warn("Error processing skeleton. skipped.");
+				rval.skeletonValid = false;
+			}
         }
 		else
 		{
-			rval.hasSkeleton = false;
+			rval.skeletonValid = false;
 		}
 
 		return rval;
@@ -318,7 +329,7 @@ namespace meshmagick
 		const Ogre::Mesh::IndexMap& blendIndexToBoneIndexMap) const
 	{
 		// Report number of bones per vertex
-		const Ogre::VertexElement* elem = 
+		const Ogre::VertexElement* elem =
 			vd->vertexDeclaration->findElementBySemantic(VES_BLEND_WEIGHTS);
 		if (elem)
 		{
@@ -348,7 +359,7 @@ namespace meshmagick
         for (VertexDeclaration::VertexElementList::const_iterator it = elementList.begin(),
             end = elementList.end(); it != end; ++it)
         {
-            elements[std::make_pair((*it).getSource(), (*it).getOffset())] = 
+            elements[std::make_pair((*it).getSource(), (*it).getOffset())] =
                 std::make_pair((*it).getSemantic(), (*it).getType());
         }
 
@@ -480,7 +491,7 @@ namespace meshmagick
 		size_t numTriangles = 0;
 		size_t numLines = 0;
 		size_t numPoints = 0;
-		
+
 		// formatting helpers
 		const String& indent = "    ";
 
@@ -643,10 +654,19 @@ namespace meshmagick
 				print(indent + meshInfo.poseNames[i]);
 			}
 		}
+
+		if (meshInfo.hasSkeleton)
+		{
+			print("Skeleton: " + meshInfo.skeletonName);
+		}
+		else
+		{
+			print("No skeleton.");
+		}
 		print("");
 		print("");
 
-		if (meshInfo.hasSkeleton)
+		if (meshInfo.skeletonValid)
 		{
 			reportSkeletonInfo(meshInfo.skeleton);
 		}
@@ -897,13 +917,13 @@ namespace meshmagick
 			}
 			else if (field == "skeleton_name" && info.hasSkeleton)
 			{
-				out += info.skeleton.name;
+				out += info.skeletonName;
 			}
-			else if (field == "skeleton_bone_count" && info.hasSkeleton)
+			else if (field == "skeleton_bone_count" && info.skeletonValid)
 			{
 				out += StringConverter::toString(info.skeleton.boneNames.size());
 			}
-			else if (field == "skeleton_animation_count" && info.hasSkeleton)
+			else if (field == "skeleton_animation_count" && info.skeletonValid)
 			{
 				out += StringConverter::toString(info.skeleton.animations.size());
 			}

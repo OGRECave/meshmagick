@@ -46,5 +46,6 @@ namespace meshmagick
 
 #define MESHMAGICK_VERSION_MAJOR 0
 #define MESHMAGICK_VERSION_MINOR 5
+#define MESHMAGICK_VERSION_PATCH 1
 
 #endif
