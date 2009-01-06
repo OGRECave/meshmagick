@@ -65,7 +65,7 @@ namespace meshmagick
 		if (standalone)
 		{
 			mLogMgr = new LogManager();
-			mLog = mLogMgr->createLog("meshmagick.log", true, false, false); 
+			mLog = mLogMgr->createLog("meshmagick.log", true, false, true);
 			mResourceGroupMgr = new ResourceGroupManager();
 			mMath = new Math();
 			mMeshMgr = new MeshManager();
@@ -78,7 +78,7 @@ namespace meshmagick
 		}
 		else
 		{
-			mLog = log; 
+			mLog = log;
 			mStandalone = false;
 		}
 
