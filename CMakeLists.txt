@@ -46,7 +46,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${OGRE_INCLUDE_DIRS})
 
 add_library(meshmagick_shared_lib SHARED ${MESHMAGICK_SOURCE})
 set_target_properties(meshmagick_shared_lib PROPERTIES
-	OUTPUT_NAME meshmagic
+	OUTPUT_NAME meshmagick
 	VERSION ${MESHMAGICK_MAJOR_VERSION}.${MESHMAGICK_MINOR_VERSION}.${MESHMAGICK_PATCH_VERSION}
 	SOVERSION ${MESHMAGICK_MAJOR_VERSION}.${MESHMAGICK_MINOR_VERSION}
 	DEFINE_SYMBOL MESHMAGICK_EXPORTS)
@@ -54,7 +54,7 @@ target_link_libraries(meshmagick_shared_lib ${OGRE_LIBRARIES})
 
 add_executable(meshmagick_bin src/main.cpp)
 set_target_properties(meshmagick_bin PROPERTIES
-	OUTPUT_NAME meshmagic
+	OUTPUT_NAME meshmagick
 	DEFINE_SYMBOL MESHMAGICK_IMPORTS)
 target_link_libraries(meshmagick_bin meshmagick_shared_lib ${OGRE_LIBRARIES})
 
