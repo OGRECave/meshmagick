@@ -1,4 +1,4 @@
-INCLUDES = ${OGRE_CFLAGS} -I ../include
+INCLUDES = ${OGRE_CFLAGS} -I$(top_srcdir)/include
 
 lib_LTLIBRARIES = libmeshmagick.la
 libmeshmagick_la_SOURCES = \
@@ -29,3 +29,4 @@ libmeshmagick_la_LIBADD = ${OGRE_LIBS}
 bin_PROGRAMS = meshmagick
 meshmagick_SOURCES = main.cpp 
 meshmagick_LDADD = -lmeshmagick
+meshmagick_DEPENDENCIES = libmeshmagick.la
