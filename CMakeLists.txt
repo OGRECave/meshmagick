@@ -58,7 +58,7 @@ set_target_properties(meshmagick_bin PROPERTIES
 	DEFINE_SYMBOL MESHMAGICK_IMPORTS)
 target_link_libraries(meshmagick_bin meshmagick_shared_lib ${OGRE_LIBRARIES})
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/meshmagick.pc.in ${CMAKE_CURRENT_BINARY_DIR}/meshmagick.pc)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/meshmagick.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/meshmagick.pc)
 
 install(TARGETS meshmagick_bin meshmagick_shared_lib
 	RUNTIME DESTINATION bin
