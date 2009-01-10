@@ -8,7 +8,7 @@ include(FeatureSummary)
 
 set(MESHMAGICK_MAJOR_VERSION 0)
 set(MESHMAGICK_MINOR_VERSION 5)
-set(MESHMAGICK_PATCH_VERSION 1)
+set(MESHMAGICK_PATCH_VERSION 2)
 
 # include our custom cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)

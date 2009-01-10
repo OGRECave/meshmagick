@@ -1,9 +1,9 @@
 AC_PREREQ(2.50)
 
-AC_INIT(meshmagick, 0.5.1)
+AC_INIT(meshmagick, 0.5.2)
 AC_CANONICAL_TARGET
 #AM_INIT_AUTOMAKE([1.6.1 foreign no-installinfo no-installman])
-AM_INIT_AUTOMAKE([meshmagick], 0.5.1)
+AM_INIT_AUTOMAKE([meshmagick], 0.5.2)
 
 dnl Check for programs
 AC_LANG([C++])
