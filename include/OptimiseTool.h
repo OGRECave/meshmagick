@@ -64,10 +64,14 @@ namespace meshmagick
 			Ogre::Vector3 position;
 			Ogre::Vector3 normal;
 			Ogre::Vector4 tangent;
+			Ogre::Vector3 binormal;
 			Ogre::Vector3 uv[OGRE_MAX_TEXTURE_COORD_SETS];
 
 			UniqueVertex()
-				: position(Ogre::Vector3::ZERO), normal(Ogre::Vector3::ZERO), tangent(Ogre::Vector4::ZERO)
+				: position(Ogre::Vector3::ZERO),
+				  normal(Ogre::Vector3::ZERO),
+				  tangent(Ogre::Vector4::ZERO),
+				  binormal(Ogre::Vector3::ZERO)
 			{
 				memset(uv, 0, sizeof(Ogre::Vector3) * OGRE_MAX_TEXTURE_COORD_SETS);
 			}

@@ -168,14 +168,14 @@ namespace meshmagick
 					addIndexData(sm->indexData);
 				}
 			}
-			
+
 			if (optimiseGeometry())
 			{
 				if (mesh->getSkeletonName() != StringUtil::BLANK)
 				{
 					print("    fixing bone assignments...");
 					Mesh::BoneAssignmentIterator currentIt = mesh->getBoneAssignmentIterator();
-					Mesh::VertexBoneAssignmentList newList = 
+					Mesh::VertexBoneAssignmentList newList =
 						getAdjustedBoneAssignments(currentIt);
 					mesh->clearBoneAssignments();
 					for (Mesh::VertexBoneAssignmentList::iterator bi = newList.begin();
@@ -193,7 +193,7 @@ namespace meshmagick
 					{
 						print("    fixing bone assignments...");
 						Mesh::BoneAssignmentIterator currentIt = sm->getBoneAssignmentIterator();
-						Mesh::VertexBoneAssignmentList newList = 
+						Mesh::VertexBoneAssignmentList newList =
 							getAdjustedBoneAssignments(currentIt);
 						sm->clearBoneAssignments();
 						for (Mesh::VertexBoneAssignmentList::iterator bi = newList.begin();
@@ -219,7 +219,8 @@ namespace meshmagick
 			SubMesh* sm = mesh->getSubMesh(i);
 			if (!sm->useSharedVertices)
 			{
-				print("Optimising submesh " + StringConverter::toString(i) + " dedicated vertex data ");
+				print("Optimising submesh " +
+					StringConverter::toString(i) + " dedicated vertex data ");
 				setTargetVertexData(sm->vertexData);
 				addIndexData(sm->indexData);
 				if (optimiseGeometry())
@@ -228,7 +229,7 @@ namespace meshmagick
 					{
 						print("    fixing bone assignments...");
 						Mesh::BoneAssignmentIterator currentIt = sm->getBoneAssignmentIterator();
-						Mesh::VertexBoneAssignmentList newList = 
+						Mesh::VertexBoneAssignmentList newList =
 							getAdjustedBoneAssignments(currentIt);
 						sm->clearBoneAssignments();
 						for (Mesh::VertexBoneAssignmentList::iterator bi = newList.begin();
@@ -287,7 +288,7 @@ namespace meshmagick
 					ass.vertexIndex, ass));
 
 			}
-			
+
 		}
 
 		return newList;
@@ -317,11 +318,14 @@ namespace meshmagick
 	{
 		if (calculateDuplicateVertices())
 		{
-			size_t numDupes = mTargetVertexData->vertexCount - 
+			size_t numDupes = mTargetVertexData->vertexCount -
 				mUniqueVertexMap.size();
-			print("    " + StringConverter::toString(mTargetVertexData->vertexCount) + " source vertices.");
-			print("    " + StringConverter::toString(numDupes) + " duplicate vertices to be removed.");
-			print("    " + StringConverter::toString(mUniqueVertexMap.size()) + " vertices will remain.");
+			print("    " + StringConverter::toString(mTargetVertexData->vertexCount) +
+				" source vertices.");
+			print("    " + StringConverter::toString(numDupes) +
+				" duplicate vertices to be removed.");
+			print("    " + StringConverter::toString(mUniqueVertexMap.size()) +
+				" vertices will remain.");
 			print("    rebuilding vertex buffers...");
 			rebuildVertexBuffers();
 			print("    re-indexing faces...");
@@ -343,7 +347,7 @@ namespace meshmagick
 		// Lock all the buffers first
 		typedef std::vector<char*> BufferLocks;
 		BufferLocks bufferLocks;
-		const VertexBufferBinding::VertexBufferBindingMap& bindings = 
+		const VertexBufferBinding::VertexBufferBindingMap& bindings =
 			mTargetVertexData->vertexBufferBinding->getBindings();
 		VertexBufferBinding::VertexBufferBindingMap::const_iterator bindi;
 		bufferLocks.resize(mTargetVertexData->vertexBufferBinding->getLastBoundIndex()+1);
@@ -356,7 +360,7 @@ namespace meshmagick
 		for (uint32 v = 0; v < mTargetVertexData->vertexCount; ++v)
 		{
 			UniqueVertex uniqueVertex;
-			const VertexDeclaration::VertexElementList& elemList = 
+			const VertexDeclaration::VertexElementList& elemList =
 				mTargetVertexData->vertexDeclaration->getElements();
 			VertexDeclaration::VertexElementList::const_iterator elemi;
 			unsigned short uvSets = 0;
@@ -389,15 +393,26 @@ namespace meshmagick
 						uniqueVertex.tangent.w = *pFloat++;
 					}
 					break;
+				case VES_BINORMAL:
+					uniqueVertex.binormal.x = *pFloat++;
+					uniqueVertex.binormal.y = *pFloat++;
+					uniqueVertex.binormal.z = *pFloat++;
+					break;
 				case VES_TEXTURE_COORDINATES:
 					// supports up to 4 dimensions
-					for (unsigned short dim = 0; dim < VertexElement::getTypeCount(elemi->getType()); ++dim)
+					for (unsigned short dim = 0;
+						dim < VertexElement::getTypeCount(elemi->getType()); ++dim)
 					{
 						uniqueVertex.uv[elemi->getIndex()][dim] = *pFloat++;
 					}
 					++uvSets;
 					break;
-
+				case VES_BLEND_INDICES:
+				case VES_BLEND_WEIGHTS:
+				case VES_DIFFUSE:
+				case VES_SPECULAR:
+					// No action needed for these semantics.
+					break;
 				};
 			}
 
@@ -462,14 +477,14 @@ namespace meshmagick
 	void OptimiseTool::rebuildVertexBuffers()
 	{
 		// We need to build new vertex buffers of the new, reduced size
-		VertexBufferBinding* newBind = 
+		VertexBufferBinding* newBind =
 			HardwareBufferManager::getSingleton().createVertexBufferBinding();
 
 		// Lock source buffers
 		typedef std::vector<char*> BufferLocks;
 		BufferLocks srcbufferLocks;
 		BufferLocks destbufferLocks;
-		const VertexBufferBinding::VertexBufferBindingMap& srcBindings = 
+		const VertexBufferBinding::VertexBufferBindingMap& srcBindings =
 			mTargetVertexData->vertexBufferBinding->getBindings();
 		VertexBufferBinding::VertexBufferBindingMap::const_iterator bindi;
 		srcbufferLocks.resize(mTargetVertexData->vertexBufferBinding->getLastBoundIndex()+1);
@@ -480,34 +495,34 @@ namespace meshmagick
 			srcbufferLocks[bindi->first] = lock;
 
 			// Add a new vertex buffer and binding
-			HardwareVertexBufferSharedPtr newBuf = 
+			HardwareVertexBufferSharedPtr newBuf =
 				HardwareBufferManager::getSingleton().createVertexBuffer(
-					bindi->second->getVertexSize(), 
-					mUniqueVertexList.size(), 
+					bindi->second->getVertexSize(),
+					mUniqueVertexList.size(),
 					bindi->second->getUsage(),
 					bindi->second->hasShadowBuffer());
 			newBind->setBinding(bindi->first, newBuf);
 			lock = static_cast<char*>(newBuf->lock(HardwareBuffer::HBL_DISCARD));
 			destbufferLocks[bindi->first] = lock;
 		}
-		const VertexBufferBinding::VertexBufferBindingMap& destBindings = 
+		const VertexBufferBinding::VertexBufferBindingMap& destBindings =
 			newBind->getBindings();
 
 
 		// Iterate over the new vertices
-		for (UniqueVertexList::iterator ui = mUniqueVertexList.begin(); 
+		for (UniqueVertexList::iterator ui = mUniqueVertexList.begin();
 			ui != mUniqueVertexList.end(); ++ui)
 		{
 			uint32 origVertexIndex = ui->oldIndex;
 			// copy vertex from each buffer in turn
-			VertexBufferBinding::VertexBufferBindingMap::const_iterator srci = 
+			VertexBufferBinding::VertexBufferBindingMap::const_iterator srci =
 				srcBindings.begin();
-			VertexBufferBinding::VertexBufferBindingMap::const_iterator desti = 
+			VertexBufferBinding::VertexBufferBindingMap::const_iterator desti =
 				destBindings.begin();
 			for (; srci != srcBindings.end(); ++srci, ++desti)
 			{
 				// determine source pointer
-				char* pSrc = srcbufferLocks[srci->first] + 
+				char* pSrc = srcbufferLocks[srci->first] +
 					(srci->second->getVertexSize() * origVertexIndex);
 				char* pDest = destbufferLocks[desti->first];
 
@@ -517,8 +532,6 @@ namespace meshmagick
 				// increment destination lock pointer
 				destbufferLocks[desti->first] += desti->second->getVertexSize();
 			}
-
-
 		}
 
 		// unlock the buffers now
@@ -548,7 +561,7 @@ namespace meshmagick
 		{
 			IndexData* idata = *i;
 			remapIndexes(idata);
-			
+
 		}
 
 	}
@@ -591,7 +604,8 @@ namespace meshmagick
 
 	}
 	//---------------------------------------------------------------------
-	bool OptimiseTool::UniqueVertexLess::equals(const Vector3& a, const Vector3& b, Real tolerance) const
+	bool OptimiseTool::UniqueVertexLess::equals(
+		const Vector3& a, const Vector3& b, Real tolerance) const
 	{
 		// note during this comparison we treat directions as positions
 		// becuase we're interested in numerical equality, not semantics
@@ -599,7 +613,8 @@ namespace meshmagick
 		return a.positionEquals(b, tolerance);
 	}
 	//---------------------------------------------------------------------
-	bool OptimiseTool::UniqueVertexLess::equals(const Vector4& a, const Vector4& b, Real tolerance) const
+	bool OptimiseTool::UniqueVertexLess::equals(
+		const Vector4& a, const Vector4& b, Real tolerance) const
 	{
 		// no built-in position equals
 		for (int i = 0; i < 4; ++i)
@@ -610,7 +625,8 @@ namespace meshmagick
 		return false;
 	}
 	//---------------------------------------------------------------------
-	bool OptimiseTool::UniqueVertexLess::less(const Vector3& a, const Vector3& b, Real tolerance) const
+	bool OptimiseTool::UniqueVertexLess::less(
+		const Vector3& a, const Vector3& b, Real tolerance) const
 	{
 		// don't use built-in operator, we need sorting
 		for (int i = 0; i < 3; ++i)
@@ -622,7 +638,8 @@ namespace meshmagick
 		return a.x < b.x;
 	}
 	//---------------------------------------------------------------------
-	bool OptimiseTool::UniqueVertexLess::less(const Vector4& a, const Vector4& b, Real tolerance) const
+	bool OptimiseTool::UniqueVertexLess::less(
+		const Vector4& a, const Vector4& b, Real tolerance) const
 	{
 		// don't use built-in operator, we need sorting
 		for (int i = 0; i < 4; ++i)
@@ -635,7 +652,7 @@ namespace meshmagick
 	}
 	//---------------------------------------------------------------------
 	bool OptimiseTool::UniqueVertexLess::operator ()(
-		const OptimiseTool::UniqueVertex &a, 
+		const OptimiseTool::UniqueVertex &a,
 		const OptimiseTool::UniqueVertex &b) const
 	{
 		if (!equals(a.position, b.position, pos_tolerance))
@@ -650,9 +667,13 @@ namespace meshmagick
 		{
 			return less(a.tangent, b.tangent, norm_tolerance);
 		}
+		else if (!equals(a.binormal, b.binormal, norm_tolerance))
+		{
+			return less(a.binormal, b.binormal, norm_tolerance);
+		}
 		else
 		{
-			// position, normal and tangent are all the same, try UVs
+			// position, normal, tangent and binormal are all the same, try UVs
 			for (unsigned short i = 0; i < uvSets; ++i)
 			{
 				if (!equals(a.uv[i], b.uv[i], uv_tolerance))

@@ -443,6 +443,9 @@ namespace meshmagick
             case VET_COLOUR_ABGR:
                 layout += "(gl)";
                 break;
+			case VET_COLOUR:
+				// Doesn't appear at runtime, so don't handle
+				break;
             }
         }
 
