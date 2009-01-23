@@ -57,6 +57,7 @@ namespace meshmagick
 
         optionDefs.insert(OptionDefinition("no-normalise-normals"));
         optionDefs.insert(OptionDefinition("no-update-boundingbox"));
+        optionDefs.insert(OptionDefinition("flip-vertex-winding"));
         return optionDefs;
     }
     //------------------------------------------------------------------------
@@ -88,6 +89,7 @@ namespace meshmagick
             << std::endl;
         out << "other options:" << std::endl;
         out << "   -no-normalise-normals: prevents normalisation of normals" << std::endl;
+        out << "   -flip-normals: flip normals by reordering triangle indices" << std::endl;
         out << "   -no-update-boundingbox: keeps bounding box as defined in the file"
             << std::endl
             << std::endl;

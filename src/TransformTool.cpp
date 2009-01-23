@@ -37,6 +37,7 @@ namespace meshmagick
         : mTransform(Matrix4::IDENTITY),
           mNormaliseNormals(false),
           mUpdateBoundingBox(true),
+          mFlipVertexWinding(false),
           mOptions()
     {
     }
@@ -129,7 +130,7 @@ namespace meshmagick
         if (mFollowSkeletonLink && mesh->hasSkeleton())
         {
             // In this case keep file name and also keep already determined transform
-            String skeletonFileName = ToolUtils::getSkeletonFileName(mesh, inFile);            
+            String skeletonFileName = ToolUtils::getSkeletonFileName(mesh, inFile);
             processSkeletonFile(skeletonFileName, skeletonFileName, false);
         }
     }
@@ -233,6 +234,10 @@ namespace meshmagick
             {
                 processVertexData(submesh->vertexData);
             }
+            if (submesh->indexData != NULL)
+            {
+            	processIndexData(submesh->indexData);
+            }
         }
 
         // Process poses, if there are any
@@ -270,6 +275,65 @@ namespace meshmagick
             mesh->_setBounds(mBoundingBox, false);
         }
     }
+
+	void TransformTool::processIndexData(IndexData* indexData)
+	{
+		if (!mFlipVertexWinding)
+		{
+			// Nothing to do.
+			return;
+		}
+
+		if (indexData->indexCount % 3 != 0)
+		{
+            printf("Index number is not a multiple of 3, no vertex winding flipping possible. Skipped.");
+            return;
+		}
+
+		print("Flipping index order for vertex winding flipping.", V_HIGH);
+		Ogre::HardwareIndexBufferSharedPtr buffer = indexData->indexBuffer;
+		unsigned char* data =
+               static_cast<unsigned char*>(buffer->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+
+		if(buffer->getType() == Ogre::HardwareIndexBuffer::IT_16BIT)
+		{
+			// 16 bit
+			print("using 16bit indices", V_HIGH);
+
+			for (size_t i = 0; i < indexData->indexCount; i+=3)
+			{
+				uint16* i0 = (uint16*)(data+0 * buffer->getIndexSize());
+				uint16* i2 = (uint16*)(data+2 * buffer->getIndexSize());
+
+				// flip
+				uint16 tmp = *i0;
+				*i0 = *i2;
+				*i2 = tmp;
+
+				data += 3 * buffer->getIndexSize();
+			}
+		}
+		else
+		{
+			// 32 bit
+			print("using 32bit indices", V_HIGH);
+
+			for (size_t i = 0; i < indexData->indexCount; i+=3)
+			{
+				uint32* i0 = (uint32*)(data+0 * buffer->getIndexSize());
+				uint32* i2 = (uint32*)(data+2 * buffer->getIndexSize());
+
+				// flip
+				uint32 tmp = *i0;
+				*i0 = *i2;
+				*i2 = tmp;
+
+				data += 3 * buffer->getIndexSize();
+			}
+		}
+
+		buffer->unlock();
+	}
 
     void TransformTool::processVertexData(VertexData* vertexData)
     {
@@ -399,6 +463,11 @@ namespace meshmagick
         if (!mUpdateBoundingBox)
         {
             print("Don't update bounding box", V_HIGH);
+        }
+        mFlipVertexWinding = OptionsUtil::isOptionSet(options, "flip-vertex-winding");
+        if (mFlipVertexWinding)
+        {
+            print("Flip vertex winding", V_HIGH);
         }
     }
 

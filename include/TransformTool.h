@@ -51,6 +51,7 @@ namespace meshmagick
         Ogre::AxisAlignedBox mBoundingBox;
         bool mNormaliseNormals;
         bool mUpdateBoundingBox;
+        bool mFlipVertexWinding;
         OptionList mOptions;
 
         void processSkeletonFile(Ogre::String file, Ogre::String outFile,
@@ -72,6 +73,8 @@ namespace meshmagick
         void processBone(Ogre::Bone* bone);
         void processPose(Ogre::Pose* pose);
         void processVertexMorphKeyFrame(Ogre::VertexMorphKeyFrame* keyframe, size_t vertexCount);
+
+        void processIndexData(Ogre::IndexData* indexData);
 
         /// Calculate transformation matrix from input arguments and, if given, a mesh.
         /// The mesh is used to retrieve the AABB, which is needed for alignment operation
