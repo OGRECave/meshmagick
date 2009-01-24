@@ -647,6 +647,96 @@ namespace meshmagick
 
                 transform = Matrix4::getScale(scale) * transform;
             }
+			else if (it->first == "axes")
+            {
+            	Vector3 axes[] = { Vector3::ZERO, Vector3::ZERO, Vector3::ZERO };
+
+                // determine the components of the axes-argument.
+                String axesString = any_cast<String>(it->second);
+                std::vector<String> components = StringUtil::split(axesString, "/");
+                if (components.size() != 3)
+                {
+                    warn("unrecongnized -axes option value. skipping..");
+                    continue;
+                }
+
+                // decompose transform matrix to 3x3 matrix and translation.
+                // We will recontruct the 4x4 transform later in this code block.
+                Matrix3 m3;
+                transform.extract3x3Matrix(m3);
+                Vector3 translation = transform.getTrans();
+
+                bool malformed = false;
+                for (size_t i = 0; i < components.size(); ++i)
+                {
+                	String component = components[i];
+                	char axis;
+                	Real factor = 1.0f;
+                	if (component.size() > 2 || component.empty())
+                	{
+                		malformed = true;
+                		break;
+                	}
+                	else if (component.size() == 2)
+                	{
+                		if (component.at(0) == '-')
+                		{
+                			factor = -1.0f;
+                		}
+                		else if (component.at(0) != '+')
+                		{
+                			malformed = true;
+                			break;
+                		}
+
+                		axis = component.at(1);
+                	}
+                	else
+                	{
+                		axis = component.at(0);
+                	}
+
+                	if (axis == 'x' || axis == 'X')
+                	{
+                		axes[i] = m3.GetColumn(0) * factor;
+                	}
+                	else if (axis == 'y' || axis == 'Y')
+                	{
+                		axes[i] = m3.GetColumn(1) * factor;
+                	}
+                	else if (axis == 'z' || axis == 'Z')
+                	{
+                		axes[i] = m3.GetColumn(2) * factor;
+                	}
+                	else
+                	{
+                		malformed = true;
+                		break;
+                	}
+                }
+                if (malformed)
+                {
+                    warn("unrecongnized -axes option value. skipping..");
+                    continue;
+                }
+
+                // Apply new axes to transform matrix.
+                m3.FromAxes(axes[0], axes[1], axes[2]);
+                transform = m3;
+                transform.setTrans(translation);
+            }
+        }
+
+        // Check whether we have to flip vertex winding.
+        // We do have to, if we changed our right hand base.
+        // We can test it by using the cross product from X and Y and see, if it is a non-negative
+        // projection on Z. Actually it should be exactly Z, as we don't do non-uniform scaling yet,
+        // but the test is cheap either way.
+        Matrix3 m3;
+        transform.extract3x3Matrix(m3);
+        if (m3.GetColumn(0).crossProduct(m3.GetColumn(1)).dotProduct(m3.GetColumn(2)) < 0)
+        {
+        	mFlipVertexWinding = true;
         }
 
         mTransform = transform;

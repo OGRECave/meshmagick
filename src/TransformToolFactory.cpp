@@ -54,6 +54,7 @@ namespace meshmagick
             ";back;center;front"));
 
         optionDefs.insert(OptionDefinition("resize", OT_STRING, false, true));
+        optionDefs.insert(OptionDefinition("axes", OT_STRING, false, true));
 
         optionDefs.insert(OptionDefinition("no-normalise-normals"));
         optionDefs.insert(OptionDefinition("no-update-boundingbox"));
@@ -84,6 +85,10 @@ namespace meshmagick
         out << "       axes components can be a non-negative value or 's' or 'k'"
             << std::endl;
         out << "       k: keep scale for this axis, s: scale uniformely"
+            << std::endl;
+        out << "   -axes=x/y/z : remaps main axes components to new ones."
+            << std::endl;
+        out << "       e.g.: -axes=-z/y/z will change x -> -z, y stays y, z -> x"
             << std::endl;
         out << "(All transform options are applied in their relative order.)" << std::endl
             << std::endl;
