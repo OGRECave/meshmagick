@@ -189,7 +189,7 @@ namespace meshmagick
 				rval.skeleton = processSkeleton(mesh->getSkeletonName());
 				rval.skeletonValid = true;
 			}
-			catch (std::exception& e)
+			catch (std::exception&)
 			{
 				warn("Error processing skeleton. skipped.");
 				rval.skeletonValid = false;

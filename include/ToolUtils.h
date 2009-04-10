@@ -43,20 +43,25 @@ namespace meshmagick
     class _MeshMagickExport ToolUtils
     {
     public:
-        static Ogre::String getPrettyVectorString(const Ogre::Vector3&, unsigned short precision=2,
-            unsigned short width=0, char fill= ' ', std::ios::fmtflags flags=std::ios::fmtflags(0));
+        static Ogre::String getPrettyVectorString(const Ogre::Vector3&, unsigned short precision=3,
+			unsigned short width=0, char fill= ' ',
+			std::ios::fmtflags flags=std::ios::fmtflags(std::ios_base::fixed));
 
-        static Ogre::String getPrettyVectorString(const Ogre::Vector4&, unsigned short precision=2,
-            unsigned short width=0, char fill= ' ', std::ios::fmtflags flags=std::ios::fmtflags(0));
+        static Ogre::String getPrettyVectorString(const Ogre::Vector4&, unsigned short precision=3,
+            unsigned short width=0, char fill= ' ',
+			std::ios::fmtflags flags=std::ios::fmtflags(std::ios_base::fixed));
 
-        static Ogre::String getPrettyAabbString(const Ogre::AxisAlignedBox&, unsigned short precision=2,
-            unsigned short width=0, char fill= ' ', std::ios::fmtflags flags=std::ios::fmtflags(0));
+        static Ogre::String getPrettyAabbString(const Ogre::AxisAlignedBox&, unsigned short precision=3,
+            unsigned short width=0, char fill= ' ',
+			std::ios::fmtflags flags=std::ios::fmtflags(std::ios_base::fixed));
 
-        static Ogre::String getPrettyMatrixString(const Ogre::Matrix4&, unsigned short precision=2,
-            unsigned short width=0, char fill= ' ', std::ios::fmtflags flags=std::ios::fmtflags(0));
+        static Ogre::String getPrettyMatrixString(const Ogre::Matrix4&, unsigned short precision=3,
+            unsigned short width=0, char fill= ' ',
+			std::ios::fmtflags flags=std::ios::fmtflags(std::ios_base::fixed));
 
-        static Ogre::String getPrettyMatrixString(const Ogre::Matrix3&, unsigned short precision=2,
-            unsigned short width=0, char fill= ' ', std::ios::fmtflags flags=std::ios::fmtflags(0));
+        static Ogre::String getPrettyMatrixString(const Ogre::Matrix3&, unsigned short precision=3,
+            unsigned short width=0, char fill= ' ',
+			std::ios::fmtflags flags=std::ios::fmtflags(std::ios_base::fixed));
 
         static bool fileExists(const Ogre::String& fileName);
         
