@@ -612,20 +612,23 @@ namespace meshmagick
                 Vector3 meshSize = MeshUtils::getMeshAabb(mesh, transform).getSize();
                 for (size_t i = 0; i < 3; ++i)
                 {
-                    if (StringConverter::isNumber(resizeAxes[i]))
+                    if (StringConverter::isNumber(resizeAxes[i]) && meshSize[i] > 0)
                     {
                         Real newSize = StringConverter::parseReal(resizeAxes[i]);
                         valueSum += newSize / meshSize[i];
                         ++numValues;
                     }
                 }
+
+				if (numValues == 0) continue;
+
                 Real meanScale = valueSum / numValues;
 
                 // now check each axis component and apply it to the scale vector accordingly
                 Vector3 scale = Vector3::UNIT_SCALE;
                 for (size_t i = 0; i < 3; ++i)
                 {
-                    if (StringConverter::isNumber(resizeAxes[i]))
+                    if (StringConverter::isNumber(resizeAxes[i]) && meshSize[i] > 0)
                     {
                         // Scale this axis according to the length / value quotient
                         Real newSize = StringConverter::parseReal(resizeAxes[i]);
