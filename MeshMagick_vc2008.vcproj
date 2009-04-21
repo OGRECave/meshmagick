@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\include;..\ogre\OgreMain\include"
+				AdditionalIncludeDirectories=".\include;&quot;$(OGRE_HOME)\OgreMain\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;OGRE_STATIC_LIB;MESHMAGICK_STANDALONE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -64,7 +64,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="OgreMainStatic_d.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\ogre\lib"
+				AdditionalLibraryDirectories="&quot;$(OGRE_HOME)\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
@@ -118,7 +118,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".\include;..\ogre\OgreMain\include"
+				AdditionalIncludeDirectories=".\include;&quot;$(OGRE_HOME)\OgreMain\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;OGRE_STATIC_LIB;MESHMAGICK_STANDALONE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -139,7 +139,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="OgreMainStatic.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\ogre\lib"
+				AdditionalLibraryDirectories="&quot;$(OGRE_HOME)\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -195,7 +195,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\include;..\ogre\OgreMain\include"
+				AdditionalIncludeDirectories=".\include;&quot;$(OGRE_HOME)\OgreMain\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;MESHMAGICK_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -219,7 +219,7 @@
 				AdditionalDependencies="OgreMain_d.lib"
 				OutputFile="lib\meshmagick_d.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\ogre\lib"
+				AdditionalLibraryDirectories="&quot;$(OGRE_HOME)\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
@@ -273,7 +273,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".\include;..\ogre\OgreMain\include"
+				AdditionalIncludeDirectories=".\include;&quot;$(OGRE_HOME)\OgreMain\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;MESHMAGICK_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -295,7 +295,7 @@
 				AdditionalDependencies="OgreMain.lib"
 				OutputFile="lib\meshmagick.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\ogre\lib"
+				AdditionalLibraryDirectories="&quot;$(OGRE_HOME)\lib&quot;"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
