@@ -34,14 +34,14 @@ using namespace Ogre;
 namespace meshmagick
 {
 	MeshMergeTool::MeshMergeTool()
-		: m_BaseSkeleton(), m_Meshes()
+		: mBaseSkeleton(), mMeshes()
 	{
 	}
 
 	MeshMergeTool::~MeshMergeTool()
 	{
-		m_Meshes.clear();
-		m_BaseSkeleton.setNull();
+		mMeshes.clear();
+		mBaseSkeleton.setNull();
 	}
 
 	void MeshMergeTool::doInvoke(const OptionList& toolOptions,
@@ -66,10 +66,7 @@ namespace meshmagick
 			it != inFileNames.end(); ++it)
 		{
 			MeshPtr curMesh = meshSer->loadMesh(*it);
-			if (curMesh.isNull())
-			{
-			}
-			else
+			if (!curMesh.isNull())
 			{
 				if (curMesh->hasSkeleton() && SkeletonManager::getSingleton().getByName(
 					curMesh->getSkeletonName()).isNull())
@@ -77,6 +74,10 @@ namespace meshmagick
 					skelSer->loadSkeleton(curMesh->getSkeletonName());
 				}
 				addMesh(curMesh);
+			}
+			else
+			{
+				warn("Skipped: Mesh " + *it + " cannnot be loaded.");
 			}
 		}
 		Ogre::String outputfile = *outFileNames.begin();
@@ -92,33 +93,33 @@ namespace meshmagick
 			meshSkel = SkeletonManager::getSingleton().getByName(mesh->getSkeletonName());
 		}
 
-		if (meshSkel.isNull() && !m_BaseSkeleton.isNull())
+		if (meshSkel.isNull() && !mBaseSkeleton.isNull())
 		{
-			print("Skipped: " + mesh->getName() + " has no skeleton", V_NORMAL);
+			warn("Skipped: " + mesh->getName() + " has no skeleton");
 			return;
 		}
 
-		if (!meshSkel.isNull() && m_BaseSkeleton.isNull() && !m_Meshes.empty())
+		if (!meshSkel.isNull() && mBaseSkeleton.isNull() && !mMeshes.empty())
 		{
 			throw std::logic_error(
 					"Some meshes have a skeleton, but others have none, cannot merge.");
 		}
 
-		if (!meshSkel.isNull() && m_BaseSkeleton.isNull() && m_Meshes.empty())
+		if (!meshSkel.isNull() && mBaseSkeleton.isNull() && mMeshes.empty())
 		{
-			m_BaseSkeleton = meshSkel;
-			print("Set: base skeleton (" + m_BaseSkeleton->getName()+")", V_HIGH);
+			mBaseSkeleton = meshSkel;
+			warn("Set: base skeleton (" + mBaseSkeleton->getName()+")");
 		}
 
-		if (meshSkel != m_BaseSkeleton)
+		if (meshSkel != mBaseSkeleton)
 		{
-			print("Skipped: "
+			warn("Skipped: "
 					+ mesh->getName() + " has other skeleton ("
-					+ mesh->getSkeleton()->getName() +")", V_NORMAL);
+					+ mesh->getSkeleton()->getName() +")");
 			return;
 		}
 
-		m_Meshes.push_back(mesh);
+		mMeshes.push_back(mesh);
 	}
 
 	const String MeshMergeTool::findSubmeshName(MeshPtr m, Ogre::ushort sid) const
@@ -141,13 +142,13 @@ namespace meshmagick
 		MeshPtr mp = MeshManager::getSingleton().
 			createManual(meshname, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
-		if (!m_BaseSkeleton.isNull())
+		if (!mBaseSkeleton.isNull())
 		{
-			mp->setSkeletonName(m_BaseSkeleton->getName());
+			mp->setSkeletonName(mBaseSkeleton->getName());
 		}
 
 		AxisAlignedBox totalBounds = AxisAlignedBox();
-		for (std::vector<Ogre::MeshPtr>::iterator it = m_Meshes.begin(); it != m_Meshes.end(); ++it)
+		for (std::vector<Ogre::MeshPtr>::iterator it = mMeshes.begin(); it != mMeshes.end(); ++it)
 		{
 			print("Baking: adding submeshes for " + (*it)->getName(), V_HIGH);
 
@@ -179,7 +180,7 @@ namespace meshmagick
 				{
 					newsub->vertexData = sub->vertexData->clone();
 
-					if (!m_BaseSkeleton.isNull())
+					if (!mBaseSkeleton.isNull())
 					{
 						// build bone assignments
 						SubMesh::BoneAssignmentIterator bit = sub->getBoneAssignmentIterator();
@@ -270,7 +271,7 @@ namespace meshmagick
 					mp->sharedVertexData = (*it)->sharedVertexData->clone();
 				}
 
-				if (!m_BaseSkeleton.isNull())
+				if (!mBaseSkeleton.isNull())
 				{
 					Mesh::BoneAssignmentIterator bit = (*it)->getBoneAssignmentIterator();
 					while (bit.hasMoreElements())

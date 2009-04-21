@@ -44,10 +44,10 @@ namespace meshmagick
 		Ogre::MeshPtr bake(const Ogre::String& meshname);
 
 	private: 
-		Ogre::SkeletonPtr m_BaseSkeleton;
-		std::vector< Ogre::MeshPtr > m_Meshes;
+		Ogre::SkeletonPtr mBaseSkeleton;
+		std::vector<Ogre::MeshPtr> mMeshes;
 
-		const Ogre::String findSubmeshName( Ogre::MeshPtr m, Ogre::ushort sid ) const;
+		const Ogre::String findSubmeshName(Ogre::MeshPtr m, Ogre::ushort sid) const;
 
 		void doInvoke(const OptionList& toolOptions,
 			const Ogre::StringVector& inFileNames,
