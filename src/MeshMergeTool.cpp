@@ -95,8 +95,8 @@ namespace meshmagick
 
 		if (meshSkel.isNull() && !mBaseSkeleton.isNull())
 		{
-			warn("Skipped: " + mesh->getName() + " has no skeleton");
-			return;
+			throw std::logic_error(
+					"Some meshes have a skeleton, but others have none, cannot merge.");
 		}
 
 		if (!meshSkel.isNull() && mBaseSkeleton.isNull() && !mMeshes.empty())
@@ -108,15 +108,13 @@ namespace meshmagick
 		if (!meshSkel.isNull() && mBaseSkeleton.isNull() && mMeshes.empty())
 		{
 			mBaseSkeleton = meshSkel;
-			warn("Set: base skeleton (" + mBaseSkeleton->getName()+")");
+			print("Set: base skeleton (" + mBaseSkeleton->getName()+")", V_HIGH);
 		}
 
 		if (meshSkel != mBaseSkeleton)
 		{
-			warn("Skipped: "
-					+ mesh->getName() + " has other skeleton ("
-					+ mesh->getSkeleton()->getName() +")");
-			return;
+			throw std::logic_error(
+					"Some meshes have a skeleton, but others have none, cannot merge.");
 		}
 
 		mMeshes.push_back(mesh);
