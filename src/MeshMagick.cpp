@@ -39,7 +39,7 @@ namespace meshmagick
 		mTransformTool(NULL)
 	{
 		mOgreEnvironment = new OgreEnvironment();
-		mOgreEnvironment->initialize(true, log);
+		mOgreEnvironment->initialize(false, log);
 
 		mToolManager = new ToolManager();
 		mToolManager->registerToolFactory(new InfoToolFactory());
