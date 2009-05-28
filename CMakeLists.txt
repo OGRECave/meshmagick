@@ -18,28 +18,28 @@ find_package(PkgConfig)
 find_package(OGRE 1.6 REQUIRED)
 
 set(MESHMAGICK_SOURCE
-src/EditableBone.cpp
-src/EditableMesh.cpp
-src/EditableSkeleton.cpp
-src/InfoTool.cpp
-src/InfoToolFactory.cpp
-src/Makefile.am
-src/MeshMergeTool.cpp
-src/MeshMergeToolFactory.cpp
-src/MeshUtils.cpp
-src/OgreEnvironment.cpp
-src/OptimiseTool.cpp
-src/OptimiseToolFactory.cpp
-src/OptionsParser.cpp
-src/RenameTool.cpp
-src/RenameToolFactory.cpp
-src/StatefulMeshSerializer.cpp
-src/StatefulSkeletonSerializer.cpp
-src/Tool.cpp
-src/ToolManager.cpp
-src/ToolsUtils.cpp
-src/TransformTool.cpp
-src/TransformToolFactory.cpp
+src/MeshMagick.cpp
+src/MmEditableBone.cpp
+src/MmEditableMesh.cpp
+src/MmEditableSkeleton.cpp
+src/MmInfoTool.cpp
+src/MmInfoToolFactory.cpp
+src/MmMeshMergeTool.cpp
+src/MmMeshMergeToolFactory.cpp
+src/MmMeshUtils.cpp
+src/MmOgreEnvironment.cpp
+src/MmOptimiseTool.cpp
+src/MmOptimiseToolFactory.cpp
+src/MmOptionsParser.cpp
+src/MmRenameTool.cpp
+src/MmRenameToolFactory.cpp
+src/MmStatefulMeshSerializer.cpp
+src/MmStatefulSkeletonSerializer.cpp
+src/MmTool.cpp
+src/MmToolManager.cpp
+src/MmToolsUtils.cpp
+src/MmTransformTool.cpp
+src/MmTransformToolFactory.cpp
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${OGRE_INCLUDE_DIRS})
@@ -70,29 +70,30 @@ if(NOT WIN32)
 endif(NOT WIN32)
 
 install(FILES
-include/EditableBone.h
-include/EditableMesh.h
-include/EditableSkeleton.h
-include/InfoToolFactory.h
-include/InfoTool.h
+include/MeshMagick.h
 include/MeshMagickPrerequisites.h
-include/MeshMergeToolFactory.h
-include/MeshMergeTool.h
-include/MeshUtils.h
-include/OgreEnvironment.h
-include/OptimiseToolFactory.h
-include/OptimiseTool.h
-include/OptionsParser.h
-include/RenameToolFactory.h
-include/RenameTool.h
-include/StatefulMeshSerializer.h
-include/StatefulSkeletonSerializer.h
-include/ToolFactory.h
-include/Tool.h
-include/ToolManager.h
-include/ToolUtils.h
-include/TransformToolFactory.h
-include/TransformTool.h
+include/MmEditableBone.h
+include/MmEditableMesh.h
+include/MmEditableSkeleton.h
+include/MmInfoToolFactory.h
+include/MmInfoTool.h
+include/MmMeshMergeToolFactory.h
+include/MmMeshMergeTool.h
+include/MmMeshUtils.h
+include/MmOgreEnvironment.h
+include/MmOptimiseToolFactory.h
+include/MmOptimiseTool.h
+include/MmOptionsParser.h
+include/MmRenameToolFactory.h
+include/MmRenameTool.h
+include/MmStatefulMeshSerializer.h
+include/MmStatefulSkeletonSerializer.h
+include/MmToolFactory.h
+include/MmTool.h
+include/MmToolManager.h
+include/MmToolUtils.h
+include/MmTransformToolFactory.h
+include/MmTransformTool.h
 DESTINATION ${CMAKE_INSTALL_PREFIX}/include/meshmagick)
 
 include(CPack)

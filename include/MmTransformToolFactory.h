@@ -17,37 +17,30 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef __MM_MESHMAGICK_PREREQUISITES_H__
-#define __MM_MESHMAGICK_PREREQUISITES_H__
+#ifndef __MM_TRANSFORM_TOOL_FACTORY_H__
+#define __MM_TRANSFORM_TOOL_FACTORY_H__
+
+#include "MeshMagickPrerequisites.h"
+
+#include "MmToolFactory.h"
 
 namespace meshmagick
 {
-    class Tool;
-    class ToolFactory;
+    class TransformToolFactory : public ToolFactory
+    {
+    public:
+        virtual Tool* createTool();
+        virtual void destroyTool(Tool* tool);
 
-    class TransformTool;
-    class TransformToolFactory;
+        virtual OptionDefinitionSet getOptionDefinitions() const;
+
+        // Returns the name of the tool this factory creates.
+        virtual Ogre::String getToolName() const;
+
+        // Returns a short description of the tool this factory creates.
+        virtual Ogre::String getToolDescription() const;
+
+        virtual void printToolHelp(std::ostream& out) const;
+    };
 }
-
-#ifdef __APPLE__
-#	include <Ogre/OgrePlatform.h>
-#else
-#	include <OgrePlatform.h>
-#endif
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && !MESHMAGICK_STANDALONE
-// Export control
-#   if defined( MESHMAGICK_EXPORTS )
-#       define _MeshMagickExport __declspec( dllexport )
-#   else
-#       define _MeshMagickExport __declspec( dllimport )
-#   endif
-#else // Linux / Mac OSX etc
-#   define _MeshMagickExport
-#endif
-
-#define MESHMAGICK_VERSION_MAJOR 0
-#define MESHMAGICK_VERSION_MINOR 6
-#define MESHMAGICK_VERSION_PATCH 0
-
 #endif

@@ -17,37 +17,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef __MM_MESHMAGICK_PREREQUISITES_H__
-#define __MM_MESHMAGICK_PREREQUISITES_H__
+#include "MmEditableBone.h"
+
+using namespace Ogre;
 
 namespace meshmagick
 {
-    class Tool;
-    class ToolFactory;
-
-    class TransformTool;
-    class TransformToolFactory;
+	void EditableBone::setName(const String& name)
+	{
+		mName = name;
+	}
 }
-
-#ifdef __APPLE__
-#	include <Ogre/OgrePlatform.h>
-#else
-#	include <OgrePlatform.h>
-#endif
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && !MESHMAGICK_STANDALONE
-// Export control
-#   if defined( MESHMAGICK_EXPORTS )
-#       define _MeshMagickExport __declspec( dllexport )
-#   else
-#       define _MeshMagickExport __declspec( dllimport )
-#   endif
-#else // Linux / Mac OSX etc
-#   define _MeshMagickExport
-#endif
-
-#define MESHMAGICK_VERSION_MAJOR 0
-#define MESHMAGICK_VERSION_MINOR 6
-#define MESHMAGICK_VERSION_PATCH 0
-
-#endif

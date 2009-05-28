@@ -1,6 +1,6 @@
 /*
 This file is part of MeshMagick - An Ogre mesh file manipulation tool.
-Copyright (C) 2007 - Daniel Wickert
+Copyright (C) 2007-2009 Daniel Wickert
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public License
@@ -19,15 +19,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "MeshMagickPrerequisites.h"
 
-#include "MeshMergeToolFactory.h"
-#include "InfoToolFactory.h"
-#include "OgreEnvironment.h"
-#include "OptionsParser.h"
-#include "RenameToolFactory.h"
-#include "Tool.h"
-#include "ToolManager.h"
-#include "TransformToolFactory.h"
-#include "OptimiseToolFactory.h"
+#include "MmMeshMergeToolFactory.h"
+#include "MmInfoToolFactory.h"
+#include "MmOgreEnvironment.h"
+#include "MmOptimiseToolFactory.h"
+#include "MmOptionsParser.h"
+#include "MmRenameToolFactory.h"
+#include "MmTool.h"
+#include "MmToolManager.h"
+#include "MmTransformToolFactory.h"
 
 using namespace Ogre;
 using namespace meshmagick;
@@ -206,7 +206,7 @@ int main(int argc, const char** argv)
     {
         if (it->first == "version")
         {
-			std::cout << "MeshMagic version "
+			std::cout << "MeshMagick version "
                 << MESHMAGICK_VERSION_MAJOR << "."
                 << MESHMAGICK_VERSION_MINOR << "."
                 << MESHMAGICK_VERSION_PATCH << std::endl;

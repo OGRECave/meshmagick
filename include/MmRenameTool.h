@@ -17,37 +17,39 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef __MM_MESHMAGICK_PREREQUISITES_H__
-#define __MM_MESHMAGICK_PREREQUISITES_H__
+#ifndef __MM__RENAMETOOL_H__
+#define __MM__RENAMETOOL_H__
+
+#include "MeshMagickPrerequisites.h"
+
+#include "MmTool.h"
 
 namespace meshmagick
 {
-    class Tool;
-    class ToolFactory;
 
-    class TransformTool;
-    class TransformToolFactory;
+	class _MeshMagickExport RenameTool : public Tool
+	{
+	public:
+		RenameTool();
+		~RenameTool();
+
+		Ogre::String getName() const;
+
+	protected:
+		virtual void doInvoke(const OptionList& toolOptions,
+				const Ogre::StringVector& inFileNames,
+				const Ogre::StringVector& outFileNames);
+
+	private:
+		typedef std::pair<Ogre::String, Ogre::String> StringPair;
+
+		void processMeshFile(
+			const OptionList &toolOptions, Ogre::String inFile, Ogre::String outFile);
+		void processSkeletonFile(
+			const OptionList &toolOptions, Ogre::String inFile, Ogre::String outFile);
+		StringPair split(const Ogre::String& value) const;
+	};
+
 }
 
-#ifdef __APPLE__
-#	include <Ogre/OgrePlatform.h>
-#else
-#	include <OgrePlatform.h>
-#endif
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && !MESHMAGICK_STANDALONE
-// Export control
-#   if defined( MESHMAGICK_EXPORTS )
-#       define _MeshMagickExport __declspec( dllexport )
-#   else
-#       define _MeshMagickExport __declspec( dllimport )
-#   endif
-#else // Linux / Mac OSX etc
-#   define _MeshMagickExport
-#endif
-
-#define MESHMAGICK_VERSION_MAJOR 0
-#define MESHMAGICK_VERSION_MINOR 6
-#define MESHMAGICK_VERSION_PATCH 0
-
-#endif
+#endif // __MM__RENAMETOOL_H__

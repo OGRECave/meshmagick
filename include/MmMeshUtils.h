@@ -17,37 +17,25 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef __MM_MESHMAGICK_PREREQUISITES_H__
-#define __MM_MESHMAGICK_PREREQUISITES_H__
+#ifndef __MM_MESH_UTILS_H__
+#define __MM_MESH_UTILS_H__
+
+#include "MeshMagickPrerequisites.h"
+
+#include <OgreMesh.h>
 
 namespace meshmagick
 {
-    class Tool;
-    class ToolFactory;
+    /// Utility class containing mesh related functions that may be useful for
+    /// multiple tools.
+    class _MeshMagickExport MeshUtils
+    {
+    public:
+        static Ogre::AxisAlignedBox getMeshAabb(Ogre::MeshPtr mesh,
+            const Ogre::Matrix4& transform = Ogre::Matrix4::IDENTITY);
 
-    class TransformTool;
-    class TransformToolFactory;
+        static Ogre::AxisAlignedBox getVertexDataAabb(Ogre::VertexData* vd,
+            const Ogre::Matrix4& transform = Ogre::Matrix4::IDENTITY);
+    };
 }
-
-#ifdef __APPLE__
-#	include <Ogre/OgrePlatform.h>
-#else
-#	include <OgrePlatform.h>
-#endif
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && !MESHMAGICK_STANDALONE
-// Export control
-#   if defined( MESHMAGICK_EXPORTS )
-#       define _MeshMagickExport __declspec( dllexport )
-#   else
-#       define _MeshMagickExport __declspec( dllimport )
-#   endif
-#else // Linux / Mac OSX etc
-#   define _MeshMagickExport
-#endif
-
-#define MESHMAGICK_VERSION_MAJOR 0
-#define MESHMAGICK_VERSION_MINOR 6
-#define MESHMAGICK_VERSION_PATCH 0
-
 #endif

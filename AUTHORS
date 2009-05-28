@@ -1,17 +1,24 @@
 AUTHORS
 =======
 
-Daniel Wickert (haffax)
-Sascha Kolewa  (blakharaz)
+Daniel Wickert  (haffax)
+Henrik Hinrichs (harlequin)
+Sascha Kolewa   (blakharaz)
+Steve Streeting (sinbad)
 
 Contributions
 -------------
 The MergeTool was initially contributed by Henrik Hinrichs (harlequin)
 and integrated into MeshMagick by Sascha Kolewa (blakharaz)
+The RenameTool was contributed by Sascha Kolewa (blakharaz)
+The OptimiseTool was contributed by Steve Streeting (sinbad)
+
 The Linux build environment was initially contributed by Jochen Schäfer (JoSch)
 
-MeshMagick - Copyright 2007 by Daniel Wickert.
-MergeTool  - Copyright 2006-2007 by Henrik Hinrichs, Sascha Kolewa
+MeshMagick - Copyright 2007-2009 Daniel Wickert.
+MergeTool  - Copyright 2006-2007 Henrik Hinrichs, Sascha Kolewa.
+OptimiseTool - Copyright 2007 Steve Streeting.
+RenameTool - Copyright 2007 Sascha Kolewa.
 
 This file is part of MeshMagick.
 

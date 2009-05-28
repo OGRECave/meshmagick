@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C++ Express 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MeshMagick", "MeshMagick_vc2008.vcproj", "{BBDFCAFA-96E2-420D-83D7-E9D7A0BE9C27}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testbed", "..\testbed\testbed.vcproj", "{14CFDE32-0587-4A04-99C1-D3E89AA7438C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BBDFCAFA-96E2-420D-83D7-E9D7A0BE9C27} = {BBDFCAFA-96E2-420D-83D7-E9D7A0BE9C27}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_DLL|Win32 = Debug_DLL|Win32
@@ -19,6 +24,14 @@ Global
 		{BBDFCAFA-96E2-420D-83D7-E9D7A0BE9C27}.Release_DLL|Win32.Build.0 = Release_DLL|Win32
 		{BBDFCAFA-96E2-420D-83D7-E9D7A0BE9C27}.Release|Win32.ActiveCfg = Release|Win32
 		{BBDFCAFA-96E2-420D-83D7-E9D7A0BE9C27}.Release|Win32.Build.0 = Release|Win32
+		{14CFDE32-0587-4A04-99C1-D3E89AA7438C}.Debug_DLL|Win32.ActiveCfg = Debug|Win32
+		{14CFDE32-0587-4A04-99C1-D3E89AA7438C}.Debug_DLL|Win32.Build.0 = Debug|Win32
+		{14CFDE32-0587-4A04-99C1-D3E89AA7438C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{14CFDE32-0587-4A04-99C1-D3E89AA7438C}.Debug|Win32.Build.0 = Debug|Win32
+		{14CFDE32-0587-4A04-99C1-D3E89AA7438C}.Release_DLL|Win32.ActiveCfg = Release|Win32
+		{14CFDE32-0587-4A04-99C1-D3E89AA7438C}.Release_DLL|Win32.Build.0 = Release|Win32
+		{14CFDE32-0587-4A04-99C1-D3E89AA7438C}.Release|Win32.ActiveCfg = Release|Win32
+		{14CFDE32-0587-4A04-99C1-D3E89AA7438C}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

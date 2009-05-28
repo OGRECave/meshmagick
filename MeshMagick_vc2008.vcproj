@@ -41,14 +41,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\include;&quot;$(OGRE_HOME)\OgreMain\include&quot;"
+				AdditionalIncludeDirectories=".\include;..\ogre\OgreMain\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;OGRE_STATIC_LIB;MESHMAGICK_STANDALONE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -64,7 +63,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="OgreMainStatic_d.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(OGRE_HOME)\lib&quot;"
+				AdditionalLibraryDirectories="..\ogre\lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
@@ -118,12 +117,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".\include;&quot;$(OGRE_HOME)\OgreMain\include&quot;"
+				AdditionalIncludeDirectories=".\include;..\ogre\OgreMain\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;OGRE_STATIC_LIB;MESHMAGICK_STANDALONE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="0"
 			/>
 			<Tool
@@ -139,7 +137,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="OgreMainStatic.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(OGRE_HOME)\lib&quot;"
+				AdditionalLibraryDirectories="..\ogre\lib"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -195,14 +193,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\include;&quot;$(OGRE_HOME)\OgreMain\include&quot;"
+				AdditionalIncludeDirectories=".\include;..\ogre\OgreMain\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;MESHMAGICK_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -219,7 +216,7 @@
 				AdditionalDependencies="OgreMain_d.lib"
 				OutputFile="lib\meshmagick_d.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(OGRE_HOME)\lib&quot;"
+				AdditionalLibraryDirectories="..\ogre\lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
@@ -273,12 +270,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories=".\include;&quot;$(OGRE_HOME)\OgreMain\include&quot;"
+				AdditionalIncludeDirectories=".\include;..\ogre\OgreMain\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;MESHMAGICK_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="0"
 			/>
 			<Tool
@@ -295,7 +291,7 @@
 				AdditionalDependencies="OgreMain.lib"
 				OutputFile="lib\meshmagick.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(OGRE_HOME)\lib&quot;"
+				AdditionalLibraryDirectories="..\ogre\lib"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -336,91 +332,95 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\EditableBone.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\EditableMesh.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\EditableSkeleton.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\InfoTool.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\InfoToolFactory.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\src\main.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\MeshMergeTool.cpp"
+				RelativePath=".\src\MeshMagick.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\MeshMergeToolFactory.cpp"
+				RelativePath=".\src\MmEditableBone.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\MeshUtils.cpp"
+				RelativePath=".\src\MmEditableMesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\OgreEnvironment.cpp"
+				RelativePath=".\src\MmEditableSkeleton.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\OptimiseTool.cpp"
+				RelativePath=".\src\MmInfoTool.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\OptimiseToolFactory.cpp"
+				RelativePath=".\src\MmInfoToolFactory.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\OptionsParser.cpp"
+				RelativePath=".\src\MmMeshMergeTool.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\RenameTool.cpp"
+				RelativePath=".\src\MmMeshMergeToolFactory.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\RenameToolFactory.cpp"
+				RelativePath=".\src\MmMeshUtils.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\StatefulMeshSerializer.cpp"
+				RelativePath=".\src\MmOgreEnvironment.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\StatefulSkeletonSerializer.cpp"
+				RelativePath=".\src\MmOptimiseTool.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\Tool.cpp"
+				RelativePath=".\src\MmOptimiseToolFactory.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\ToolManager.cpp"
+				RelativePath=".\src\MmOptionsParser.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\ToolsUtils.cpp"
+				RelativePath=".\src\MmRenameTool.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\TransformTool.cpp"
+				RelativePath=".\src\MmRenameToolFactory.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\src\TransformToolFactory.cpp"
+				RelativePath=".\src\MmStatefulMeshSerializer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\MmStatefulSkeletonSerializer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\MmTool.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\MmToolManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\MmToolsUtils.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\MmTransformTool.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\MmTransformToolFactory.cpp"
 				>
 			</File>
 		</Filter>
@@ -430,19 +430,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\include\EditableBone.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\EditableSkeleton.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\InfoTool.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\InfoToolFactory.h"
+				RelativePath=".\include\MeshMagick.h"
 				>
 			</File>
 			<File
@@ -450,71 +438,91 @@
 				>
 			</File>
 			<File
-				RelativePath=".\include\MeshMergeTool.h"
+				RelativePath=".\include\MmEditableBone.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\MeshMergeToolFactory.h"
+				RelativePath=".\include\MmEditableMesh.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\MeshUtils.h"
+				RelativePath=".\include\MmEditableSkeleton.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\OgreEnvironment.h"
+				RelativePath=".\include\MmInfoTool.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\OptimiseTool.h"
+				RelativePath=".\include\MmInfoToolFactory.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\OptimiseToolFactory.h"
+				RelativePath=".\include\MmMeshMergeTool.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\OptionsParser.h"
+				RelativePath=".\include\MmMeshMergeToolFactory.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\RenameTool.h"
+				RelativePath=".\include\MmMeshUtils.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\RenameToolFactory.h"
+				RelativePath=".\include\MmOgreEnvironment.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\StatefulMeshSerializer.h"
+				RelativePath=".\include\MmOptimiseTool.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\StatefulSkeletonSerializer.h"
+				RelativePath=".\include\MmOptimiseToolFactory.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\Tool.h"
+				RelativePath=".\include\MmOptionsParser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\ToolFactory.h"
+				RelativePath=".\include\MmRenameTool.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\ToolManager.h"
+				RelativePath=".\include\MmRenameToolFactory.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\ToolUtils.h"
+				RelativePath=".\include\MmStatefulMeshSerializer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\TransformTool.h"
+				RelativePath=".\include\MmStatefulSkeletonSerializer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\TransformToolFactory.h"
+				RelativePath=".\include\MmTool.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\MmToolFactory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\MmToolManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\MmToolUtils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\MmTransformTool.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\MmTransformToolFactory.h"
 				>
 			</File>
 		</Filter>

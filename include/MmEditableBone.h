@@ -17,37 +17,23 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef __MM_MESHMAGICK_PREREQUISITES_H__
-#define __MM_MESHMAGICK_PREREQUISITES_H__
+#ifndef __MM_EDITABLE_BONE_H__
+#define __MM_EDITABLE_BONE_H__
+
+#ifdef __APPLE__
+#	include <Ogre/OgreBone.h>
+#else
+#	include <OgreBone.h>
+#endif
 
 namespace meshmagick
 {
-    class Tool;
-    class ToolFactory;
-
-    class TransformTool;
-    class TransformToolFactory;
+    /// Very hacky class used by the rename tool to rename a bone.
+	class EditableBone : public Ogre::Bone
+	{
+	public:
+		void setName(const Ogre::String& name);
+	};
 }
 
-#ifdef __APPLE__
-#	include <Ogre/OgrePlatform.h>
-#else
-#	include <OgrePlatform.h>
-#endif
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && !MESHMAGICK_STANDALONE
-// Export control
-#   if defined( MESHMAGICK_EXPORTS )
-#       define _MeshMagickExport __declspec( dllexport )
-#   else
-#       define _MeshMagickExport __declspec( dllimport )
-#   endif
-#else // Linux / Mac OSX etc
-#   define _MeshMagickExport
-#endif
-
-#define MESHMAGICK_VERSION_MAJOR 0
-#define MESHMAGICK_VERSION_MINOR 6
-#define MESHMAGICK_VERSION_PATCH 0
-
-#endif
+#endif // __MM_EDITABLE_BONE_H__
