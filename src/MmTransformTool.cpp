@@ -614,7 +614,7 @@ namespace meshmagick
 
                 // determine the components of the resize-argument.
                 String resizeString = any_cast<String>(it->second);
-                std::vector<String> resizeAxes = StringUtil::split(resizeString, "/");
+                StringVector resizeAxes = StringUtil::split(resizeString, "/");
                 if (resizeAxes.size() != 3)
                 {
                     warn("unrecongnized -resize option value. skipping..");
@@ -672,7 +672,7 @@ namespace meshmagick
 
                 // determine the components of the axes-argument.
                 String axesString = any_cast<String>(it->second);
-                std::vector<String> components = StringUtil::split(axesString, "/");
+                StringVector components = StringUtil::split(axesString, "/");
                 if (components.size() != 3)
                 {
                     warn("unrecongnized -axes option value. skipping..");
