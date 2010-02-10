@@ -24,8 +24,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifdef __APPLE__
 #	include <Ogre/OgreDefaultHardwareBufferManager.h>
+#	include <Ogre/OgreLodStrategyManager.h>
 #else
 #	include <OgreDefaultHardwareBufferManager.h>
+#	include <OgreLodStrategyManager.h>
 #endif
 
 #include "MmStatefulMeshSerializer.h"
@@ -59,6 +61,7 @@ namespace meshmagick
         Ogre::ResourceGroupManager* mResourceGroupMgr;
         Ogre::Math* mMath;
         Ogre::MeshManager* mMeshMgr;
+        Ogre::LodStrategyManager* mLodStrategyMgr;
         Ogre::MaterialManager* mMaterialMgr;
         Ogre::SkeletonManager* mSkeletonMgr;
         StatefulMeshSerializer* mMeshSerializer;
