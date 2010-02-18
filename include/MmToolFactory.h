@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace meshmagick
 {
-    class ToolFactory
+    class _MeshMagickExport ToolFactory
     {
     public:
         virtual Tool* createTool() = 0;

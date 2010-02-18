@@ -16,6 +16,32 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 # dependencies
 find_package(PkgConfig)
 find_package(OGRE 1.6 REQUIRED)
+set(MESHMAGICK_HEADERS
+include/MeshMagick.h
+include/MeshMagickPrerequisites.h
+include/MmEditableBone.h
+include/MmEditableMesh.h
+include/MmEditableSkeleton.h
+include/MmInfoTool.h
+include/MmInfoToolFactory.h
+include/MmMeshMergeTool.h
+include/MmMeshMergeToolFactory.h
+include/MmMeshUtils.h
+include/MmOgreEnvironment.h
+include/MmOptimiseTool.h
+include/MmOptimiseToolFactory.h
+include/MmOptionsParser.h
+include/MmRenameTool.h
+include/MmRenameToolFactory.h
+include/MmStatefulMeshSerializer.h
+include/MmStatefulSkeletonSerializer.h
+include/MmTool.h
+include/MmToolFactory.h
+include/MmToolManager.h
+include/MmToolUtils.h
+include/MmTransformTool.h
+include/MmTransformToolFactory.h
+)
 
 set(MESHMAGICK_SOURCE
 src/MeshMagick.cpp
@@ -43,8 +69,7 @@ src/MmTransformToolFactory.cpp
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${OGRE_INCLUDE_DIRS})
-
-add_library(meshmagick_shared_lib SHARED ${MESHMAGICK_SOURCE})
+add_library(meshmagick_shared_lib SHARED ${MESHMAGICK_HEADERS} ${MESHMAGICK_SOURCE})
 set_target_properties(meshmagick_shared_lib PROPERTIES
 	OUTPUT_NAME meshmagick
 	VERSION ${MESHMAGICK_MAJOR_VERSION}.${MESHMAGICK_MINOR_VERSION}.${MESHMAGICK_PATCH_VERSION}

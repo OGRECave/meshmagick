@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 namespace meshmagick
 {
-    class OgreEnvironment : public Ogre::Singleton<OgreEnvironment>
+    class _MeshMagickExport OgreEnvironment : public Ogre::Singleton<OgreEnvironment>
     {
     public:
         OgreEnvironment();

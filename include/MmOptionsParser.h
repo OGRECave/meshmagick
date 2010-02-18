@@ -45,7 +45,7 @@ namespace meshmagick
 
     /// This struct defines the syntax and parts of the semantics of a command line option,
     /// so that the OptionsParser is able to parse the option.
-    struct OptionDefinition
+    struct _MeshMagickExport OptionDefinition
     {
         /// Name of the option as written on the command line
         Ogre::String name;
@@ -128,7 +128,7 @@ namespace meshmagick
 
     typedef std::set<OptionDefinition> OptionDefinitionSet;
 
-    class OptionsParser
+    class _MeshMagickExport OptionsParser
     {
     public:
         static OptionList parseOptions(int argc, const char** argv,
@@ -136,7 +136,7 @@ namespace meshmagick
     };
 
     /// Simple helper class to work with options.
-    class OptionsUtil
+    class _MeshMagickExport OptionsUtil
     {
     public:
         /// Returns true, if named bool option is set.
