@@ -28,7 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "MmTool.h"
 #include "MmToolManager.h"
 #include "MmTransformToolFactory.h"
-
+#ifdef MESHMAGICK_USE_TOOTLE
+#	include "MmTootleToolFactory.h"
+#endif
 using namespace Ogre;
 using namespace meshmagick;
 
@@ -168,6 +170,9 @@ int main(int argc, const char** argv)
     manager.registerToolFactory(new MeshMergeToolFactory());
     manager.registerToolFactory(new RenameToolFactory());
 	manager.registerToolFactory(new OptimiseToolFactory());
+#ifdef MESHMAGICK_USE_TOOTLE
+	manager.registerToolFactory(new TootleToolFactory());
+#endif
 
     OgreEnvironment* ogreEnv = new OgreEnvironment();
 	ogreEnv->initialize();

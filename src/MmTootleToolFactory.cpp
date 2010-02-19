@@ -46,13 +46,17 @@ namespace meshmagick
 	OptionDefinitionSet TootleToolFactory::getOptionDefinitions() const
 	{
 		OptionDefinitionSet optionDefs;
-		// TODO
+		optionDefs.insert(OptionDefinition("vcachesize", OT_INT, false, false));
+		optionDefs.insert(OptionDefinition("clockwise", OT_BOOL, false, false, Ogre::Any(false)));
+		optionDefs.insert(OptionDefinition("clusters", OT_INT, false, false));
+		optionDefs.insert(OptionDefinition("viewpoint", OT_VECTOR3, false, true));
+		
 		return optionDefs;
 	}
 
 	Ogre::String TootleToolFactory::getToolName() const
 	{
-		return "Tootle";
+		return "tootle";
 	}
 
 	Ogre::String TootleToolFactory::getToolDescription() const
@@ -64,6 +68,16 @@ namespace meshmagick
 	{
 		out << std::endl;
 		out << "Use AMD Tootle to optimise mesh." << std::endl << std::endl;
-		// TODO
+		out << "Optimisation parameters:" << std::endl;
+		out << " -vcachesize=N    - specify the vertex cache size (omit to use default)"
+			<< std::endl;
+		out << " -clockwise       - treat clockwise faces as front-facing (default is CCW)"
+			<< std::endl;
+		out << " -clusters=N      - manually specify the number of clusters (default auto)"
+			<< std::endl;
+		out << " -viewpoint=x/y/z - specify one or more viewpoints to judge overdraw"
+			<< std::endl;
+		out << "                    Default is to generate viewpoints automatically"
+			<< std::endl;
 	}
 }

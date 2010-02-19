@@ -41,8 +41,14 @@ namespace meshmagick
 			const Ogre::StringVector& outFileNames);
 
 	private:
-		void processMeshFile(
-			const OptionList &toolOptions, Ogre::String inFile, Ogre::String outFile);
+		unsigned int mVCacheSize;
+		bool mClockwise;
+		unsigned int mClusters;
+		typedef std::vector<Ogre::Vector3> ViewpointList;
+		ViewpointList mViewpointList;
+
+		void setOptions(const OptionList& options);
+		void processMeshFile(Ogre::String inFile, Ogre::String outFile);
 	};
 
 }

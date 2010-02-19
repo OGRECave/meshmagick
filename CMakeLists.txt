@@ -83,6 +83,7 @@ if (Tootle_FOUND)
 	src/MmTootleToolFactory.cpp)
 	
   include_directories(${Tootle_INCLUDE_DIRS})
+  add_definitions(-DMESHMAGICK_USE_TOOTLE)
 	
 endif()
 
@@ -91,7 +92,6 @@ if (STATIC_BUILD)
 	add_definitions(-DMESHMAGICK_STATIC)
 	add_library(meshmagick_lib STATIC ${MESHMAGICK_HEADERS} ${MESHMAGICK_SOURCE})
 	set_target_properties(meshmagick_lib PROPERTIES
-		OUTPUT_NAME meshmagick
 		VERSION ${MESHMAGICK_MAJOR_VERSION}.${MESHMAGICK_MINOR_VERSION}.${MESHMAGICK_PATCH_VERSION})
 	target_link_libraries(meshmagick_lib ${OGRE_LIBRARIES} ${Tootle_LIBRARIES})
 

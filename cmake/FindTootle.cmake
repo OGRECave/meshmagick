@@ -17,6 +17,17 @@ include(FindPkgMacros)
 
 findpkg_begin(Tootle)
 
+# Try to find DirectX; using occlusion queries for overdraw detection instead of software raytrace is vastly faster
+if (NOT DirectX_FOUND)
+	find_package(DirectX)
+endif()
+
+if (DirectX_FOUND)
+	set(Tootle_USE_DIRECTX TRUE)
+else()
+	set(Tootle_USE_DIRECTX FALSE)
+endif()
+
 # Get path, convert backslashes as ${ENV_${var}}
 getenv_path(TOOTLE_HOME)
 
@@ -31,11 +42,20 @@ clear_if_changed(Tootle_PREFIX_PATH
   Tootle_INCLUDE_DIR
 )
 
-if (${MSVC_VERSION} EQUAL 1500)
-	set(Tootle_LIBRARY_NAMES "TootleSoftwareOnlyStatic_2k8_MTDLL")
+if (Tootle_USE_DIRECTX)
+	if (${MSVC_VERSION} EQUAL 1500)
+		set(Tootle_LIBRARY_NAMES "TootleStatic_2k8_MTDLL")
+	else()
+		set(Tootle_LIBRARY_NAMES "TootleStatic_MTDLL")
+	endif()
 else()
-	set(Tootle_LIBRARY_NAMES "TootleSoftwareOnlyStatic_MTDLL")
+	if (${MSVC_VERSION} EQUAL 1500)
+		set(Tootle_LIBRARY_NAMES "TootleSoftwareOnlyStatic_2k8_MTDLL")
+	else()
+		set(Tootle_LIBRARY_NAMES "TootleSoftwareOnlyStatic_MTDLL")
+	endif()
 endif()
+
 get_debug_names(Tootle_LIBRARY_NAMES)
 
 use_pkgconfig(Tootle_PKGC Tootle)
@@ -46,4 +66,9 @@ find_library(Tootle_LIBRARY_DBG NAMES ${Tootle_LIBRARY_NAMES_DBG} HINTS ${Tootle
 make_library_set(Tootle_LIBRARY)
 
 findpkg_finish(Tootle)
+
+if (Tootle_USE_DIRECTX)
+	set(Tootle_LIBRARIES ${Tootle_LIBRARIES} ${DirectX_LIBRARIES})
+endif()
+message(STATUS "tt: ${Tootle_LIBRARIES}")
 
