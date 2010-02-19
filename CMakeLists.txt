@@ -69,6 +69,8 @@ src/MmTransformToolFactory.cpp
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${OGRE_INCLUDE_DIRS})
+
+# DLL
 add_library(meshmagick_shared_lib SHARED ${MESHMAGICK_HEADERS} ${MESHMAGICK_SOURCE})
 set_target_properties(meshmagick_shared_lib PROPERTIES
 	OUTPUT_NAME meshmagick
@@ -77,17 +79,25 @@ set_target_properties(meshmagick_shared_lib PROPERTIES
 	DEFINE_SYMBOL MESHMAGICK_EXPORTS)
 target_link_libraries(meshmagick_shared_lib ${OGRE_LIBRARIES})
 
+# Static lib
+add_definitions(-DMESHMAGICK_STANDALONE=1)
+add_library(meshmagick_static_lib STATIC ${MESHMAGICK_HEADERS} ${MESHMAGICK_SOURCE})
+set_target_properties(meshmagick_static_lib PROPERTIES
+	VERSION ${MESHMAGICK_MAJOR_VERSION}.${MESHMAGICK_MINOR_VERSION}.${MESHMAGICK_PATCH_VERSION})
+target_link_libraries(meshmagick_static_lib ${OGRE_LIBRARIES})
+
+
 add_executable(meshmagick_bin src/main.cpp)
 set_target_properties(meshmagick_bin PROPERTIES
-	OUTPUT_NAME meshmagick
-	DEFINE_SYMBOL MESHMAGICK_IMPORTS)
-target_link_libraries(meshmagick_bin meshmagick_shared_lib ${OGRE_LIBRARIES})
+	OUTPUT_NAME meshmagick)
+target_link_libraries(meshmagick_bin meshmagick_static_lib ${OGRE_LIBRARIES})
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/meshmagick.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/meshmagick.pc)
 
-install(TARGETS meshmagick_bin meshmagick_shared_lib
+install(TARGETS meshmagick_bin meshmagick_shared_lib meshmagick_static_lib
 	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib)
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib)
 	
 if(NOT WIN32)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/meshmagick.pc
