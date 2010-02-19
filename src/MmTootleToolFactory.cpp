@@ -17,37 +17,53 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef __MM_MESHMAGICK_PREREQUISITES_H__
-#define __MM_MESHMAGICK_PREREQUISITES_H__
+#include "MmTootleToolFactory.h"
+
+#include "MmOptionsParser.h"
+#include "MmTootleTool.h"
 
 namespace meshmagick
 {
-    class Tool;
-    class ToolFactory;
 
-    class TransformTool;
-    class TransformToolFactory;
+	TootleToolFactory::TootleToolFactory()
+	{
+	}
+
+	TootleToolFactory::~TootleToolFactory()
+	{
+	}
+
+	Tool* TootleToolFactory::createTool()
+	{
+		return new TootleTool();
+	}
+
+	void TootleToolFactory::destroyTool(Tool* tool)
+	{
+		delete tool;
+	}
+
+	OptionDefinitionSet TootleToolFactory::getOptionDefinitions() const
+	{
+		OptionDefinitionSet optionDefs;
+		// TODO
+		return optionDefs;
+	}
+
+	Ogre::String TootleToolFactory::getToolName() const
+	{
+		return "Tootle";
+	}
+
+	Ogre::String TootleToolFactory::getToolDescription() const
+	{
+		return "Use AMD Tootle to optimise mesh.";
+	}
+
+	void TootleToolFactory::printToolHelp(std::ostream& out) const
+	{
+		out << std::endl;
+		out << "Use AMD Tootle to optimise mesh." << std::endl << std::endl;
+		// TODO
+	}
 }
-
-#ifdef __APPLE__
-#	include <Ogre/OgrePlatform.h>
-#else
-#	include <OgrePlatform.h>
-#endif
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && !defined(MESHMAGICK_STATIC)
-// Export control
-#   if defined( MESHMAGICK_EXPORTS )
-#       define _MeshMagickExport __declspec( dllexport )
-#   else
-#       define _MeshMagickExport __declspec( dllimport )
-#   endif
-#else // Linux / Mac OSX etc
-#   define _MeshMagickExport
-#endif
-
-#define MESHMAGICK_VERSION_MAJOR 0
-#define MESHMAGICK_VERSION_MINOR 6
-#define MESHMAGICK_VERSION_PATCH 0
-
-#endif

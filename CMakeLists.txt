@@ -13,9 +13,13 @@ set(MESHMAGICK_PATCH_VERSION 2)
 # include our custom cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
+option(STATIC_BUILD "Build MeshMagick as static library" TRUE)
+
 # dependencies
 find_package(PkgConfig)
-find_package(OGRE 1.6 REQUIRED)
+find_package(OGRE REQUIRED)
+find_package(Tootle)
+
 set(MESHMAGICK_HEADERS
 include/MeshMagick.h
 include/MeshMagickPrerequisites.h
@@ -70,31 +74,48 @@ src/MmTransformToolFactory.cpp
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${OGRE_INCLUDE_DIRS})
 
-# DLL
-add_library(meshmagick_shared_lib SHARED ${MESHMAGICK_HEADERS} ${MESHMAGICK_SOURCE})
-set_target_properties(meshmagick_shared_lib PROPERTIES
-	OUTPUT_NAME meshmagick
-	VERSION ${MESHMAGICK_MAJOR_VERSION}.${MESHMAGICK_MINOR_VERSION}.${MESHMAGICK_PATCH_VERSION}
-	SOVERSION ${MESHMAGICK_MAJOR_VERSION}.${MESHMAGICK_MINOR_VERSION}
-	DEFINE_SYMBOL MESHMAGICK_EXPORTS)
-target_link_libraries(meshmagick_shared_lib ${OGRE_LIBRARIES})
+if (Tootle_FOUND)
+  set(MESHMAGICK_HEADERS ${MESHMAGICK_HEADERS}
+    include/MmTootleTool.h
+	include/MmTootleToolFactory.h)
+  set(MESHMAGICK_SOURCE ${MESHMAGICK_SOURCE}
+    src/MmTootleTool.cpp
+	src/MmTootleToolFactory.cpp)
+	
+  include_directories(${Tootle_INCLUDE_DIRS})
+	
+endif()
 
-# Static lib
-add_definitions(-DMESHMAGICK_STANDALONE=1)
-add_library(meshmagick_static_lib STATIC ${MESHMAGICK_HEADERS} ${MESHMAGICK_SOURCE})
-set_target_properties(meshmagick_static_lib PROPERTIES
-	VERSION ${MESHMAGICK_MAJOR_VERSION}.${MESHMAGICK_MINOR_VERSION}.${MESHMAGICK_PATCH_VERSION})
-target_link_libraries(meshmagick_static_lib ${OGRE_LIBRARIES})
+if (STATIC_BUILD)
+	# Static lib
+	add_definitions(-DMESHMAGICK_STATIC)
+	add_library(meshmagick_lib STATIC ${MESHMAGICK_HEADERS} ${MESHMAGICK_SOURCE})
+	set_target_properties(meshmagick_lib PROPERTIES
+		OUTPUT_NAME meshmagick
+		VERSION ${MESHMAGICK_MAJOR_VERSION}.${MESHMAGICK_MINOR_VERSION}.${MESHMAGICK_PATCH_VERSION})
+	target_link_libraries(meshmagick_lib ${OGRE_LIBRARIES} ${Tootle_LIBRARIES})
+
+else()
+	# DLL
+	add_library(meshmagick_lib SHARED ${MESHMAGICK_HEADERS} ${MESHMAGICK_SOURCE})
+	set_target_properties(meshmagick_lib PROPERTIES
+		OUTPUT_NAME meshmagick
+		VERSION ${MESHMAGICK_MAJOR_VERSION}.${MESHMAGICK_MINOR_VERSION}.${MESHMAGICK_PATCH_VERSION}
+		SOVERSION ${MESHMAGICK_MAJOR_VERSION}.${MESHMAGICK_MINOR_VERSION}
+		DEFINE_SYMBOL MESHMAGICK_EXPORTS)
+	target_link_libraries(meshmagick_lib ${OGRE_LIBRARIES} ${Tootle_LIBRARIES})
+endif()
 
 
 add_executable(meshmagick_bin src/main.cpp)
 set_target_properties(meshmagick_bin PROPERTIES
 	OUTPUT_NAME meshmagick)
-target_link_libraries(meshmagick_bin meshmagick_static_lib ${OGRE_LIBRARIES})
+
+target_link_libraries(meshmagick_bin meshmagick_lib ${OGRE_LIBRARIES})
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/meshmagick.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/meshmagick.pc)
 
-install(TARGETS meshmagick_bin meshmagick_shared_lib meshmagick_static_lib
+install(TARGETS meshmagick_bin meshmagick_lib
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib)
