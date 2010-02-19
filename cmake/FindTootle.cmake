@@ -32,9 +32,9 @@ clear_if_changed(Tootle_PREFIX_PATH
 )
 
 if (${MSVC_VERSION} EQUAL 1500)
-	set(Tootle_LIBRARY_NAMES "TootleSoftwareOnlyStatic_MTDLL")
-else()
 	set(Tootle_LIBRARY_NAMES "TootleSoftwareOnlyStatic_2k8_MTDLL")
+else()
+	set(Tootle_LIBRARY_NAMES "TootleSoftwareOnlyStatic_MTDLL")
 endif()
 get_debug_names(Tootle_LIBRARY_NAMES)
 
