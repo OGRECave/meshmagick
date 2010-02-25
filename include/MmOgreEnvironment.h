@@ -24,10 +24,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifdef __APPLE__
 #	include <Ogre/OgreDefaultHardwareBufferManager.h>
-#	include <Ogre/OgreLodStrategyManager.h>
 #else
 #	include <OgreDefaultHardwareBufferManager.h>
+#endif
+
+#if OGRE_VERSION_MAJOR > 1 || (OGRE_VERSION_MAJOR == 1 && OGRE_VERSION_MINOR >= 7)
+# ifdef __APPLE__
+#	include <Ogre/OgreLodStrategyManager.h>
+# else
 #	include <OgreLodStrategyManager.h>
+# endif
 #endif
 
 #include "MmStatefulMeshSerializer.h"
@@ -56,12 +62,15 @@ namespace meshmagick
 		bool isStandalone() const;
 
     private:
+		Ogre::Root* mRoot;
         Ogre::LogManager* mLogMgr;
         Ogre::Log* mLog;
         Ogre::ResourceGroupManager* mResourceGroupMgr;
         Ogre::Math* mMath;
         Ogre::MeshManager* mMeshMgr;
+#if OGRE_VERSION_MAJOR > 1 || (OGRE_VERSION_MAJOR == 1 && OGRE_VERSION_MINOR >= 7)
         Ogre::LodStrategyManager* mLodStrategyMgr;
+#endif
         Ogre::MaterialManager* mMaterialMgr;
         Ogre::SkeletonManager* mSkeletonMgr;
         StatefulMeshSerializer* mMeshSerializer;

@@ -19,7 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "MmOgreEnvironment.h"
 
-#include <OgreLodStrategyManager.h>
+#include <OgreRoot.h>
 #include <OgreLogManager.h>
 #include <OgreMaterialManager.h>
 #include <OgreMeshManager.h>
@@ -37,7 +37,9 @@ namespace meshmagick
           mResourceGroupMgr(NULL),
           mMath(NULL),
           mMeshMgr(NULL),
+#if OGRE_VERSION_MAJOR > 1 || (OGRE_VERSION_MAJOR == 1 && OGRE_VERSION_MINOR >= 7)
 		  mLodStrategyMgr(NULL),
+#endif
           mMaterialMgr(NULL),
           mSkeletonMgr(NULL),
           mMeshSerializer(NULL),
@@ -53,13 +55,13 @@ namespace meshmagick
 			delete mBufferManager;
 			delete mSkeletonSerializer;
 			delete mMeshSerializer;
-			delete mMaterialMgr;
+#if OGRE_VERSION_MAJOR > 1 || (OGRE_VERSION_MAJOR == 1 && OGRE_VERSION_MINOR >= 7)
 			delete mLodStrategyMgr;
-			delete mMeshMgr;
+#endif
 			delete mMath;
-			delete mResourceGroupMgr;
 			mLogMgr->destroyLog(mLog);
 			delete mLogMgr;
+			delete mRoot;
 		}
     }
 
@@ -69,14 +71,17 @@ namespace meshmagick
 		{
 			mLogMgr = new LogManager();
 			mLog = mLogMgr->createLog("meshmagick.log", true, false, true);
-			mResourceGroupMgr = new ResourceGroupManager();
+			mRoot = new Root();
+			mResourceGroupMgr = ResourceGroupManager::getSingletonPtr();
 			mMath = new Math();
-			mMeshMgr = new MeshManager();
+			mMeshMgr = MeshManager::getSingletonPtr();
 			mMeshMgr->setBoundsPaddingFactor(0.0f);
+#if OGRE_VERSION_MAJOR > 1 || (OGRE_VERSION_MAJOR == 1 && OGRE_VERSION_MINOR >= 7)
 			mLodStrategyMgr = new LodStrategyManager();
-			mMaterialMgr = new MaterialManager();
+#endif
+			mMaterialMgr = MaterialManager::getSingletonPtr();
 			mMaterialMgr->initialise();
-			mSkeletonMgr = new SkeletonManager();
+			mSkeletonMgr = SkeletonManager::getSingletonPtr();
 			mBufferManager = new DefaultHardwareBufferManager();
 			mStandalone = true;
 		}
