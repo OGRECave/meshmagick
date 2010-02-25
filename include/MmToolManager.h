@@ -21,15 +21,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define __MM_MESHTOOL_MANAGER_H__
 
 #include "MeshMagickPrerequisites.h"
+#include "MmOptionsParser.h"
+#include "MmTool.h"
 
 #ifdef __APPLE__
 #	include <Ogre/OgreStringVector.h>
 #else
 #	include <OgreStringVector.h>
 #endif
-
-#include "MmOptionsParser.h"
-#include "MmTool.h"
 
 namespace meshmagick
 {
