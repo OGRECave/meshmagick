@@ -311,14 +311,14 @@ namespace meshmagick
 
 				// allocate an array to hold the cluster ID for each face
 				std::vector<unsigned int> faceClusters;
-				faceClusters.resize( nTriangles );
+				faceClusters.resize( nTriangles + 1 );
 
 				// cluster the mesh, and sort faces by cluster
 				result = TootleClusterMesh( pVB, pIB, nVertices, nTriangles, nStride, mClusters, pIB, &faceClusters[0], NULL );
 				if( result != TOOTLE_OK )
 					fail(getTootleError(result, "TootleClusterMesh"));
 
-				stats.nClusters = 1 + (unsigned int)(faceClusters[ nTriangles - 1 ]);
+				stats.nClusters = (unsigned int)(faceClusters[ nTriangles ]);
 
 				// perform vertex cache optimization on the clustered mesh
 				result = TootleVCacheClusters( pIB, nTriangles, nVertices, cacheSize, &faceClusters[0], pIB, NULL );
@@ -326,11 +326,17 @@ namespace meshmagick
 					fail(getTootleError(result, "TootleVCacheClusters"));
 
 				// optimize the draw order
+
+				// Problem: TootleOptimizeOverdraw takes a CONST pointer to the face
+				// clusters, yet consistently overwrites the data in it. So copy it.
+				unsigned int* pDummyFaceClusters = new unsigned int[nTriangles + 1];
+				memcpy(pDummyFaceClusters, &faceClusters[0], sizeof(unsigned int) * (nTriangles + 1));
 				result = TootleOptimizeOverdraw( pVB, pIB, nVertices, nTriangles, nStride, 
 					pViewpoints, numViewpoints, winding, 
-					&faceClusters[0], pIB, NULL );
+					pDummyFaceClusters, pIB, 0 );
 				if( result != TOOTLE_OK )
 					fail(getTootleError(result, "TootleOptimizeOverdraw"));
+				delete [] pDummyFaceClusters;
 
 
 				if (gatherStats)
