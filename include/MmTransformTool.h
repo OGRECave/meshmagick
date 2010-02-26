@@ -63,6 +63,8 @@ namespace meshmagick
 
         void processSkeleton(Ogre::SkeletonPtr skeleton);
         void processMesh(Ogre::MeshPtr mesh);
+		void processSkeleton(Ogre::Skeleton* skeleton);
+		void processMesh(Ogre::Mesh* mesh);
 
         void setOptions(const OptionList& options);
 

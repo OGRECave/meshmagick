@@ -129,8 +129,12 @@ namespace meshmagick
 		return info;
 	}
     //------------------------------------------------------------------------
-
 	void InfoTool::processMesh(MeshInfo& info, MeshPtr mesh) const
+	{
+		processMesh(info, mesh.get());
+	}
+	//---------------------------------------------------------------------
+	void InfoTool::processMesh(MeshInfo& info, Mesh* mesh) const
     {
         info.storedBoundingBox = mesh->getBounds();
 		info.actualBoundingBox = MeshUtils::getMeshAabb(mesh);
@@ -327,8 +331,12 @@ namespace meshmagick
 		return info;
 	}
     //------------------------------------------------------------------------
-
 	void InfoTool::processSkeleton(SkeletonInfo& info, Ogre::SkeletonPtr skeleton) const
+	{
+		processSkeleton(info, skeleton.get());
+	}
+	//---------------------------------------------------------------------
+	void InfoTool::processSkeleton(SkeletonInfo& info, Ogre::Skeleton* skeleton) const
     {
         for (unsigned short i = 0, end = skeleton->getNumBones(); i < end; ++i)
         {

@@ -140,7 +140,12 @@ namespace meshmagick
         }
     }
 
-    void TransformTool::processSkeleton(Ogre::SkeletonPtr skeleton)
+	void TransformTool::processSkeleton(Ogre::SkeletonPtr skeleton)
+	{
+		processSkeleton(skeleton.get());
+	}
+
+    void TransformTool::processSkeleton(Ogre::Skeleton* skeleton)
     {
         Skeleton::BoneIterator it = skeleton->getBoneIterator();
         while (it.hasMoreElements())
@@ -234,7 +239,12 @@ namespace meshmagick
 		processSkeleton(skeleton);
 	}
 
-    void TransformTool::processMesh(Ogre::MeshPtr mesh)
+	void TransformTool::processMesh(Ogre::MeshPtr mesh)
+	{
+		processMesh(mesh.get());
+	}
+
+    void TransformTool::processMesh(Ogre::Mesh* mesh)
     {
         mBoundingBox.setNull();
 

@@ -158,6 +158,11 @@ namespace meshmagick
 	//---------------------------------------------------------------------
 	void OptimiseTool::processMesh(Ogre::MeshPtr mesh)
 	{
+		processMesh(mesh.get());
+	}
+	//---------------------------------------------------------------------
+	void OptimiseTool::processMesh(Ogre::Mesh* mesh)
+	{
 		bool rebuildEdgeList = false;
 		// Shared geometry
 		if (mesh->sharedVertexData)
@@ -301,6 +306,11 @@ namespace meshmagick
 	}
 	//---------------------------------------------------------------------
 	void OptimiseTool::processSkeleton(Ogre::SkeletonPtr skeleton)
+	{
+		processSkeleton(skeleton.get());
+	}
+	//---------------------------------------------------------------------
+	void OptimiseTool::processSkeleton(Ogre::Skeleton* skeleton)
 	{
 		skeleton->optimiseAllAnimations(mKeepIdentityTracks);
 	}

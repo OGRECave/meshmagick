@@ -45,6 +45,8 @@ namespace meshmagick
 
 		void processMesh(Ogre::MeshPtr mesh);
 		void processSkeleton(Ogre::SkeletonPtr skeleton);
+		void processMesh(Ogre::Mesh* mesh);
+		void processSkeleton(Ogre::Skeleton* skeleton);
 
 		float getPosTolerance() const { return mPosTolerance; }
 		void setPosTolerance(float t) { mPosTolerance = t; }

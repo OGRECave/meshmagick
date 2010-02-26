@@ -25,7 +25,11 @@ using namespace Ogre;
 
 namespace meshmagick
 {
-    AxisAlignedBox MeshUtils::getMeshAabb(MeshPtr mesh, const Matrix4& transform)
+	AxisAlignedBox MeshUtils::getMeshAabb(MeshPtr mesh, const Matrix4& transform)
+	{
+		return getMeshAabb(mesh.get(), transform);
+	}
+    AxisAlignedBox MeshUtils::getMeshAabb(Mesh* mesh, const Matrix4& transform)
     {
         AxisAlignedBox aabb;
         if (mesh->sharedVertexData != 0)

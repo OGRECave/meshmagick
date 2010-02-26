@@ -126,9 +126,11 @@ namespace meshmagick
     private:
         MeshInfo processMesh(const Ogre::String& meshFileName) const;
         void processMesh(MeshInfo& info, Ogre::MeshPtr mesh) const;
+		void processMesh(MeshInfo& info, Ogre::Mesh* mesh) const;
 
         SkeletonInfo processSkeleton(const Ogre::String& skeletonFileName) const;
         void processSkeleton(SkeletonInfo& info, Ogre::SkeletonPtr skeleton) const;
+		void processSkeleton(SkeletonInfo& info, Ogre::Skeleton* skeleton) const;
 
         void processSubMesh(SubMeshInfo&, Ogre::SubMesh* subMesh) const;
 		void processBoneAssignmentData(VertexInfo&, const Ogre::VertexData* vd,

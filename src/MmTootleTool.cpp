@@ -244,6 +244,11 @@ namespace meshmagick
 
 	void TootleTool::processMesh(Ogre::MeshPtr mesh)
 	{
+		processMesh(mesh.get());
+	}
+
+	void TootleTool::processMesh(Ogre::Mesh* mesh)
+	{
 		print("Processing mesh...");
 
 		std::vector<Vector3> vertices;

@@ -39,6 +39,7 @@ namespace meshmagick
 
 		void processMeshFile(Ogre::String file, Ogre::String outFile);
 		void processMesh(Ogre::MeshPtr mesh);
+		void processMesh(Ogre::Mesh* mesh);
 
 		unsigned int getVCacheSize() const { return mVCacheSize; }
 		void setVCacheSize(unsigned int sz) { mVCacheSize = sz; }
