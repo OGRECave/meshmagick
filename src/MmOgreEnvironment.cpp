@@ -51,11 +51,12 @@ namespace meshmagick
 
     OgreEnvironment::~OgreEnvironment()
     {
+		delete mSkeletonSerializer;
+		delete mMeshSerializer;
+
 		if (mStandalone)
 		{
 			delete mBufferManager;
-			delete mSkeletonSerializer;
-			delete mMeshSerializer;
 #if OGRE_VERSION_MAJOR > 1 || (OGRE_VERSION_MAJOR == 1 && OGRE_VERSION_MINOR >= 7)
 			delete mLodStrategyMgr;
 #endif
