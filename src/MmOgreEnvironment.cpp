@@ -44,7 +44,8 @@ namespace meshmagick
           mSkeletonMgr(NULL),
           mMeshSerializer(NULL),
           mSkeletonSerializer(NULL),
-          mBufferManager(NULL)
+          mBufferManager(NULL),
+		  mStandalone(false)
     {
     }
 
