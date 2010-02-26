@@ -40,15 +40,23 @@ namespace meshmagick
 
 		Ogre::String getName() const;
 
-	protected:
-		float mPosTolerance, mNormTolerance, mUVTolerance;
-		bool mKeepIdentityTracks;
-
 		void processMeshFile(Ogre::String file, Ogre::String outFile);
 		void processSkeletonFile(Ogre::String file, Ogre::String outFile);
 
 		void processMesh(Ogre::MeshPtr mesh);
 		void processSkeleton(Ogre::SkeletonPtr skeleton);
+
+		float getPosTolerance() const { return mPosTolerance; }
+		void setPosTolerance(float t) { mPosTolerance = t; }
+		float getNormTolerance() const { return mNormTolerance; }
+		void setNormTolerance(float t) { mNormTolerance = t; }
+		float getUVTolerance() const { return mUVTolerance; }
+		void setUVTolerance(float t) { mUVTolerance = t; }
+
+	protected:
+		float mPosTolerance, mNormTolerance, mUVTolerance;
+		bool mKeepIdentityTracks;
+
 
 		struct IndexInfo
 		{

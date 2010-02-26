@@ -147,6 +147,9 @@ namespace meshmagick
 
 	TootleTool::TootleTool()
 		: Tool()
+		, mVCacheSize(0)
+		, mClockwise(false)
+		, mClusters(0)
 	{
 	}
 
@@ -231,6 +234,16 @@ namespace meshmagick
 			warn("file skipped.");
 			return;
 		}
+
+		processMesh(mesh);
+
+		meshSerializer->saveMesh(outFile, true);
+		print("Mesh saved as " + outFile + ".");
+
+	}
+
+	void TootleTool::processMesh(Ogre::MeshPtr mesh)
+	{
 		print("Processing mesh...");
 
 		std::vector<Vector3> vertices;
@@ -402,10 +415,6 @@ namespace meshmagick
 				indices.clear();
 			}
 		}
-
-
-		meshSerializer->saveMesh(outFile, true);
-		print("Mesh saved as " + outFile + ".");
 
 
 	}

@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "MmTool.h"
 
+#include <OgreCommon.h>
+
 namespace meshmagick
 {
 
@@ -35,6 +37,17 @@ namespace meshmagick
 
 		Ogre::String getName() const;
 
+		void processMeshFile(Ogre::String file, Ogre::String outFile);
+		void processMesh(Ogre::MeshPtr mesh);
+
+		unsigned int getVCacheSize() const { return mVCacheSize; }
+		void setVCacheSize(unsigned int sz) { mVCacheSize = sz; }
+
+		Ogre::CullingMode getCullingMode() const { return mClockwise ? Ogre::CULL_ANTICLOCKWISE : Ogre::CULL_CLOCKWISE; }
+		void setCullingMode(Ogre::CullingMode md) { mClockwise = (md == Ogre::CULL_ANTICLOCKWISE); }
+
+		unsigned int getClusters() const { return mClusters; }
+		void setClusters(unsigned int sz) { mClusters = sz; }
 	protected:
 		virtual void doInvoke(const OptionList& toolOptions,
 			const Ogre::StringVector& inFileNames,
@@ -48,7 +61,6 @@ namespace meshmagick
 		ViewpointList mViewpointList;
 
 		void setOptions(const OptionList& options);
-		void processMeshFile(Ogre::String inFile, Ogre::String outFile);
 	};
 
 }
