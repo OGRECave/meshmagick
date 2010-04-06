@@ -270,6 +270,9 @@ namespace meshmagick
 		int num_submeshes = mesh->getNumSubMeshes();
 		for(int i = 0; i < num_submeshes; i++)
 		{
+			vertices.clear();
+			indices.clear();
+
 			// build buffers containing only the vertex positions and indices, since this is what Tootle requires
 			SubMesh * smesh=mesh->getSubMesh(i);
 			if(smesh->operationType!=RenderOperation::OT_TRIANGLE_LIST)
@@ -419,9 +422,6 @@ namespace meshmagick
 					}
 				}
 				smesh->indexData->indexBuffer->unlock();
-				//clear the buffers for the next use
-				vertices.clear();
-				indices.clear();
 			}
 		}
 
