@@ -127,16 +127,26 @@ namespace meshmagick
 		UniqueVertexList mUniqueVertexList;
 
 		Ogre::VertexData* mTargetVertexData;
-		typedef std::list<Ogre::IndexData*> IndexDataList;
+		struct IndexDataWithOpType
+		{
+			Ogre::IndexData* indexData;
+			Ogre::RenderOperation::OperationType operationType;
+
+			IndexDataWithOpType(Ogre::IndexData* idata, Ogre::RenderOperation::OperationType opType)
+				: indexData(idata), operationType(opType) {}
+		};
+		typedef std::list<IndexDataWithOpType> IndexDataList;
 		IndexDataList mIndexDataList;
 
 		void setTargetVertexData(Ogre::VertexData* vd);
-		void addIndexData(Ogre::IndexData* id);
+		void addIndexData(Ogre::IndexData* id, Ogre::RenderOperation::OperationType operationType);
 		bool optimiseGeometry();
 		bool calculateDuplicateVertices();
 		void rebuildVertexBuffers();
 		void remapIndexDataList();
 		void remapIndexes(Ogre::IndexData* idata);
+		void removeDegenerateFaces();
+		void removeDegenerateFaces(Ogre::IndexData* idata);
 		Ogre::Mesh::VertexBoneAssignmentList getAdjustedBoneAssignments(
 			Ogre::Mesh::BoneAssignmentIterator& it);
 		void fixLOD(Ogre::ProgressiveMesh::LODFaceList lodFaces);

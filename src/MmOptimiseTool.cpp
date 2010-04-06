@@ -179,7 +179,7 @@ namespace meshmagick
 				SubMesh* sm = mesh->getSubMesh(i);
 				if (sm->useSharedVertices)
 				{
-					addIndexData(sm->indexData);
+					addIndexData(sm->indexData, sm->operationType);
 				}
 			}
 
@@ -236,7 +236,7 @@ namespace meshmagick
 				print("Optimising submesh " +
 					StringConverter::toString(i) + " dedicated vertex data ");
 				setTargetVertexData(sm->vertexData);
-				addIndexData(sm->indexData);
+				addIndexData(sm->indexData, sm->operationType);
 				if (optimiseGeometry())
 				{
 					if (mesh->getSkeletonName() != StringUtil::BLANK)
@@ -328,13 +328,15 @@ namespace meshmagick
 		mIndexRemap.clear();
 	}
 	//---------------------------------------------------------------------
-	void OptimiseTool::addIndexData(Ogre::IndexData* id)
+	void OptimiseTool::addIndexData(Ogre::IndexData* id, RenderOperation::OperationType ot)
 	{
-		mIndexDataList.push_back(id);
+		mIndexDataList.push_back(IndexDataWithOpType(id, ot));
 	}
 	//---------------------------------------------------------------------
 	bool OptimiseTool::optimiseGeometry()
 	{
+		removeDegenerateFaces();
+
 		if (calculateDuplicateVertices())
 		{
 			size_t numDupes = mTargetVertexData->vertexCount -
@@ -354,9 +356,10 @@ namespace meshmagick
 		}
 		else
 		{
-			print("    no optimisation required.");
+			print("    no vertex optimisation required.");
 			return false;
 		}
+
 	}
 	//---------------------------------------------------------------------
 	bool OptimiseTool::calculateDuplicateVertices()
@@ -578,7 +581,7 @@ namespace meshmagick
 	{
 		for (IndexDataList::iterator i = mIndexDataList.begin(); i != mIndexDataList.end(); ++i)
 		{
-			IndexData* idata = *i;
+			IndexData* idata = i->indexData;
 			remapIndexes(idata);
 
 		}
@@ -620,6 +623,118 @@ namespace meshmagick
 		}
 
 		idata->indexBuffer->unlock();
+
+	}
+	//---------------------------------------------------------------------
+	void OptimiseTool::removeDegenerateFaces()
+	{
+		for (IndexDataList::iterator i = mIndexDataList.begin(); i != mIndexDataList.end(); ++i)
+		{
+			// Only remove degenerate faces from triangle lists, strips & fans need them
+			if (i->operationType == RenderOperation::OT_TRIANGLE_LIST)
+			{
+				IndexData* idata = i->indexData;
+				removeDegenerateFaces(idata);
+			}
+
+		}
+
+	}
+	//---------------------------------------------------------------------
+	void OptimiseTool::removeDegenerateFaces(Ogre::IndexData* idata)
+	{
+		// Remove any faces that do not include 3 unique positions
+
+		// Only for triangle lists
+		uint16* p16 = 0;
+		uint32* p32 = 0;
+		uint16* pnewbuf16 = 0;
+		uint32* pnewbuf32 = 0;
+		uint16* pdest16 = 0;
+		uint32* pdest32 = 0;
+
+		// Lock for read only, we'll build another list
+		if (idata->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
+		{
+			p32 = static_cast<uint32*>(idata->indexBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
+			pnewbuf32 = pdest32 = OGRE_ALLOC_T(uint32, idata->indexCount, MEMCATEGORY_GENERAL);
+		}
+		else
+		{
+			p16 = static_cast<uint16*>(idata->indexBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
+			pnewbuf16 = pdest16 = OGRE_ALLOC_T(uint16, idata->indexCount, MEMCATEGORY_GENERAL);
+		}
+
+
+		const VertexElement* posElem = 
+			mTargetVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+		HardwareVertexBufferSharedPtr posBuf = mTargetVertexData->vertexBufferBinding->getBuffer(posElem->getSource());
+		unsigned char *pVertBase = static_cast<unsigned char*>(posBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+		size_t vsize = posBuf->getVertexSize();
+
+		size_t newIndexCount = 0;
+		for (size_t j = 0; j < idata->indexCount; j += 3)
+		{
+			uint32 i0 = p32? *p32++ : *p16++;
+			uint32 i1 = p32? *p32++ : *p16++;
+			uint32 i2 = p32? *p32++ : *p16++;
+
+			unsigned char *pVert;
+			float* pPosVert;
+			Vector3 v0, v1, v2;
+			pVert = pVertBase + (i0 * vsize);
+			posElem->baseVertexPointerToElement(pVert, &pPosVert);
+			v0 = Vector3(pPosVert[0], pPosVert[1], pPosVert[2]);
+			pVert = pVertBase + (i1 * vsize);
+			posElem->baseVertexPointerToElement(pVert, &pPosVert);
+			v1 = Vector3(pPosVert[0], pPosVert[1], pPosVert[2]);
+			pVert = pVertBase + (i2 * vsize);
+			posElem->baseVertexPointerToElement(pVert, &pPosVert);
+			v2 = Vector3(pPosVert[0], pPosVert[1], pPosVert[2]);
+
+			if (!v0.positionEquals(v1, mPosTolerance) && 
+				!v1.positionEquals(v2, mPosTolerance) && 
+				!v0.positionEquals(v2, mPosTolerance))
+			{
+				if (pdest32)
+				{
+					*pdest32++ = i0;
+					*pdest32++ = i1;
+					*pdest32++ = i2;
+				}
+				else
+				{
+					*pdest16++ = static_cast<uint16>(i0);
+					*pdest16++ = static_cast<uint16>(i1);
+					*pdest16++ = static_cast<uint16>(i2);
+				}
+				newIndexCount += 3;
+			}
+		}
+
+		idata->indexBuffer->unlock();
+
+		if (newIndexCount != idata->indexCount)
+		{
+			// we eliminated one or more faces
+			HardwareIndexBufferSharedPtr newIBuf = HardwareBufferManager::getSingleton().createIndexBuffer(
+				idata->indexBuffer->getType(), newIndexCount, 
+				idata->indexBuffer->getUsage());
+			if (pdest32)
+			{
+				newIBuf->writeData(0, sizeof(uint32) * newIndexCount, pnewbuf32, true);
+			}
+			else
+			{
+				newIBuf->writeData(0, sizeof(uint16) * newIndexCount, pnewbuf16, true);
+			}
+			idata->indexCount = newIndexCount;
+			idata->indexBuffer = newIBuf;
+
+		}
+
+		OGRE_FREE(pnewbuf16, MEMCATEGORY_GENERAL);
+		OGRE_FREE(pnewbuf32, MEMCATEGORY_GENERAL);
 
 	}
 	//---------------------------------------------------------------------
