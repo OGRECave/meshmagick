@@ -335,8 +335,7 @@ namespace meshmagick
 	//---------------------------------------------------------------------
 	bool OptimiseTool::optimiseGeometry()
 	{
-		removeDegenerateFaces();
-
+		bool verticesChanged = false;
 		if (calculateDuplicateVertices())
 		{
 			size_t numDupes = mTargetVertexData->vertexCount -
@@ -352,14 +351,12 @@ namespace meshmagick
 			print("    re-indexing faces...");
 			remapIndexDataList();
 			print("    done.");
-			return true;
-		}
-		else
-		{
-			print("    no vertex optimisation required.");
-			return false;
+			verticesChanged = true;
 		}
 
+		removeDegenerateFaces();
+
+		return verticesChanged;
 	}
 	//---------------------------------------------------------------------
 	bool OptimiseTool::calculateDuplicateVertices()
@@ -694,7 +691,8 @@ namespace meshmagick
 
 			if (!v0.positionEquals(v1, mPosTolerance) && 
 				!v1.positionEquals(v2, mPosTolerance) && 
-				!v0.positionEquals(v2, mPosTolerance))
+				!v0.positionEquals(v2, mPosTolerance) && 
+				i0 != i1 && i1 != i2 && i0 != i2)
 			{
 				if (pdest32)
 				{
@@ -717,20 +715,31 @@ namespace meshmagick
 
 		if (newIndexCount != idata->indexCount)
 		{
-			// we eliminated one or more faces
-			HardwareIndexBufferSharedPtr newIBuf = HardwareBufferManager::getSingleton().createIndexBuffer(
-				idata->indexBuffer->getType(), newIndexCount, 
-				idata->indexBuffer->getUsage());
-			if (pdest32)
+			print("    " + StringConverter::toString(idata->indexCount - newIndexCount) +
+				" degenerate faces removed.");
+
+			// Did we remove all the faces? (really bad data only, but I've seen it happen)
+			if (newIndexCount > 0)
 			{
-				newIBuf->writeData(0, sizeof(uint32) * newIndexCount, pnewbuf32, true);
+				// we eliminated one or more faces
+				HardwareIndexBufferSharedPtr newIBuf = HardwareBufferManager::getSingleton().createIndexBuffer(
+					idata->indexBuffer->getType(), newIndexCount, 
+					idata->indexBuffer->getUsage());
+				if (pdest32)
+				{
+					newIBuf->writeData(0, sizeof(uint32) * newIndexCount, pnewbuf32, true);
+				}
+				else
+				{
+					newIBuf->writeData(0, sizeof(uint16) * newIndexCount, pnewbuf16, true);
+				}
+				idata->indexBuffer = newIBuf;
 			}
 			else
 			{
-				newIBuf->writeData(0, sizeof(uint16) * newIndexCount, pnewbuf16, true);
+				idata->indexBuffer.setNull();
 			}
 			idata->indexCount = newIndexCount;
-			idata->indexBuffer = newIBuf;
 
 		}
 

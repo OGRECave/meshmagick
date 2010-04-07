@@ -275,6 +275,11 @@ namespace meshmagick
 
 			// build buffers containing only the vertex positions and indices, since this is what Tootle requires
 			SubMesh * smesh=mesh->getSubMesh(i);
+
+			// Skip empty submeshes
+			if (!smesh->indexData->indexCount)
+				continue;
+
 			if(smesh->operationType!=RenderOperation::OT_TRIANGLE_LIST)
 			{
 				continue;
