@@ -363,6 +363,10 @@ namespace meshmagick
 	{
 		bool duplicates = false;
 
+		// Can't remove duplicates on unindexed geometry, needs to use duplicates
+		if (mIndexDataList.empty())
+			return false;
+
 		// Lock all the buffers first
 		typedef std::vector<char*> BufferLocks;
 		BufferLocks bufferLocks;
