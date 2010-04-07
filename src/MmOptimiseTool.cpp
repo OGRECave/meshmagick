@@ -713,6 +713,7 @@ namespace meshmagick
 		}
 
 		idata->indexBuffer->unlock();
+		posBuf->unlock();
 
 		if (newIndexCount != idata->indexCount)
 		{
