@@ -693,10 +693,24 @@ namespace meshmagick
 			posElem->baseVertexPointerToElement(pVert, &pPosVert);
 			v2 = Vector3(pPosVert[0], pPosVert[1], pPosVert[2]);
 
-			if (!v0.positionEquals(v1, mPosTolerance) && 
+			// No double-indexing
+			bool validTri = i0 != i1 && i1 != i2 && i0 != i2;
+			// no equal positions
+			validTri = validTri &&
+				!v0.positionEquals(v1, mPosTolerance) && 
 				!v1.positionEquals(v2, mPosTolerance) && 
-				!v0.positionEquals(v2, mPosTolerance) && 
-				i0 != i1 && i1 != i2 && i0 != i2)
+				!v0.positionEquals(v2, mPosTolerance);
+			if (validTri)
+			{
+				// Make sure triangle has some area
+				Vector3 vec1 = v1 - v0;
+				Vector3 vec2 = v2 - v0;
+				// triangle area is 1/2 magnitude of the cross-product of 2 sides
+				// if zero, not a valid triangle
+				validTri = !Math::RealEqual((Real)0.0f, (Real)(0.5f * vec1.crossProduct(vec2).length()), 1e-04f);
+			}
+
+			if (validTri)
 			{
 				if (pdest32)
 				{
