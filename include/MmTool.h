@@ -46,8 +46,14 @@ namespace meshmagick
         void invoke(const OptionList& globalOptions, const OptionList& toolOptions,
             const Ogre::StringVector& inFileNames, const Ogre::StringVector& outFileNames);
 
+		typedef enum {V_QUIET, V_NORMAL, V_HIGH} Verbosity;
+		void setVerbosity(Verbosity v) { mVerbosity = v; }
+		Verbosity getVerbosity() const { return mVerbosity; }
+
+		void setFollowSkeletonLink(bool f) { mFollowSkeletonLink = f; }
+		bool getFollowSkeletonLink() const { return mFollowSkeletonLink; }
+
     protected:
-        typedef enum {V_QUIET, V_NORMAL, V_HIGH} Verbosity;
         Verbosity mVerbosity;
         bool mFollowSkeletonLink;
 
