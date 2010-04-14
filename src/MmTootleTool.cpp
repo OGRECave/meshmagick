@@ -304,6 +304,28 @@ namespace meshmagick
 				//start tootle work
 
 
+#if 0
+				// Dump to .obj for diagnostics for when Tootle asserts
+				if (mVerbosity >= V_HIGH)
+				{
+					std::ofstream ofstream;
+					String filename = String("TootleInput_") + mesh->getName() + "_" + StringConverter::toString(i) + ".obj";
+					ofstream.open(filename.c_str());
+
+					for (std::vector<Vector3>::iterator v = vertices.begin(); v != vertices.end(); ++v)
+					{
+						ofstream << "v " << v->x << " " << v->y << " " << v->z << std::endl;
+					}
+					for (std::vector<unsigned int>::iterator f = indices.begin(); f != indices.end();)
+					{
+						ofstream << "f " << (*f++ + 1) << " " << (*f++ + 1) << " " << (*f++ + 1) << std::endl;
+					}
+					ofstream.close();
+
+				}
+#endif
+
+
 				// *****************************************************************
 				//   Optimize the mesh
 				// *****************************************************************
