@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include <OgreMesh.h>
 #include <OgreMeshSerializer.h>
 #include <OgreSubMesh.h>
+#include <OgreProgressiveMesh.h>
 #include <OgreVector3.h>
 #include <OgreVector4.h>
 
@@ -149,7 +150,7 @@ namespace meshmagick
 		void removeDegenerateFaces(Ogre::IndexData* idata);
 		Ogre::Mesh::VertexBoneAssignmentList getAdjustedBoneAssignments(
 			Ogre::Mesh::BoneAssignmentIterator& it);
-		void fixLOD(Ogre::ProgressiveMesh::LODFaceList lodFaces);
+        void fixLOD(Ogre::SubMesh::LODFaceList lodFaces);
 
 		void doInvoke(const OptionList& toolOptions,
 			const Ogre::StringVector& inFileNames, const Ogre::StringVector& outFileNames);

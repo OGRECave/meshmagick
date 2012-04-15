@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 using namespace Ogre;
 
-template<> meshmagick::OgreEnvironment* Singleton<meshmagick::OgreEnvironment>::ms_Singleton = NULL;
+template<> meshmagick::OgreEnvironment* Singleton<meshmagick::OgreEnvironment>::msSingleton = NULL;
 
 namespace meshmagick
 {

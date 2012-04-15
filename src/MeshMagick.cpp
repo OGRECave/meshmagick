@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include "MmRenameToolFactory.h"
 #include "MmTransformToolFactory.h"
 
-template<> meshmagick::MeshMagick* Ogre::Singleton<meshmagick::MeshMagick>::ms_Singleton = NULL;
+template<> meshmagick::MeshMagick* Ogre::Singleton<meshmagick::MeshMagick>::msSingleton = NULL;
 
 using namespace Ogre;
 
