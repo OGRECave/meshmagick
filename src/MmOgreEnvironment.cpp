@@ -34,6 +34,18 @@ using namespace Ogre;
 
 template<> meshmagick::OgreEnvironment* Singleton<meshmagick::OgreEnvironment>::msSingleton = NULL;
 
+struct MaterialCreator : public MeshSerializerListener
+{
+    void processMaterialName(Mesh *mesh, String *name)
+    {
+        // create material because we do not load any .material files
+        MaterialManager::getSingleton().create(*name, mesh->getGroup());
+    }
+
+    void processSkeletonName(Mesh *mesh, String *name) {}
+    void processMeshCompleted(Mesh *mesh) {}
+};
+
 namespace meshmagick
 {
     OgreEnvironment::OgreEnvironment()
@@ -83,10 +95,11 @@ namespace meshmagick
 			mMeshMgr = MeshManager::getSingletonPtr();
 			mMeshMgr->setBoundsPaddingFactor(0.0f);
 #if OGRE_VERSION_MAJOR > 1 || (OGRE_VERSION_MAJOR == 1 && OGRE_VERSION_MINOR >= 7)
-			mLodStrategyMgr = new LodStrategyManager();
+			mLodStrategyMgr = LodStrategyManager::getSingletonPtr();
 #endif
 			mMaterialMgr = MaterialManager::getSingletonPtr();
 			mMaterialMgr->initialise();
+
 			mSkeletonMgr = SkeletonManager::getSingletonPtr();
 			mBufferManager = new DefaultHardwareBufferManager();
 			mStandalone = true;
@@ -99,6 +112,9 @@ namespace meshmagick
 
 		mMeshSerializer = new StatefulMeshSerializer();
         mSkeletonSerializer = new StatefulSkeletonSerializer();
+
+        static MaterialCreator matCreator;
+        mMeshSerializer->setListener(&matCreator);
 	}
 
 	bool OgreEnvironment::isStandalone() const
