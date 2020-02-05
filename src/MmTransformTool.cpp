@@ -504,7 +504,7 @@ namespace meshmagick
     void TransformTool::calculateTransform(MeshPtr mesh)
     {
         // Calculate transform
-        Matrix4 transform = Matrix4::IDENTITY;
+        Affine3 transform = Affine3::IDENTITY;
 
         print("Calculating transformation...", V_HIGH);
 
@@ -513,19 +513,19 @@ namespace meshmagick
             if (it->first == "scale")
             {
                 Vector3 scale = any_cast<Vector3>(it->second);
-                transform = Matrix4::getScale(scale) * transform;
+                transform = Affine3::getScale(scale) * transform;
                 print("Apply scaling " + StringConverter::toString(scale), V_HIGH);
             }
             else if (it->first == "translate")
             {
                 Vector3 translate = any_cast<Vector3>(it->second);
-                transform = Matrix4::getTrans(translate) * transform;
+                transform = Affine3::getTrans(translate) * transform;
                 print("Apply translation " + StringConverter::toString(translate), V_HIGH);
             }
             else if (it->first == "rotate")
             {
                 Quaternion rotation = any_cast<Quaternion>(it->second);
-                transform = Matrix4(rotation) * transform;
+                transform = Affine3(Matrix4(rotation)) * transform;
                 print("Apply rotation (quat.) " + StringConverter::toString(rotation), V_HIGH);
             }
             else if (it->first == "xalign")
@@ -555,7 +555,7 @@ namespace meshmagick
                     translate = Vector3(-aabb.getMaximum().x, 0, 0);
                 }
 
-                transform = Matrix4::getTrans(translate) * transform;
+                transform = Affine3::getTrans(translate) * transform;
             }
             else if (it->first == "yalign")
             {
@@ -584,7 +584,7 @@ namespace meshmagick
                     translate = Vector3(0, -aabb.getMaximum().y, 0);
                 }
 
-                transform = Matrix4::getTrans(translate) * transform;
+                transform = Affine3::getTrans(translate) * transform;
             }
             else if (it->first == "zalign")
             {
@@ -613,7 +613,7 @@ namespace meshmagick
                     translate = Vector3(0, 0, -aabb.getMaximum().z);
                 }
 
-                transform = Matrix4::getTrans(translate) * transform;
+                transform = Affine3::getTrans(translate) * transform;
                 print("Z-Alignment " + alignment + " - "
                     + StringConverter::toString(translate), V_HIGH);
             }
@@ -678,7 +678,7 @@ namespace meshmagick
                     }
                 }
 
-                transform = Matrix4::getScale(scale) * transform;
+                transform = Affine3::getScale(scale) * transform;
             }
 			else if (it->first == "axes")
             {

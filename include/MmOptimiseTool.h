@@ -29,7 +29,6 @@ THE SOFTWARE.
 #include <OgreMesh.h>
 #include <OgreMeshSerializer.h>
 #include <OgreSubMesh.h>
-#include <OgreProgressiveMeshGenerator.h>
 #include <OgreVector3.h>
 #include <OgreVector4.h>
 

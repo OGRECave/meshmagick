@@ -33,6 +33,8 @@ THE SOFTWARE.
 #	include <OgreStringVector.h>
 #endif
 
+#include <iostream>
+
 namespace meshmagick
 {
     class Tool

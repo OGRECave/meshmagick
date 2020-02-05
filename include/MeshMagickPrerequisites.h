@@ -33,11 +33,8 @@ namespace meshmagick
     class TransformToolFactory;
 }
 
-#ifdef __APPLE__
-#	include <Ogre/OgrePlatform.h>
-#else
-#	include <OgrePlatform.h>
-#endif
+
+#include <Ogre.h>
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 && !defined(MESHMAGICK_STATIC)
 // Export control

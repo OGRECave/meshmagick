@@ -77,7 +77,7 @@ namespace meshmagick
         unsigned short width, char fill, std::ios::fmtflags flags)
     {
         // Easier to work with in transposed form
-        Matrix4 m = mm.Transpose();
+        Matrix3 m = mm.Transpose();
         String rval;
         for (unsigned short i = 0; i < 3; ++i)
         {
