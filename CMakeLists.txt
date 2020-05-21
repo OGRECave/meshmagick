@@ -11,7 +11,7 @@ set(MESHMAGICK_MINOR_VERSION 5)
 set(MESHMAGICK_PATCH_VERSION 2)
 
 # include our custom cmake scripts
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
 option(STATIC_BUILD "Build MeshMagick as static library" TRUE)
 
