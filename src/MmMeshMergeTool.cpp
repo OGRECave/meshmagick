@@ -123,7 +123,7 @@ namespace meshmagick
 		if (meshSkel != mBaseSkeleton)
 		{
 			throw std::logic_error(
-					"Some meshes have a skeleton, but others have none, cannot merge.");
+					"All meshes must use the same skeleton, cannot merge.");
 		}
 
 		mMeshes.push_back(mesh);
