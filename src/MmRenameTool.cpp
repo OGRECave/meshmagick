@@ -129,7 +129,7 @@ namespace meshmagick
 			else if (it->first == "animation")
 			{
 				StringPair names = split(any_cast<String>(it->second));
-				EditableSkeleton* eskel = dynamic_cast<EditableSkeleton*>(skeleton.getPointer());
+				EditableSkeleton* eskel = dynamic_cast<EditableSkeleton*>(skeleton.get());
 				Animation* anim = eskel->getAnimation(names.first);
 				eskel->removeAnimation(names.first);
 				Animation* newAnim = anim->clone(names.second);
@@ -185,14 +185,11 @@ namespace meshmagick
 				StringPair names = split(any_cast<String>(it->second));
                 String before = names.first;
                 String after = names.second;
-                for (Mesh::SubMeshIterator it = mesh->getSubMeshIterator();
-                    it.hasMoreElements();)
+                const auto& submeshes = mesh->getSubMeshes ();
+                for (const auto& submesh : submeshes)
                 {
-                    SubMesh* submesh = it.getNext();
                     if (submesh->getMaterialName() == before)
-                    {
                         submesh->setMaterialName(after);
-                    }
                 }
             }
             else if (it->first == "submesh")
@@ -203,7 +200,7 @@ namespace meshmagick
 
                 Mesh::SubMeshNameMap smnn = mesh->getSubMeshNameMap();
                 Mesh::SubMeshNameMap::iterator it = smnn.find(before);
-                EditableMesh* pMesh = dynamic_cast<EditableMesh*>(mesh.getPointer());
+                EditableMesh* pMesh = dynamic_cast<EditableMesh*>(mesh.get());
                 pMesh->renameSubmesh(before, after);
             }
 		}

@@ -24,7 +24,7 @@ THE SOFTWARE.
 #include "MmOptionsParser.h"
 
 #include <OgreStringConverter.h>
-#include <OgreVector3.h>
+#include <OgreVector.h>
 #include <OgreQuaternion.h>
 
 #include <algorithm>
@@ -68,7 +68,7 @@ namespace meshmagick
                 else
                 {
                     // Different type, see if there is a default value.
-                    if (!optionDef.defaultValue.isEmpty())
+                    if (optionDef.defaultValue.has_value())
                     {
                         options.push_back(Option(name, optionDef.defaultValue));
                     }

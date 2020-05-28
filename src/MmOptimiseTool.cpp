@@ -36,6 +36,8 @@ THE SOFTWARE.
 #include <algorithm>
 #include <functional>
 
+#include "MmToolUtils.h"
+
 using namespace Ogre;
 
 namespace meshmagick
@@ -129,8 +131,15 @@ namespace meshmagick
 
 		if (mFollowSkeletonLink && mesh->hasSkeleton())
 		{
-			// In this case keep file name.
-			processSkeletonFile(mesh->getSkeletonName(), mesh->getSkeletonName());
+            auto skeletonFileName = ToolUtils::getSkeletonFileName (mesh, file);
+            if (skeletonFileName.empty ())
+            {
+                warn ("Unable to locate skeleton " + mesh->getSkeletonName () + " referenced by " + file);
+                warn ("Use option 'no-follow-skeleton' to skip this step.");
+                return;
+            }
+            auto skeletonFileNameOut = ToolUtils::getSkeletonFileNameOut (mesh, outFile);
+            processSkeletonFile(skeletonFileName, skeletonFileNameOut);
 		}
 
 	}
@@ -185,37 +194,31 @@ namespace meshmagick
 
 			if (optimiseGeometry())
 			{
-				if (mesh->getSkeletonName() != StringUtil::BLANK)
+				if (mesh->getSkeletonName() != Ogre::BLANKSTRING)
 				{
 					print("    fixing bone assignments...");
-					Mesh::BoneAssignmentIterator currentIt = mesh->getBoneAssignmentIterator();
-					Mesh::VertexBoneAssignmentList newList =
-						getAdjustedBoneAssignments(currentIt);
+					const auto& bas = mesh->getBoneAssignments ();
+					auto bit = bas.begin ();
+					auto eit = bas.end ();
+					auto newList = getAdjustedBoneAssignments(bit, eit);
 					mesh->clearBoneAssignments();
-					for (Mesh::VertexBoneAssignmentList::iterator bi = newList.begin();
-						bi != newList.end(); ++bi)
-					{
-						mesh->addBoneAssignment(bi->second);
-					}
-
+					for (const auto& boneAssignment : newList)
+						mesh->addBoneAssignment (boneAssignment.second);
 				}
 
 				for (unsigned short i = 0; i < mesh->getNumSubMeshes(); ++i)
 				{
 					SubMesh* sm = mesh->getSubMesh(i);
-					if (mesh->getSkeletonName() != StringUtil::BLANK)
+					if (mesh->getSkeletonName() != Ogre::BLANKSTRING)
 					{
 						print("    fixing bone assignments...");
-						Mesh::BoneAssignmentIterator currentIt = sm->getBoneAssignmentIterator();
-						Mesh::VertexBoneAssignmentList newList =
-							getAdjustedBoneAssignments(currentIt);
+						const auto& bas = sm->getBoneAssignments ();
+						auto bit = bas.begin ();
+						auto eit = bas.end ();
+						auto newList = getAdjustedBoneAssignments(bit, eit);
 						sm->clearBoneAssignments();
-						for (Mesh::VertexBoneAssignmentList::iterator bi = newList.begin();
-							bi != newList.end(); ++bi)
-						{
-							sm->addBoneAssignment(bi->second);
-						}
-
+						for (const auto& boneAssignment : newList)
+							sm->addBoneAssignment (boneAssignment.second);
 					}
 					if (sm->useSharedVertices)
 					{
@@ -239,19 +242,16 @@ namespace meshmagick
 				addIndexData(sm->indexData, sm->operationType);
 				if (optimiseGeometry())
 				{
-					if (mesh->getSkeletonName() != StringUtil::BLANK)
+					if (mesh->getSkeletonName() != Ogre::BLANKSTRING)
 					{
 						print("    fixing bone assignments...");
-						Mesh::BoneAssignmentIterator currentIt = sm->getBoneAssignmentIterator();
-						Mesh::VertexBoneAssignmentList newList =
-							getAdjustedBoneAssignments(currentIt);
+						const auto& bas = sm->getBoneAssignments();
+						auto bit = bas.begin();
+						auto eit = bas.end();
+						auto newList = getAdjustedBoneAssignments(bit, eit);
 						sm->clearBoneAssignments();
-						for (Mesh::VertexBoneAssignmentList::iterator bi = newList.begin();
-							bi != newList.end(); ++bi)
-						{
-							sm->addBoneAssignment(bi->second);
-						}
-
+						for (auto& boneAssignment : newList)
+							sm->addBoneAssignment(boneAssignment.second);
 					}
 
 					fixLOD(sm->mLodFaceList);
@@ -282,13 +282,14 @@ namespace meshmagick
 
 	}
 	//---------------------------------------------------------------------
-	Mesh::VertexBoneAssignmentList OptimiseTool::getAdjustedBoneAssignments(
-		Mesh::BoneAssignmentIterator& it)
+    Mesh::VertexBoneAssignmentList OptimiseTool::getAdjustedBoneAssignments(
+        Ogre::SubMesh::VertexBoneAssignmentList::const_iterator& bit,
+        Ogre::SubMesh::VertexBoneAssignmentList::const_iterator& eit)
 	{
 		Mesh::VertexBoneAssignmentList newList;
-		while (it.hasMoreElements())
+		for (; bit != eit; ++bit)
 		{
-			VertexBoneAssignment ass = it.getNext();
+			VertexBoneAssignment ass = bit->second;
 			IndexInfo& ii = mIndexRemap[ass.vertexIndex];
 
 			// If this is the originating vertex index  we want to add the (adjusted)
@@ -755,7 +756,7 @@ namespace meshmagick
 			}
 			else
 			{
-				idata->indexBuffer.setNull();
+				idata->indexBuffer.reset();
 			}
 			idata->indexCount = newIndexCount;
 

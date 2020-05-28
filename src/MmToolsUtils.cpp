@@ -105,9 +105,18 @@ namespace meshmagick
         }
         else
         {
-            rval = StringUtil::BLANK;
+            rval = Ogre::BLANKSTRING;
         }
         return rval;
+    }
+
+    String ToolUtils::getSkeletonFileNameOut (const MeshPtr mesh, const String& meshFileName)
+    {
+        String skeletonName = mesh->getSkeletonName ();
+        // Decompose meshfilename into path and basename.
+        String basename, path;
+        StringUtil::splitFilename (meshFileName, basename, path);
+        return path + skeletonName;
     }
 
     // Code taken from http://www.codepedia.com/1/CppFileExists

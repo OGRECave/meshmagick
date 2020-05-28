@@ -42,14 +42,14 @@ namespace meshmagick
     {
         // Resource already created upon mesh loading?
         mSkeleton = SkeletonManager::getSingleton().getByName(name);
-        if (mSkeleton.isNull())
+        if (!mSkeleton)
         {
             // Nope. We create it here then.
             mSkeleton = SkeletonManager::getSingleton().create(name, 
                 ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         }
 
-		mSkeleton = SkeletonPtr(new EditableSkeleton(*mSkeleton.getPointer()));
+		mSkeleton = SkeletonPtr(new EditableSkeleton(*mSkeleton.get()));
 
         std::ifstream ifs;
         ifs.open(name.c_str(), std::ios_base::in | std::ios_base::binary);
@@ -62,7 +62,7 @@ namespace meshmagick
 
         determineFileFormat(stream);
 
-        importSkeleton(stream, mSkeleton.getPointer());
+        importSkeleton(stream, mSkeleton.get());
 
         ifs.close();
 
@@ -71,18 +71,18 @@ namespace meshmagick
 
     void StatefulSkeletonSerializer::saveSkeleton(const String& name, bool keepEndianess)
     {
-        if (mSkeleton.isNull())
+        if (!mSkeleton)
         {
             throw std::logic_error("No skeleton to save set.");
         }
 
         Endian endianMode = keepEndianess ? mSkeletonFileEndian : ENDIAN_NATIVE;
-        exportSkeleton(mSkeleton.getPointer(), name, SKELETON_VERSION_LATEST, endianMode);
+        exportSkeleton(mSkeleton.get(), name, SKELETON_VERSION_LATEST, endianMode);
     }
 
     void StatefulSkeletonSerializer::clear()
     {
-        mSkeleton.setNull();
+        mSkeleton.reset();
     }
 
     SkeletonPtr StatefulSkeletonSerializer::getSkeleton() const
