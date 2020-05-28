@@ -406,7 +406,7 @@ namespace meshmagick
 						fail(getTootleError(result, "TootleMeasureOverdraw"));
 
 					// print tootle statistics (only in verbose mode)
-					StringUtil::StrStreamType statsStr;
+					Ogre::StringStream statsStr;
 					statsStr 
 						<< "Tootle Stats for submesh " << i << ": " << std::endl
 						<< "  Clusters: " << stats.nClusters << std::endl

@@ -135,12 +135,7 @@ namespace meshmagick
     //------------------------------------------------------------------------
 	void InfoTool::processMesh(MeshInfo& info, MeshPtr mesh) const
 	{
-		processMesh(info, mesh.get());
-	}
-	//---------------------------------------------------------------------
-	void InfoTool::processMesh(MeshInfo& info, Mesh* mesh) const
-    {
-        info.storedBoundingBox = mesh->getBounds();
+	    info.storedBoundingBox = mesh->getBounds();
 		info.actualBoundingBox = MeshUtils::getMeshAabb(mesh);
 
         // Build metadata for bone assignments
@@ -231,7 +226,8 @@ namespace meshmagick
         {
 			try
 			{
-				info.skeleton = processSkeleton(mesh->getSkeletonName());
+				auto skeletonFileName = ToolUtils::getSkeletonFileName (mesh, info.name);
+				info.skeleton = processSkeleton(skeletonFileName);
 				info.skeletonValid = true;
 			}
 			catch (std::exception&)
@@ -508,7 +504,7 @@ namespace meshmagick
 	void InfoTool::printMeshInfo(const OptionList& toolOptions, const MeshInfo& info) const
 	{
 		const String list = OptionsUtil::getStringOption(toolOptions, "list");
-		if (list == StringUtil::BLANK)
+		if (list == Ogre::BLANKSTRING)
 		{
 			reportMeshInfo(info);
 		}
@@ -525,7 +521,7 @@ namespace meshmagick
 	void InfoTool::printSkeletonInfo(const OptionList& toolOptions, const SkeletonInfo& info) const
 	{
 		const String list = OptionsUtil::getStringOption(toolOptions, "list");
-		if (list == StringUtil::BLANK)
+		if (list == Ogre::BLANKSTRING)
 		{
 			reportSkeletonInfo(info);
 		}

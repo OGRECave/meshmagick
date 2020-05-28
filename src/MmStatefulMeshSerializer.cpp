@@ -56,7 +56,7 @@ namespace meshmagick
 
         determineFileFormat(stream);
 
-        importMesh(stream, mMesh.getPointer());
+        importMesh(stream, mMesh.get());
 
         ifs.close();
 
@@ -65,18 +65,18 @@ namespace meshmagick
 
     void StatefulMeshSerializer::saveMesh(const Ogre::String& name, bool keepEndianess)
     {
-        if (mMesh.isNull())
+        if (!mMesh)
         {
             throw std::logic_error("No mesh to save set.");
         }
 
         Endian endianMode = keepEndianess ? mMeshFileEndian : ENDIAN_NATIVE;
-        exportMesh(mMesh.getPointer(), name, endianMode);
+        exportMesh(mMesh.get(), name, endianMode);
     }
 
     void StatefulMeshSerializer::clear()
     {
-        mMesh.setNull();
+        mMesh.reset();
         mMeshFileEndian = ENDIAN_NATIVE;
         mMeshFileVersion = "";
     }

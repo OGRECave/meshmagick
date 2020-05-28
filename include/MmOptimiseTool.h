@@ -29,8 +29,7 @@ THE SOFTWARE.
 #include <OgreMesh.h>
 #include <OgreMeshSerializer.h>
 #include <OgreSubMesh.h>
-#include <OgreVector3.h>
-#include <OgreVector4.h>
+#include <OgreVector.h>
 
 #include "MmOptionsParser.h"
 #include "MmTool.h"
@@ -148,7 +147,8 @@ namespace meshmagick
 		void removeDegenerateFaces();
 		void removeDegenerateFaces(Ogre::IndexData* idata);
 		Ogre::Mesh::VertexBoneAssignmentList getAdjustedBoneAssignments(
-			Ogre::Mesh::BoneAssignmentIterator& it);
+			Ogre::SubMesh::VertexBoneAssignmentList::const_iterator bit,
+			Ogre::SubMesh::VertexBoneAssignmentList::const_iterator eit);
         void fixLOD(Ogre::SubMesh::LODFaceList lodFaces);
 
 		void doInvoke(const OptionList& toolOptions,

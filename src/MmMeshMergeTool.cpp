@@ -45,7 +45,7 @@ namespace meshmagick
 	MeshMergeTool::~MeshMergeTool()
 	{
 		mMeshes.clear();
-		mBaseSkeleton.setNull();
+		mBaseSkeleton.reset();
 	}
 
     Ogre::String MeshMergeTool::getName() const
@@ -75,10 +75,10 @@ namespace meshmagick
 			it != inFileNames.end(); ++it)
 		{
 			MeshPtr curMesh = meshSer->loadMesh(*it);
-			if (!curMesh.isNull())
+			if (curMesh)
 			{
-				if (curMesh->hasSkeleton() && SkeletonManager::getSingleton().getByName(
-					curMesh->getSkeletonName()).isNull())
+				if (curMesh->hasSkeleton() && 
+					!SkeletonManager::getSingleton().getByName(curMesh->getSkeletonName()))
 				{
 					skelSer->loadSkeleton(curMesh->getSkeletonName());
 				}
@@ -90,31 +90,31 @@ namespace meshmagick
 			}
 		}
 		Ogre::String outputfile = *outFileNames.begin();
-		meshSer->exportMesh(merge(outputfile).getPointer(), outputfile);
+		meshSer->exportMesh(merge(outputfile).get(), outputfile);
 	}
 
 
 	void MeshMergeTool::addMesh(Ogre::MeshPtr mesh)
 	{
 		SkeletonPtr meshSkel = mesh->getSkeleton();
-		if (meshSkel.isNull() && mesh->hasSkeleton())
+		if (!meshSkel && mesh->hasSkeleton())
 		{
 			meshSkel = SkeletonManager::getSingleton().getByName(mesh->getSkeletonName());
 		}
 
-		if (meshSkel.isNull() && !mBaseSkeleton.isNull())
+		if (!meshSkel && mBaseSkeleton)
 		{
 			throw std::logic_error(
 					"Some meshes have a skeleton, but others have none, cannot merge.");
 		}
 
-		if (!meshSkel.isNull() && mBaseSkeleton.isNull() && !mMeshes.empty())
+		if (meshSkel && !mBaseSkeleton && !mMeshes.empty())
 		{
 			throw std::logic_error(
 					"Some meshes have a skeleton, but others have none, cannot merge.");
 		}
 
-		if (!meshSkel.isNull() && mBaseSkeleton.isNull() && mMeshes.empty())
+		if (meshSkel && !mBaseSkeleton && mMeshes.empty())
 		{
 			mBaseSkeleton = meshSkel;
 			print("Set: base skeleton (" + mBaseSkeleton->getName()+")", V_HIGH);
@@ -148,7 +148,7 @@ namespace meshmagick
 
 		MeshPtr mp = MeshManager::getSingleton().createManual(name, resourceGroupName);
 
-		if (!mBaseSkeleton.isNull())
+		if (mBaseSkeleton)
 		{
 			mp->setSkeletonName(mBaseSkeleton->getName());
 		}
@@ -186,15 +186,11 @@ namespace meshmagick
 				{
 					newsub->vertexData = sub->vertexData->clone();
 
-					if (!mBaseSkeleton.isNull())
+					if (mBaseSkeleton)
 					{
 						// build bone assignments
-						SubMesh::BoneAssignmentIterator bit = sub->getBoneAssignmentIterator();
-						while (bit.hasMoreElements())
-						{
-							VertexBoneAssignment vba = bit.getNext();
-							newsub->addBoneAssignment(vba);
-						}
+						for (const auto& boneAssignment : sub->getBoneAssignments())
+							newsub->addBoneAssignment (boneAssignment.second);
 					}
 				}
 
@@ -277,14 +273,10 @@ namespace meshmagick
 					mp->sharedVertexData = (*it)->sharedVertexData->clone();
 				}
 
-				if (!mBaseSkeleton.isNull())
+				if (mBaseSkeleton)
 				{
-					Mesh::BoneAssignmentIterator bit = (*it)->getBoneAssignmentIterator();
-					while (bit.hasMoreElements())
-					{
-						VertexBoneAssignment vba = bit.getNext();
-						mp->addBoneAssignment(vba);
-					}
+					for (const auto& boneAssignment : (*it)->getBoneAssignments ())
+						mp->addBoneAssignment (boneAssignment.second);
 				}
 			}
 

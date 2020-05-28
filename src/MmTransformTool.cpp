@@ -136,12 +136,19 @@ namespace meshmagick
         meshSerializer->saveMesh(outFile, true);
         print("Mesh saved as " + outFile + ".");
 
-        if (mFollowSkeletonLink && mesh->hasSkeleton())
+        if (mFollowSkeletonLink && mesh->hasSkeleton ())
         {
-            // In this case keep file name and also keep already determined transform
-            String skeletonFileName = ToolUtils::getSkeletonFileName(mesh, inFile);
-            processSkeletonFile(skeletonFileName, skeletonFileName, false);
+            auto skeletonFileName = ToolUtils::getSkeletonFileName (mesh, inFile);
+            if (skeletonFileName.empty ())
+            {
+                warn ("Unable to locate skeleton " + mesh->getSkeletonName () + " referenced by " + inFile);
+                warn ("Use option 'no-follow-skeleton' to skip this step.");
+                return;
+            }
+            auto skeletonFileNameOut = ToolUtils::getSkeletonFileNameOut (mesh, outFile);
+            processSkeletonFile (skeletonFileName, skeletonFileNameOut, false);
         }
+
     }
 
 	void TransformTool::processSkeleton(Ogre::SkeletonPtr skeleton)
@@ -151,12 +158,8 @@ namespace meshmagick
 
     void TransformTool::processSkeleton(Ogre::Skeleton* skeleton)
     {
-        Skeleton::BoneIterator it = skeleton->getBoneIterator();
-        while (it.hasMoreElements())
-        {
-            processBone(it.peekNext());
-            it.moveNext();
-        }
+        for (const auto& bone : skeleton->getBones ())
+            processBone (bone);
 
         for (unsigned short aniIdx = 0; aniIdx < skeleton->getNumAnimations(); ++aniIdx)
         {
@@ -170,8 +173,7 @@ namespace meshmagick
         print("Processing animation " + ani->getName() + "...", V_HIGH);
 
         // We only need to apply scaling and rotation, no translation.
-        Matrix3 m3x3;
-        mTransform.extract3x3Matrix(m3x3);
+        Matrix3 m3x3 = mTransform.linear ();
         Vector3 scale(
             m3x3.GetColumn(0).length(),
             m3x3.GetColumn(1).length(),
@@ -209,15 +211,14 @@ namespace meshmagick
         {
             // Is root bone, we need to apply full transform
             bone->setPosition(mTransform * bone->getPosition());
-            Quaternion rot = mTransform.extractQuaternion();
+            Quaternion rot (mTransform.linear());
             rot.normalise();
             bone->setOrientation(rot * bone->getOrientation());
         }
         else
         {
             // Non-root-bone, we apply only scale
-            Matrix3 m3x3;
-            mTransform.extract3x3Matrix(m3x3);
+            Matrix3 m3x3 = mTransform.linear();
             Vector3 scale(
                 m3x3.GetColumn(0).length(),
                 m3x3.GetColumn(1).length(),
@@ -271,10 +272,8 @@ namespace meshmagick
         }
 
         // Process poses, if there are any
-        for (unsigned short i = 0; i < mesh->getPoseCount(); ++i)
-        {
-            processPose(mesh->getPose(i));
-        }
+        for (const auto& pose : mesh->getPoseList ())
+            processPose (pose);
 
         // If there are vertex animations, process these too.
         if (mesh->hasVertexAnimation())
@@ -425,7 +424,7 @@ namespace meshmagick
         const VertexElement* vertexElem)
     {
         // We only want to apply rotation to normal, binormal and tangent, so extract it.
-        Quaternion rotation = mTransform.extractQuaternion();
+        Quaternion rotation (mTransform.linear());
         rotation.normalise();
 
         Ogre::HardwareVertexBufferSharedPtr buffer =
@@ -455,16 +454,14 @@ namespace meshmagick
 
     void TransformTool::processPose(Pose* pose)
     {
-        Matrix3 m3x3;
-        mTransform.extract3x3Matrix(m3x3);
+        Matrix3 m3x3 = mTransform.linear ();
 
-        Pose::VertexOffsetIterator it = pose->getVertexOffsetIterator();
-        while (it.hasMoreElements())
+        for (const auto& it : pose->getVertexOffsets())
         {
-            Vector3 offset = it.peekNextValue();
-            Vector3 newOffset = m3x3 * offset;
-            *it.peekNextValuePtr() = newOffset;
-            it.moveNext();
+            auto offset = it.second;
+            auto newOffset = m3x3 * offset;
+            // ugly const_cast because 'it' is const
+            *const_cast<Vector3*>(&it.second) = newOffset;
         }
     }
 
@@ -531,7 +528,7 @@ namespace meshmagick
             else if (it->first == "xalign")
             {
                 //ignore, if no mesh given. Without we can't do this op.
-                if (mesh.isNull())
+                if (!mesh)
                 {
                     print("Skipped alignment, operation can't be applied to skeletons", V_HIGH);
                     continue;
@@ -560,7 +557,7 @@ namespace meshmagick
             else if (it->first == "yalign")
             {
                 //ignore, if no mesh given. Without we can't do this op.
-                if (mesh.isNull())
+                if (!mesh)
                 {
                     print("Skipped alignment, operation can't be applied to skeletons", V_HIGH);
                     continue;
@@ -589,7 +586,7 @@ namespace meshmagick
             else if (it->first == "zalign")
             {
                 //ignore, if no mesh given. Without we can't do this op.
-                if (mesh.isNull())
+                if (!mesh)
                 {
                     print("Skipped alignment, operation can't be applied to skeletons", V_HIGH);
                     continue;
@@ -620,7 +617,7 @@ namespace meshmagick
             else if (it->first == "resize")
             {
                 //ignore, if no mesh given. Without we can't do this op.
-                if (mesh.isNull())
+                if (!mesh)
                 {
                     print("Skipped resize, operation can't be applied to skeletons", V_HIGH);
                     continue;
@@ -695,8 +692,7 @@ namespace meshmagick
 
                 // decompose transform matrix to 3x3 matrix and translation.
                 // We will recontruct the 4x4 transform later in this code block.
-                Matrix3 m3;
-                transform.extract3x3Matrix(m3);
+                Matrix3 m3 = transform.linear();
                 Vector3 translation = transform.getTrans();
 
                 bool malformed = false;
@@ -765,8 +761,7 @@ namespace meshmagick
         // We can test it by using the cross product from X and Y and see, if it is a non-negative
         // projection on Z. Actually it should be exactly Z, as we don't do non-uniform scaling yet,
         // but the test is cheap either way.
-        Matrix3 m3;
-        transform.extract3x3Matrix(m3);
+        Matrix3 m3 = transform.linear();
         if (m3.GetColumn(0).crossProduct(m3.GetColumn(1)).dotProduct(m3.GetColumn(2)) < 0)
         {
         	mFlipVertexWinding = true;
