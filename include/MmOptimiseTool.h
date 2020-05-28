@@ -147,8 +147,8 @@ namespace meshmagick
 		void removeDegenerateFaces();
 		void removeDegenerateFaces(Ogre::IndexData* idata);
 		Ogre::Mesh::VertexBoneAssignmentList getAdjustedBoneAssignments(
-			Ogre::SubMesh::VertexBoneAssignmentList::const_iterator& bit,
-			Ogre::SubMesh::VertexBoneAssignmentList::const_iterator& eit);
+			Ogre::SubMesh::VertexBoneAssignmentList::const_iterator bit,
+			Ogre::SubMesh::VertexBoneAssignmentList::const_iterator eit);
         void fixLOD(Ogre::SubMesh::LODFaceList lodFaces);
 
 		void doInvoke(const OptionList& toolOptions,

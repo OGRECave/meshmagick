@@ -198,9 +198,7 @@ namespace meshmagick
 				{
 					print("    fixing bone assignments...");
 					const auto& bas = mesh->getBoneAssignments ();
-					auto bit = bas.begin ();
-					auto eit = bas.end ();
-					auto newList = getAdjustedBoneAssignments(bit, eit);
+					auto newList = getAdjustedBoneAssignments(bas.begin(), bas.end());
 					mesh->clearBoneAssignments();
 					for (const auto& boneAssignment : newList)
 						mesh->addBoneAssignment (boneAssignment.second);
@@ -213,9 +211,7 @@ namespace meshmagick
 					{
 						print("    fixing bone assignments...");
 						const auto& bas = sm->getBoneAssignments ();
-						auto bit = bas.begin ();
-						auto eit = bas.end ();
-						auto newList = getAdjustedBoneAssignments(bit, eit);
+						auto newList = getAdjustedBoneAssignments(bas.begin(), bas.end());
 						sm->clearBoneAssignments();
 						for (const auto& boneAssignment : newList)
 							sm->addBoneAssignment (boneAssignment.second);
@@ -246,9 +242,7 @@ namespace meshmagick
 					{
 						print("    fixing bone assignments...");
 						const auto& bas = sm->getBoneAssignments();
-						auto bit = bas.begin();
-						auto eit = bas.end();
-						auto newList = getAdjustedBoneAssignments(bit, eit);
+						auto newList = getAdjustedBoneAssignments(bas.begin(), bas.end());
 						sm->clearBoneAssignments();
 						for (auto& boneAssignment : newList)
 							sm->addBoneAssignment(boneAssignment.second);
@@ -283,8 +277,8 @@ namespace meshmagick
 	}
 	//---------------------------------------------------------------------
     Mesh::VertexBoneAssignmentList OptimiseTool::getAdjustedBoneAssignments(
-        Ogre::SubMesh::VertexBoneAssignmentList::const_iterator& bit,
-        Ogre::SubMesh::VertexBoneAssignmentList::const_iterator& eit)
+        Ogre::SubMesh::VertexBoneAssignmentList::const_iterator bit,
+        Ogre::SubMesh::VertexBoneAssignmentList::const_iterator eit)
 	{
 		Mesh::VertexBoneAssignmentList newList;
 		for (; bit != eit; ++bit)
