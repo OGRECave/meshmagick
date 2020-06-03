@@ -26,6 +26,7 @@ THE SOFTWARE.
 #include <OgreResourceGroupManager.h>
 #include <OgreMeshManager.h>
 
+#include <fstream>
 #include <ios>
 #include <iostream>
 #include <stdexcept>
@@ -38,11 +39,11 @@ namespace meshmagick
 {
     const unsigned short HEADER_CHUNK_ID = 0x1000;
 
-    MeshPtr StatefulMeshSerializer::loadMesh(const String& name)
+    v1::MeshPtr StatefulMeshSerializer::loadMesh(const String& name)
     {
-        MeshManager* mm = MeshManager::getSingletonPtr();
-        MeshPtr mesh = mm->create(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-        mMesh = MeshPtr(new EditableMesh(mm, name, mesh->getHandle(),
+        v1::MeshManager* mm = v1::MeshManager::getSingletonPtr();
+        v1::MeshPtr mesh = mm->create(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        mMesh = v1::MeshPtr(new EditableMesh(mm, name, mesh->getHandle(),
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
 
         std::ifstream ifs;
@@ -81,7 +82,7 @@ namespace meshmagick
         mMeshFileVersion = "";
     }
 
-    MeshPtr StatefulMeshSerializer::getMesh() const
+    v1::MeshPtr StatefulMeshSerializer::getMesh() const
     {
         return mMesh;
     }

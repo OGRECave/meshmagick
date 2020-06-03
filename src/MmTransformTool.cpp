@@ -90,7 +90,7 @@ namespace meshmagick
             OgreEnvironment::getSingleton().getSkeletonSerializer();
 
         print("Loading skeleton " + inFile + "...");
-        SkeletonPtr skeleton;
+        v1::SkeletonPtr skeleton;
         try
         {
             skeleton = skeletonSerializer->loadSkeleton(inFile);
@@ -118,7 +118,7 @@ namespace meshmagick
             OgreEnvironment::getSingleton().getMeshSerializer();
 
         print("Loading mesh " + inFile + "...");
-        MeshPtr mesh;
+        v1::MeshPtr mesh;
         try
         {
             mesh = meshSerializer->loadMesh(inFile);
@@ -151,37 +151,42 @@ namespace meshmagick
 
     }
 
-	void TransformTool::processSkeleton(Ogre::SkeletonPtr skeleton)
+	void TransformTool::processSkeleton(Ogre::v1::SkeletonPtr skeleton)
 	{
 		processSkeleton(skeleton.get());
 	}
 
-    void TransformTool::processSkeleton(Ogre::Skeleton* skeleton)
+    void TransformTool::processSkeleton(Ogre::v1::Skeleton* skeleton)
     {
-        for (const auto& bone : skeleton->getBones ())
-            processBone (bone);
+        v1::Skeleton::BoneIterator it = skeleton->getBoneIterator();
+        while (it.hasMoreElements())
+        {
+            processBone(it.peekNext());
+            it.moveNext();
+        }
 
         for (unsigned short aniIdx = 0; aniIdx < skeleton->getNumAnimations(); ++aniIdx)
         {
-            Animation* ani = skeleton->getAnimation(aniIdx);
+            v1::Animation* ani = skeleton->getAnimation(aniIdx);
             processAnimation(ani);
         }
     }
 
-    void TransformTool::processAnimation(Ogre::Animation* ani)
+    void TransformTool::processAnimation(Ogre::v1::Animation* ani)
     {
         print("Processing animation " + ani->getName() + "...", V_HIGH);
 
         // We only need to apply scaling and rotation, no translation.
-        Matrix3 m3x3 = mTransform.linear ();
+        Matrix3 m3x3;
+        mTransform.extract3x3Matrix(m3x3);
         Vector3 scale(
             m3x3.GetColumn(0).length(),
             m3x3.GetColumn(1).length(),
             m3x3.GetColumn(2).length());
-        Animation::NodeTrackIterator trackIt = ani->getNodeTrackIterator();
+        v1::Animation::NodeTrackIterator trackIt = ani->getNodeTrackIterator();
         while (trackIt.hasMoreElements())
         {
-            NodeAnimationTrack* track = trackIt.getNext();
+            v1::NodeAnimationTrack* track = trackIt.getNext();
             // We need to apply full transform to root bone translations and only scale to the others.
             if (track->getAssociatedNode()->getParent() == NULL)
             {
@@ -189,7 +194,7 @@ namespace meshmagick
                 // TransformKeyFrames, so just use these here.
                 for (unsigned short frameIdx = 0; frameIdx < track->getNumKeyFrames(); ++frameIdx)
                 {
-                    TransformKeyFrame* keyframe = track->getNodeKeyFrame(frameIdx);
+                    v1::TransformKeyFrame* keyframe = track->getNodeKeyFrame(frameIdx);
                     keyframe->setTranslate(m3x3 * keyframe->getTranslate());
                 }
             }
@@ -197,28 +202,29 @@ namespace meshmagick
             {
                 for (unsigned short frameIdx = 0; frameIdx < track->getNumKeyFrames(); ++frameIdx)
                 {
-                    TransformKeyFrame* keyframe = track->getNodeKeyFrame(frameIdx);
+                    v1::TransformKeyFrame* keyframe = track->getNodeKeyFrame(frameIdx);
                     keyframe->setTranslate(scale * keyframe->getTranslate());
                 }
             }
         }
     }
 
-    void TransformTool::processBone(Ogre::Bone* bone)
+    void TransformTool::processBone(Ogre::v1::OldBone* bone)
     {
         print("Processing bone " + bone->getName() + "...", V_HIGH);
         if (bone->getParent() == NULL)
         {
             // Is root bone, we need to apply full transform
             bone->setPosition(mTransform * bone->getPosition());
-            Quaternion rot (mTransform.linear());
+            Quaternion rot = mTransform.extractQuaternion();
             rot.normalise();
             bone->setOrientation(rot * bone->getOrientation());
         }
         else
         {
             // Non-root-bone, we apply only scale
-            Matrix3 m3x3 = mTransform.linear();
+            Matrix3 m3x3;
+            mTransform.extract3x3Matrix(m3x3);
             Vector3 scale(
                 m3x3.GetColumn(0).length(),
                 m3x3.GetColumn(1).length(),
@@ -227,47 +233,47 @@ namespace meshmagick
         }
     }
 
-	void TransformTool::transform(Ogre::MeshPtr mesh, Ogre::Matrix4 transformation, bool followSkeleton)
+	void TransformTool::transform(Ogre::v1::MeshPtr mesh, Ogre::Matrix4 transformation, bool followSkeleton)
 	{
 		mTransform = transformation;
 		processMesh(mesh);
 
 		if (followSkeleton && mesh->hasSkeleton())
 		{
-			processSkeleton(mesh->getSkeleton());
+			processSkeleton(mesh->getOldSkeleton());
 		}
 	}
 
-	void TransformTool::transform(Ogre::SkeletonPtr skeleton, Ogre::Matrix4 transformation)
+	void TransformTool::transform(Ogre::v1::SkeletonPtr skeleton, Ogre::Matrix4 transformation)
 	{
 		mTransform = transformation;
 		processSkeleton(skeleton);
 	}
 
-	void TransformTool::processMesh(Ogre::MeshPtr mesh)
+	void TransformTool::processMesh(Ogre::v1::MeshPtr mesh)
 	{
 		processMesh(mesh.get());
 	}
 
-    void TransformTool::processMesh(Ogre::Mesh* mesh)
+    void TransformTool::processMesh(Ogre::v1::Mesh* mesh)
     {
         mBoundingBox.setNull();
 
-        if (mesh->sharedVertexData != NULL)
+        if (mesh->sharedVertexData[VpNormal] != NULL)
         {
-            processVertexData(mesh->sharedVertexData);
+            processVertexData(mesh->sharedVertexData[VpNormal]);
         }
 
         for(int i = 0;i < mesh->getNumSubMeshes();i++)
         {
-            SubMesh* submesh = mesh->getSubMesh(i);
-            if (submesh->vertexData != NULL)
+            v1::SubMesh* submesh = mesh->getSubMesh(i);
+            if (submesh->vertexData[VpNormal] != NULL)
             {
-                processVertexData(submesh->vertexData);
+                processVertexData(submesh->vertexData[VpNormal]);
             }
-            if (submesh->indexData != NULL)
+            if (submesh->indexData[VpNormal] != NULL)
             {
-            	processIndexData(submesh->indexData);
+            	processIndexData(submesh->indexData[VpNormal]);
             }
         }
 
@@ -282,12 +288,12 @@ namespace meshmagick
             unsigned short count = mesh->getNumAnimations();
             for (unsigned short i = 0; i < count; ++i)
             {
-                Animation* anim = mesh->getAnimation(i);
-                Animation::VertexTrackIterator it = anim->getVertexTrackIterator();
+                v1::Animation* anim = mesh->getAnimation(i);
+                v1::Animation::VertexTrackIterator it = anim->getVertexTrackIterator();
                 while (it.hasMoreElements())
                 {
-                    VertexAnimationTrack* track = it.getNext();
-                    if (track->getAnimationType() == VAT_MORPH)
+                    v1::VertexAnimationTrack* track = it.getNext();
+                    if (track->getAnimationType() == v1::VAT_MORPH)
                     {
                         for (unsigned short i = 0; i < track->getNumKeyFrames(); ++i)
                         {
@@ -305,7 +311,7 @@ namespace meshmagick
         }
     }
 
-	void TransformTool::processIndexData(IndexData* indexData)
+	void TransformTool::processIndexData(v1::IndexData* indexData)
 	{
 		if (!mFlipVertexWinding)
 		{
@@ -320,11 +326,11 @@ namespace meshmagick
 		}
 
 		print("Flipping index order for vertex winding flipping.", V_HIGH);
-		Ogre::HardwareIndexBufferSharedPtr buffer = indexData->indexBuffer;
+		Ogre::v1::HardwareIndexBufferSharedPtr buffer = indexData->indexBuffer;
 		unsigned char* data =
-               static_cast<unsigned char*>(buffer->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+               static_cast<unsigned char*>(buffer->lock(Ogre::v1::HardwareBuffer::HBL_READ_ONLY));
 
-		if(buffer->getType() == Ogre::HardwareIndexBuffer::IT_16BIT)
+		if(buffer->getType() == Ogre::v1::HardwareIndexBuffer::IT_16BIT)
 		{
 			// 16 bit
 			print("using 16bit indices", V_HIGH);
@@ -364,30 +370,30 @@ namespace meshmagick
 		buffer->unlock();
 	}
 
-    void TransformTool::processVertexData(VertexData* vertexData)
+    void TransformTool::processVertexData(v1::VertexData* vertexData)
     {
-        const VertexElement* position =
+        const v1::VertexElement* position =
             vertexData->vertexDeclaration->findElementBySemantic(Ogre::VES_POSITION);
         if (position != NULL)
         {
             processPositionElement(vertexData, position);
         }
 
-        const VertexElement* normal =
+        const v1::VertexElement* normal =
             vertexData->vertexDeclaration->findElementBySemantic(Ogre::VES_NORMAL);
         if (normal != NULL)
         {
             processDirectionElement(vertexData, normal);
         }
 
-        const VertexElement* binormal =
+        const v1::VertexElement* binormal =
             vertexData->vertexDeclaration->findElementBySemantic(Ogre::VES_BINORMAL);
         if (binormal != NULL)
         {
             processDirectionElement(vertexData, binormal);
         }
 
-        const VertexElement* tangent =
+        const v1::VertexElement* tangent =
             vertexData->vertexDeclaration->findElementBySemantic(Ogre::VES_TANGENT);
         if (tangent != NULL)
         {
@@ -395,14 +401,14 @@ namespace meshmagick
         }
     }
 
-    void TransformTool::processPositionElement(VertexData* vertexData,
-        const VertexElement* vertexElem)
+    void TransformTool::processPositionElement(v1::VertexData* vertexData,
+        const v1::VertexElement* vertexElem)
     {
-        Ogre::HardwareVertexBufferSharedPtr buffer =
+        Ogre::v1::HardwareVertexBufferSharedPtr buffer =
             vertexData->vertexBufferBinding->getBuffer(vertexElem->getSource());
 
         unsigned char* data =
-            static_cast<unsigned char*>(buffer->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+            static_cast<unsigned char*>(buffer->lock(Ogre::v1::HardwareBuffer::HBL_READ_ONLY));
         for (size_t i = 0; i < vertexData->vertexCount; ++i)
         {
             Real* ptr;
@@ -420,18 +426,18 @@ namespace meshmagick
         buffer->unlock();
     }
 
-    void TransformTool::processDirectionElement(VertexData* vertexData,
-        const VertexElement* vertexElem)
+    void TransformTool::processDirectionElement(v1::VertexData* vertexData,
+        const v1::VertexElement* vertexElem)
     {
         // We only want to apply rotation to normal, binormal and tangent, so extract it.
-        Quaternion rotation (mTransform.linear());
+        Quaternion rotation = mTransform.extractQuaternion();
         rotation.normalise();
 
-        Ogre::HardwareVertexBufferSharedPtr buffer =
+        Ogre::v1::HardwareVertexBufferSharedPtr buffer =
             vertexData->vertexBufferBinding->getBuffer(vertexElem->getSource());
 
         unsigned char* data =
-            static_cast<unsigned char*>(buffer->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
+            static_cast<unsigned char*>(buffer->lock(Ogre::v1::HardwareBuffer::HBL_READ_ONLY));
         for (size_t i = 0; i < vertexData->vertexCount; ++i)
         {
             Real* ptr;
@@ -452,9 +458,10 @@ namespace meshmagick
         buffer->unlock();
     }
 
-    void TransformTool::processPose(Pose* pose)
+    void TransformTool::processPose(v1::Pose* pose)
     {
-        Matrix3 m3x3 = mTransform.linear ();
+        Matrix3 m3x3;
+        mTransform.extract3x3Matrix(m3x3);
 
         for (const auto& it : pose->getVertexOffsets())
         {
@@ -465,11 +472,11 @@ namespace meshmagick
         }
     }
 
-    void TransformTool::processVertexMorphKeyFrame(VertexMorphKeyFrame* keyframe,
+    void TransformTool::processVertexMorphKeyFrame(v1::VertexMorphKeyFrame* keyframe,
         size_t vertexCount)
     {
         Vector3* positions = static_cast<Vector3*>(
-            keyframe->getVertexBuffer()->lock(HardwareBuffer::HBL_READ_ONLY));
+            keyframe->getVertexBuffer()->lock(v1::HardwareBuffer::HBL_READ_ONLY));
         for (size_t i = 0; i < vertexCount; ++i)
         {
             positions[i] = mTransform * positions[i];
@@ -498,10 +505,10 @@ namespace meshmagick
         }
     }
 
-    void TransformTool::calculateTransform(MeshPtr mesh)
+    void TransformTool::calculateTransform(v1::MeshPtr mesh)
     {
         // Calculate transform
-        Affine3 transform = Affine3::IDENTITY;
+        Matrix4 transform = Matrix4::IDENTITY;
 
         print("Calculating transformation...", V_HIGH);
 
@@ -510,19 +517,19 @@ namespace meshmagick
             if (it->first == "scale")
             {
                 Vector3 scale = any_cast<Vector3>(it->second);
-                transform = Affine3::getScale(scale) * transform;
+                transform = Matrix4::getScale(scale) * transform;
                 print("Apply scaling " + StringConverter::toString(scale), V_HIGH);
             }
             else if (it->first == "translate")
             {
                 Vector3 translate = any_cast<Vector3>(it->second);
-                transform = Affine3::getTrans(translate) * transform;
+                transform = Matrix4::getTrans(translate) * transform;
                 print("Apply translation " + StringConverter::toString(translate), V_HIGH);
             }
             else if (it->first == "rotate")
             {
                 Quaternion rotation = any_cast<Quaternion>(it->second);
-                transform = Affine3(Matrix4(rotation)) * transform;
+                transform = Matrix4(rotation) * transform;
                 print("Apply rotation (quat.) " + StringConverter::toString(rotation), V_HIGH);
             }
             else if (it->first == "xalign")
@@ -552,7 +559,7 @@ namespace meshmagick
                     translate = Vector3(-aabb.getMaximum().x, 0, 0);
                 }
 
-                transform = Affine3::getTrans(translate) * transform;
+                transform = Matrix4::getTrans(translate) * transform;
             }
             else if (it->first == "yalign")
             {
@@ -581,7 +588,7 @@ namespace meshmagick
                     translate = Vector3(0, -aabb.getMaximum().y, 0);
                 }
 
-                transform = Affine3::getTrans(translate) * transform;
+                transform = Matrix4::getTrans(translate) * transform;
             }
             else if (it->first == "zalign")
             {
@@ -610,7 +617,7 @@ namespace meshmagick
                     translate = Vector3(0, 0, -aabb.getMaximum().z);
                 }
 
-                transform = Affine3::getTrans(translate) * transform;
+                transform = Matrix4::getTrans(translate) * transform;
                 print("Z-Alignment " + alignment + " - "
                     + StringConverter::toString(translate), V_HIGH);
             }
@@ -675,7 +682,7 @@ namespace meshmagick
                     }
                 }
 
-                transform = Affine3::getScale(scale) * transform;
+                transform = Matrix4::getScale(scale) * transform;
             }
 			else if (it->first == "axes")
             {
@@ -692,7 +699,8 @@ namespace meshmagick
 
                 // decompose transform matrix to 3x3 matrix and translation.
                 // We will recontruct the 4x4 transform later in this code block.
-                Matrix3 m3 = transform.linear();
+                Matrix3 m3;
+                transform.extract3x3Matrix(m3);
                 Vector3 translation = transform.getTrans();
 
                 bool malformed = false;
@@ -761,7 +769,8 @@ namespace meshmagick
         // We can test it by using the cross product from X and Y and see, if it is a non-negative
         // projection on Z. Actually it should be exactly Z, as we don't do non-uniform scaling yet,
         // but the test is cheap either way.
-        Matrix3 m3 = transform.linear();
+        Matrix3 m3;
+        transform.extract3x3Matrix(m3);
         if (m3.GetColumn(0).crossProduct(m3.GetColumn(1)).dotProduct(m3.GetColumn(2)) < 0)
         {
         	mFlipVertexWinding = true;

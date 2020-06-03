@@ -29,11 +29,11 @@ THE SOFTWARE.
 
 namespace meshmagick
 {
-	class EditableSkeleton : public Ogre::Skeleton
+	class EditableSkeleton : public Ogre::v1::Skeleton
 	{
 	public:
-		EditableSkeleton(const Ogre::Skeleton& skel);
-		void addAnimation(Ogre::Animation* anim);
+		EditableSkeleton(const Ogre::v1::Skeleton& skel);
+		void addAnimation(Ogre::v1::Animation* anim);
 	};
 }
 

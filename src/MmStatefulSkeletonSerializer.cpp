@@ -23,9 +23,10 @@ THE SOFTWARE.
 
 #include "MmStatefulSkeletonSerializer.h"
 
+#include <OgreOldSkeletonManager.h>
 #include <OgreResourceGroupManager.h>
-#include <OgreSkeletonManager.h>
 
+#include <fstream>
 #include <ios>
 #include <iostream>
 #include <stdexcept>
@@ -38,18 +39,18 @@ namespace meshmagick
 {
     const unsigned short HEADER_CHUNK_ID = 0x1000;
 
-    SkeletonPtr StatefulSkeletonSerializer::loadSkeleton(const String& name)
+    v1::SkeletonPtr StatefulSkeletonSerializer::loadSkeleton(const String& name)
     {
         // Resource already created upon mesh loading?
-        mSkeleton = SkeletonManager::getSingleton().getByName(name);
+        mSkeleton = v1::OldSkeletonManager::getSingleton().getByName(name);
         if (!mSkeleton)
         {
             // Nope. We create it here then.
-            mSkeleton = SkeletonManager::getSingleton().create(name, 
+            mSkeleton = v1::OldSkeletonManager::getSingleton().create(name, 
                 ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         }
 
-		mSkeleton = SkeletonPtr(new EditableSkeleton(*mSkeleton.get()));
+		mSkeleton = v1::SkeletonPtr(new EditableSkeleton(*mSkeleton.get()));
 
         std::ifstream ifs;
         ifs.open(name.c_str(), std::ios_base::in | std::ios_base::binary);
@@ -77,7 +78,7 @@ namespace meshmagick
         }
 
         Endian endianMode = keepEndianess ? mSkeletonFileEndian : ENDIAN_NATIVE;
-        exportSkeleton(mSkeleton.get(), name, SKELETON_VERSION_LATEST, endianMode);
+        exportSkeleton(mSkeleton.get(), name, v1::SKELETON_VERSION_LATEST, endianMode);
     }
 
     void StatefulSkeletonSerializer::clear()
@@ -85,7 +86,7 @@ namespace meshmagick
         mSkeleton.reset();
     }
 
-    SkeletonPtr StatefulSkeletonSerializer::getSkeleton() const
+    v1::SkeletonPtr StatefulSkeletonSerializer::getSkeleton() const
     {
         return mSkeleton;
     }

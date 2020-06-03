@@ -25,15 +25,15 @@ THE SOFTWARE.
 #define __MM_EDITABLE_BONE_H__
 
 #ifdef __APPLE__
-#	include <Ogre/OgreBone.h>
+#	include <Ogre/OgreOldBone.h>
 #else
-#	include <OgreBone.h>
+#	include <OgreOldBone.h>
 #endif
 
 namespace meshmagick
 {
     /// Very hacky class used by the rename tool to rename a bone.
-	class EditableBone : public Ogre::Bone
+	class EditableBone : public Ogre::v1::OldBone
 	{
 	public:
 		void setName(const Ogre::String& name);

@@ -38,17 +38,17 @@ THE SOFTWARE.
 
 namespace meshmagick
 {
-    class _MeshMagickExport StatefulMeshSerializer : public Ogre::MeshSerializer
+    class _MeshMagickExport StatefulMeshSerializer : public Ogre::v1::MeshSerializer
     {
     public:
-        Ogre::MeshPtr loadMesh(const Ogre::String& name);
+        Ogre::v1::MeshPtr loadMesh(const Ogre::String& name);
         void saveMesh(const Ogre::String& name, bool keepEndianess);
         void clear();
-        Ogre::MeshPtr getMesh() const;
+        Ogre::v1::MeshPtr getMesh() const;
         Ogre::String getMeshFileVersion() const;
         Ogre::Serializer::Endian getEndianMode() const;
     private:
-        Ogre::MeshPtr mMesh;
+        Ogre::v1::MeshPtr mMesh;
         Ogre::String mMeshFileVersion;
         Endian mMeshFileEndian;
 

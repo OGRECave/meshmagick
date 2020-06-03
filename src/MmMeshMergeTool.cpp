@@ -28,7 +28,7 @@ THE SOFTWARE.
 #include <OgreAxisAlignedBox.h>
 #include <OgreHardwareBufferManager.h>
 #include <OgreMeshManager.h>
-#include <OgreSkeletonManager.h>
+#include <OgreOldSkeletonManager.h>
 #include <OgreSubMesh.h>
 
 #include "MmOgreEnvironment.h"
@@ -74,11 +74,11 @@ namespace meshmagick
 		for (Ogre::StringVector::const_iterator it = inFileNames.begin();
 			it != inFileNames.end(); ++it)
 		{
-			MeshPtr curMesh = meshSer->loadMesh(*it);
+			v1::MeshPtr curMesh = meshSer->loadMesh(*it);
 			if (curMesh)
 			{
 				if (curMesh->hasSkeleton() && 
-					!SkeletonManager::getSingleton().getByName(curMesh->getSkeletonName()))
+					!v1::OldSkeletonManager::getSingleton().getByName(curMesh->getSkeletonName()))
 				{
 					skelSer->loadSkeleton(curMesh->getSkeletonName());
 				}
@@ -94,12 +94,12 @@ namespace meshmagick
 	}
 
 
-	void MeshMergeTool::addMesh(Ogre::MeshPtr mesh)
+	void MeshMergeTool::addMesh(Ogre::v1::MeshPtr mesh)
 	{
-		SkeletonPtr meshSkel = mesh->getSkeleton();
+		v1::SkeletonPtr meshSkel = mesh->getOldSkeleton();
 		if (!meshSkel && mesh->hasSkeleton())
 		{
-			meshSkel = SkeletonManager::getSingleton().getByName(mesh->getSkeletonName());
+			meshSkel = v1::OldSkeletonManager::getSingleton().getByName(mesh->getSkeletonName());
 		}
 
 		if (!meshSkel && mBaseSkeleton)
@@ -129,10 +129,10 @@ namespace meshmagick
 		mMeshes.push_back(mesh);
 	}
 
-	const String MeshMergeTool::findSubmeshName(MeshPtr m, Ogre::ushort sid) const
+	const String MeshMergeTool::findSubmeshName(v1::MeshPtr m, Ogre::ushort sid) const
 	{
-		Mesh::SubMeshNameMap map = m->getSubMeshNameMap();
-		for (Mesh::SubMeshNameMap::const_iterator it = map.begin();
+		v1::Mesh::SubMeshNameMap map = m->getSubMeshNameMap();
+		for (v1::Mesh::SubMeshNameMap::const_iterator it = map.begin();
 				it != map.end(); ++it)
 		{
 			if (it->second == sid)
@@ -142,11 +142,11 @@ namespace meshmagick
 		return "";
 	}
 
-	MeshPtr MeshMergeTool::merge(const Ogre::String& name, const Ogre::String& resourceGroupName)
+	v1::MeshPtr MeshMergeTool::merge(const Ogre::String& name, const Ogre::String& resourceGroupName)
 	{
 		print("Baking: New Mesh started", V_HIGH);
 
-		MeshPtr mp = MeshManager::getSingleton().createManual(name, resourceGroupName);
+		v1::MeshPtr mp = v1::MeshManager::getSingleton().createManual(name, resourceGroupName);
 
 		if (mBaseSkeleton)
 		{
@@ -154,18 +154,18 @@ namespace meshmagick
 		}
 
 		AxisAlignedBox totalBounds = AxisAlignedBox();
-		for (std::vector<Ogre::MeshPtr>::iterator it = mMeshes.begin(); it != mMeshes.end(); ++it)
+		for (std::vector<Ogre::v1::MeshPtr>::iterator it = mMeshes.begin(); it != mMeshes.end(); ++it)
 		{
 			print("Baking: adding submeshes for " + (*it)->getName(), V_HIGH);
 
 			// insert all submeshes
 			for (Ogre::ushort sid = 0; sid < (*it)->getNumSubMeshes(); ++sid)
 			{
-				SubMesh* sub = (*it)->getSubMesh(sid);
+				v1::SubMesh* sub = (*it)->getSubMesh(sid);
 				const String name = findSubmeshName((*it), sid);
 
 				// create submesh with correct name
-				SubMesh* newsub;
+				v1::SubMesh* newsub;
 				if (name.length() == 0)
 				{
 					newsub = mp->createSubMesh();
@@ -179,12 +179,12 @@ namespace meshmagick
 				newsub->useSharedVertices = sub->useSharedVertices;
 
 				// add index
-				newsub->indexData = sub->indexData->clone();
+				newsub->indexData[VpNormal] = sub->indexData[VpNormal]->clone();
 
 				// add geometry
 				if (!newsub->useSharedVertices)
 				{
-					newsub->vertexData = sub->vertexData->clone();
+					newsub->vertexData[VpNormal] = sub->vertexData[VpNormal]->clone();
 
 					if (mBaseSkeleton)
 					{
@@ -197,13 +197,13 @@ namespace meshmagick
 				newsub->setMaterialName(sub->getMaterialName());
 
 				// Add vertex animations for this submesh
-				Animation *anim = 0;
+				v1::Animation *anim = 0;
 				for (unsigned short i = 0; i < (*it)->getNumAnimations(); ++i)
 				{
 					anim = (*it)->getAnimation(i);
 
 					// get or create the animation for the new mesh
-					Animation *newanim;
+					v1::Animation *newanim;
 					if (mp->hasAnimation(anim->getName()))
 					{
 						newanim = mp->getAnimation(anim->getName());
@@ -216,15 +216,15 @@ namespace meshmagick
 					print("Baking: adding vertex animation "
 						+ anim->getName() + " for " + (*it)->getName(), V_HIGH);
 
-					Animation::VertexTrackIterator vti=anim->getVertexTrackIterator();
+					v1::Animation::VertexTrackIterator vti=anim->getVertexTrackIterator();
 					while (vti.hasMoreElements())
 					{
-						VertexAnimationTrack *vt = vti.getNext();
+						v1::VertexAnimationTrack *vt = vti.getNext();
 
 						// handle=0 targets the main mesh, handle i (where i>0) targets submesh i-1.
 						// In this case there are only submeshes so index 0 will not be used.
 						unsigned short handle = mp->getNumSubMeshes();
-						VertexAnimationTrack* newvt = newanim->createVertexTrack(
+						v1::VertexAnimationTrack* newvt = newanim->createVertexTrack(
 								handle,
 								vt->getAssociatedVertexData()->clone(),
 								vt->getAnimationType());
@@ -233,24 +233,24 @@ namespace meshmagick
 						{
 							switch (vt->getAnimationType())
 							{
-								case VAT_MORPH:
+								case v1::VAT_MORPH:
 								{
 									// copy the keyframe vertex buffer
-									VertexMorphKeyFrame *kf =
+									v1::VertexMorphKeyFrame *kf =
 										vt->getVertexMorphKeyFrame(keyFrameIndex);
-									VertexMorphKeyFrame *newkf =
+									v1::VertexMorphKeyFrame *newkf =
 										newvt->createVertexMorphKeyFrame(kf->getTime());
 									// This creates a ref to the buffer in the original model
 									// so don't delete it until the export is completed.
 									newkf->setVertexBuffer(kf->getVertexBuffer());
 									break;
 								}
-								case VAT_POSE:
+								case v1::VAT_POSE:
 								{
 									/// @todo implement pose amination merge
 									break;
 								}
-								case VAT_NONE:
+								case v1::VAT_NONE:
 								default:
 								{
 									break;
@@ -265,12 +265,12 @@ namespace meshmagick
 			}
 
 			// sharedvertices
-			if ((*it)->sharedVertexData)
+			if ((*it)->sharedVertexData[VpNormal])
 			{
 				/// @todo merge with existing sharedVertexData
-				if (!mp->sharedVertexData)
+				if (!mp->sharedVertexData[VpNormal])
 				{
-					mp->sharedVertexData = (*it)->sharedVertexData->clone();
+					mp->sharedVertexData[VpNormal] = (*it)->sharedVertexData[VpNormal]->clone();
 				}
 
 				if (mBaseSkeleton)

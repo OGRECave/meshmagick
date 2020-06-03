@@ -124,21 +124,21 @@ namespace meshmagick
 
 		Ogre::String getName() const;
 
-		MeshInfo getInfo(Ogre::MeshPtr mesh, bool followSkeleton = true);
-		SkeletonInfo getInfo(Ogre::SkeletonPtr skeleton);
+		MeshInfo getInfo(Ogre::v1::MeshPtr mesh, bool followSkeleton = true);
+		SkeletonInfo getInfo(Ogre::v1::SkeletonPtr skeleton);
 
     private:
         MeshInfo processMesh(const Ogre::String& meshFileName) const;
-        void processMesh(MeshInfo& info, Ogre::MeshPtr mesh) const;
+        void processMesh(MeshInfo& info, Ogre::v1::MeshPtr mesh) const;
 
         SkeletonInfo processSkeleton(const Ogre::String& skeletonFileName) const;
-        void processSkeleton(SkeletonInfo& info, Ogre::SkeletonPtr skeleton) const;
-		void processSkeleton(SkeletonInfo& info, Ogre::Skeleton* skeleton) const;
+        void processSkeleton(SkeletonInfo& info, Ogre::v1::SkeletonPtr skeleton) const;
+		void processSkeleton(SkeletonInfo& info, Ogre::v1::Skeleton* skeleton) const;
 
-        void processSubMesh(SubMeshInfo&, Ogre::SubMesh* subMesh) const;
-		void processBoneAssignmentData(VertexInfo&, const Ogre::VertexData* vd,
-			const Ogre::Mesh::IndexMap& blendIndexToBoneIndexMap) const;
-		void processVertexDeclaration(VertexInfo&, const Ogre::VertexDeclaration* vd) const;
+        void processSubMesh(SubMeshInfo&, Ogre::v1::SubMesh* subMesh) const;
+		void processBoneAssignmentData(VertexInfo&, const Ogre::v1::VertexData* vd,
+			const Ogre::v1::Mesh::IndexMap& blendIndexToBoneIndexMap) const;
+		void processVertexDeclaration(VertexInfo&, const Ogre::v1::VertexDeclaration* vd) const;
 
 		void printMeshInfo(const OptionList& toolOptions, const MeshInfo& info) const;
 		void printSkeletonInfo(const OptionList& toolOptions, const SkeletonInfo& info) const;
@@ -154,7 +154,7 @@ namespace meshmagick
 		void printMeshInfoList(const Ogre::StringVector& listFields, char delim,
 			const MeshInfo& info, size_t submeshIndex) const;
 
-        Ogre::String getEndianModeAsString(Ogre::MeshSerializer::Endian) const;
+        Ogre::String getEndianModeAsString(Ogre::v1::MeshSerializer::Endian) const;
 
         void doInvoke(const OptionList& toolOptions,
             const Ogre::StringVector& inFileNames, const Ogre::StringVector& outFileNames);

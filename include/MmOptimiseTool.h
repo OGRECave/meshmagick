@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include <OgreMesh.h>
 #include <OgreMeshSerializer.h>
 #include <OgreSubMesh.h>
-#include <OgreVector.h>
+#include <OgreVector4.h>
 
 #include "MmOptionsParser.h"
 #include "MmTool.h"
@@ -46,10 +46,10 @@ namespace meshmagick
 		void processMeshFile(Ogre::String file, Ogre::String outFile);
 		void processSkeletonFile(Ogre::String file, Ogre::String outFile);
 
-		void processMesh(Ogre::MeshPtr mesh);
-		void processSkeleton(Ogre::SkeletonPtr skeleton);
-		void processMesh(Ogre::Mesh* mesh);
-		void processSkeleton(Ogre::Skeleton* skeleton);
+		void processMesh(Ogre::v1::MeshPtr mesh);
+		void processSkeleton(Ogre::v1::SkeletonPtr skeleton);
+		void processMesh(Ogre::v1::Mesh* mesh);
+		void processSkeleton(Ogre::v1::Skeleton* skeleton);
 
 		float getPosTolerance() const { return mPosTolerance; }
 		void setPosTolerance(float t) { mPosTolerance = t; }
@@ -125,31 +125,31 @@ namespace meshmagick
 		typedef std::vector<VertexInfo> UniqueVertexList;
 		UniqueVertexList mUniqueVertexList;
 
-		Ogre::VertexData* mTargetVertexData;
+		Ogre::v1::VertexData* mTargetVertexData;
 		struct IndexDataWithOpType
 		{
-			Ogre::IndexData* indexData;
-			Ogre::RenderOperation::OperationType operationType;
+			Ogre::v1::IndexData* indexData;
+			Ogre::OperationType operationType;
 
-			IndexDataWithOpType(Ogre::IndexData* idata, Ogre::RenderOperation::OperationType opType)
+			IndexDataWithOpType(Ogre::v1::IndexData* idata, Ogre::OperationType opType)
 				: indexData(idata), operationType(opType) {}
 		};
 		typedef std::list<IndexDataWithOpType> IndexDataList;
 		IndexDataList mIndexDataList;
 
-		void setTargetVertexData(Ogre::VertexData* vd);
-		void addIndexData(Ogre::IndexData* id, Ogre::RenderOperation::OperationType operationType);
+		void setTargetVertexData(Ogre::v1::VertexData* vd);
+		void addIndexData(Ogre::v1::IndexData* id, Ogre::OperationType operationType);
 		bool optimiseGeometry();
 		bool calculateDuplicateVertices();
 		void rebuildVertexBuffers();
 		void remapIndexDataList();
-		void remapIndexes(Ogre::IndexData* idata);
+		void remapIndexes(Ogre::v1::IndexData* idata);
 		void removeDegenerateFaces();
-		void removeDegenerateFaces(Ogre::IndexData* idata);
-		Ogre::Mesh::VertexBoneAssignmentList getAdjustedBoneAssignments(
-			Ogre::SubMesh::VertexBoneAssignmentList::const_iterator bit,
-			Ogre::SubMesh::VertexBoneAssignmentList::const_iterator eit);
-        void fixLOD(Ogre::SubMesh::LODFaceList lodFaces);
+		void removeDegenerateFaces(Ogre::v1::IndexData* idata);
+		Ogre::v1::Mesh::VertexBoneAssignmentList getAdjustedBoneAssignments(
+			Ogre::v1::SubMesh::VertexBoneAssignmentList::const_iterator bit,
+			Ogre::v1::SubMesh::VertexBoneAssignmentList::const_iterator eit);
+        void fixLOD(Ogre::v1::SubMesh::LODFaceList lodFaces);
 
 		void doInvoke(const OptionList& toolOptions,
 			const Ogre::StringVector& inFileNames, const Ogre::StringVector& outFileNames);

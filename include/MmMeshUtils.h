@@ -35,12 +35,12 @@ namespace meshmagick
     class _MeshMagickExport MeshUtils
     {
     public:
-        static Ogre::AxisAlignedBox getMeshAabb(Ogre::MeshPtr mesh,
+        static Ogre::AxisAlignedBox getMeshAabb(Ogre::v1::MeshPtr mesh,
             const Ogre::Matrix4& transform = Ogre::Matrix4::IDENTITY);
-		static Ogre::AxisAlignedBox getMeshAabb(Ogre::Mesh* mesh,
+		static Ogre::AxisAlignedBox getMeshAabb(Ogre::v1::Mesh* mesh,
 			const Ogre::Matrix4& transform = Ogre::Matrix4::IDENTITY);
 
-        static Ogre::AxisAlignedBox getVertexDataAabb(Ogre::VertexData* vd,
+        static Ogre::AxisAlignedBox getVertexDataAabb(Ogre::v1::VertexData* vd,
             const Ogre::Matrix4& transform = Ogre::Matrix4::IDENTITY);
     };
 }

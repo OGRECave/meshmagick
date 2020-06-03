@@ -112,7 +112,7 @@ namespace meshmagick
 			OgreEnvironment::getSingleton().getMeshSerializer();
 
 		print("Loading mesh " + file + "...");
-		MeshPtr mesh;
+		v1::MeshPtr mesh;
 		try
 		{
 			mesh = meshSerializer->loadMesh(file);
@@ -150,7 +150,7 @@ namespace meshmagick
 			OgreEnvironment::getSingleton().getSkeletonSerializer();
 
 		print("Loading skeleton " + file + "...");
-		SkeletonPtr skeleton;
+		v1::SkeletonPtr skeleton;
 		try
 		{
 			skeleton = skeletonSerializer->loadSkeleton(file);
@@ -169,26 +169,26 @@ namespace meshmagick
 
 	}
 	//---------------------------------------------------------------------
-	void OptimiseTool::processMesh(Ogre::MeshPtr mesh)
+	void OptimiseTool::processMesh(Ogre::v1::MeshPtr mesh)
 	{
 		processMesh(mesh.get());
 	}
 	//---------------------------------------------------------------------
-	void OptimiseTool::processMesh(Ogre::Mesh* mesh)
+	void OptimiseTool::processMesh(Ogre::v1::Mesh* mesh)
 	{
 		bool rebuildEdgeList = false;
 		// Shared geometry
-		if (mesh->sharedVertexData)
+		if (mesh->sharedVertexData[VpNormal])
 		{
 			print("Optimising mesh shared vertex data...");
-			setTargetVertexData(mesh->sharedVertexData);
+			setTargetVertexData(mesh->sharedVertexData[VpNormal]);
 
 			for (unsigned short i = 0; i < mesh->getNumSubMeshes(); ++i)
 			{
-				SubMesh* sm = mesh->getSubMesh(i);
+				v1::SubMesh* sm = mesh->getSubMesh(i);
 				if (sm->useSharedVertices)
 				{
-					addIndexData(sm->indexData, sm->operationType);
+					addIndexData(sm->indexData[VpNormal], sm->operationType);
 				}
 			}
 
@@ -206,7 +206,7 @@ namespace meshmagick
 
 				for (unsigned short i = 0; i < mesh->getNumSubMeshes(); ++i)
 				{
-					SubMesh* sm = mesh->getSubMesh(i);
+					v1::SubMesh* sm = mesh->getSubMesh(i);
 					if (mesh->getSkeletonName() != Ogre::BLANKSTRING)
 					{
 						print("    fixing bone assignments...");
@@ -218,7 +218,7 @@ namespace meshmagick
 					}
 					if (sm->useSharedVertices)
 					{
-						fixLOD(sm->mLodFaceList);
+						fixLOD(sm->mLodFaceList[VpNormal]);
 					}
 				}
 				rebuildEdgeList = true;
@@ -229,13 +229,13 @@ namespace meshmagick
 		// Dedicated geometry
 		for (unsigned short i = 0; i < mesh->getNumSubMeshes(); ++i)
 		{
-			SubMesh* sm = mesh->getSubMesh(i);
+			v1::SubMesh* sm = mesh->getSubMesh(i);
 			if (!sm->useSharedVertices)
 			{
 				print("Optimising submesh " +
 					StringConverter::toString(i) + " dedicated vertex data ");
-				setTargetVertexData(sm->vertexData);
-				addIndexData(sm->indexData, sm->operationType);
+				setTargetVertexData(sm->vertexData[VpNormal]);
+				addIndexData(sm->indexData[VpNormal], sm->operationType);
 				if (optimiseGeometry())
 				{
 					if (mesh->getSkeletonName() != Ogre::BLANKSTRING)
@@ -248,7 +248,7 @@ namespace meshmagick
 							sm->addBoneAssignment(boneAssignment.second);
 					}
 
-					fixLOD(sm->mLodFaceList);
+					fixLOD(sm->mLodFaceList[VpNormal]);
 					rebuildEdgeList = true;
 				}
 			}
@@ -264,26 +264,26 @@ namespace meshmagick
 
 	}
 	//---------------------------------------------------------------------
-	void OptimiseTool::fixLOD(SubMesh::LODFaceList lodFaces)
+	void OptimiseTool::fixLOD(v1::SubMesh::LODFaceList lodFaces)
 	{
-		for (SubMesh::LODFaceList::iterator l = lodFaces.begin();
+		for (v1::SubMesh::LODFaceList::iterator l = lodFaces.begin();
 			l != lodFaces.end(); ++l)
 		{
-			IndexData* idata = *l;
+			v1::IndexData* idata = *l;
 			print("    fixing LOD...");
 			remapIndexes(idata);
 		}
 
 	}
 	//---------------------------------------------------------------------
-    Mesh::VertexBoneAssignmentList OptimiseTool::getAdjustedBoneAssignments(
-        Ogre::SubMesh::VertexBoneAssignmentList::const_iterator bit,
-        Ogre::SubMesh::VertexBoneAssignmentList::const_iterator eit)
+    v1::Mesh::VertexBoneAssignmentList OptimiseTool::getAdjustedBoneAssignments(
+        Ogre::v1::SubMesh::VertexBoneAssignmentList::const_iterator bit,
+        Ogre::v1::SubMesh::VertexBoneAssignmentList::const_iterator eit)
 	{
-		Mesh::VertexBoneAssignmentList newList;
+		v1::Mesh::VertexBoneAssignmentList newList;
 		for (; bit != eit; ++bit)
 		{
-			VertexBoneAssignment ass = bit->second;
+			v1::VertexBoneAssignment ass = bit->second;
 			IndexInfo& ii = mIndexRemap[ass.vertexIndex];
 
 			// If this is the originating vertex index  we want to add the (adjusted)
@@ -293,7 +293,7 @@ namespace meshmagick
 			{
 				ass.vertexIndex = static_cast<unsigned int>(ii.targetIndex);
 				assert (ass.vertexIndex < mUniqueVertexMap.size());
-				newList.insert(Mesh::VertexBoneAssignmentList::value_type(
+				newList.insert(v1::Mesh::VertexBoneAssignmentList::value_type(
 					ass.vertexIndex, ass));
 
 			}
@@ -304,17 +304,17 @@ namespace meshmagick
 
 	}
 	//---------------------------------------------------------------------
-	void OptimiseTool::processSkeleton(Ogre::SkeletonPtr skeleton)
+	void OptimiseTool::processSkeleton(Ogre::v1::SkeletonPtr skeleton)
 	{
 		processSkeleton(skeleton.get());
 	}
 	//---------------------------------------------------------------------
-	void OptimiseTool::processSkeleton(Ogre::Skeleton* skeleton)
+	void OptimiseTool::processSkeleton(Ogre::v1::Skeleton* skeleton)
 	{
 		skeleton->optimiseAllAnimations(mKeepIdentityTracks);
 	}
 	//---------------------------------------------------------------------
-	void OptimiseTool::setTargetVertexData(Ogre::VertexData* vd)
+	void OptimiseTool::setTargetVertexData(Ogre::v1::VertexData* vd)
 	{
 		mTargetVertexData = vd;
 		mUniqueVertexMap.clear();
@@ -323,7 +323,7 @@ namespace meshmagick
 		mIndexRemap.clear();
 	}
 	//---------------------------------------------------------------------
-	void OptimiseTool::addIndexData(Ogre::IndexData* id, RenderOperation::OperationType ot)
+	void OptimiseTool::addIndexData(Ogre::v1::IndexData* id, OperationType ot)
 	{
 		mIndexDataList.push_back(IndexDataWithOpType(id, ot));
 	}
@@ -365,22 +365,22 @@ namespace meshmagick
 		// Lock all the buffers first
 		typedef std::vector<char*> BufferLocks;
 		BufferLocks bufferLocks;
-		const VertexBufferBinding::VertexBufferBindingMap& bindings =
+		const v1::VertexBufferBinding::VertexBufferBindingMap& bindings =
 			mTargetVertexData->vertexBufferBinding->getBindings();
-		VertexBufferBinding::VertexBufferBindingMap::const_iterator bindi;
+		v1::VertexBufferBinding::VertexBufferBindingMap::const_iterator bindi;
 		bufferLocks.resize(mTargetVertexData->vertexBufferBinding->getLastBoundIndex()+1);
 		for (bindi = bindings.begin(); bindi != bindings.end(); ++bindi)
 		{
-			char* lock = static_cast<char*>(bindi->second->lock(HardwareBuffer::HBL_READ_ONLY));
+			char* lock = static_cast<char*>(bindi->second->lock(v1::HardwareBuffer::HBL_READ_ONLY));
 			bufferLocks[bindi->first] = lock;
 		}
 
 		for (uint32 v = 0; v < mTargetVertexData->vertexCount; ++v)
 		{
 			UniqueVertex uniqueVertex;
-			const VertexDeclaration::VertexElementList& elemList =
+			const v1::VertexDeclaration::VertexElementList& elemList =
 				mTargetVertexData->vertexDeclaration->getElements();
-			VertexDeclaration::VertexElementList::const_iterator elemi;
+			v1::VertexDeclaration::VertexElementList::const_iterator elemi;
 			unsigned short uvSets = 0;
 			for (elemi = elemList.begin(); elemi != elemList.end(); ++elemi)
 			{
@@ -406,7 +406,7 @@ namespace meshmagick
 					uniqueVertex.tangent.y = *pFloat++;
 					uniqueVertex.tangent.z = *pFloat++;
 					// support w-component on tangent if present
-					if (VertexElement::getTypeCount(elemi->getType()) == 4)
+					if (v1::VertexElement::getTypeCount(elemi->getType()) == 4)
 					{
 						uniqueVertex.tangent.w = *pFloat++;
 					}
@@ -419,7 +419,7 @@ namespace meshmagick
 				case VES_TEXTURE_COORDINATES:
 					// supports up to 4 dimensions
 					for (unsigned short dim = 0;
-						dim < VertexElement::getTypeCount(elemi->getType()); ++dim)
+						dim < v1::VertexElement::getTypeCount(elemi->getType()); ++dim)
 					{
 						uniqueVertex.uv[elemi->getIndex()][dim] = *pFloat++;
 					}
@@ -495,35 +495,35 @@ namespace meshmagick
 	void OptimiseTool::rebuildVertexBuffers()
 	{
 		// We need to build new vertex buffers of the new, reduced size
-		VertexBufferBinding* newBind =
-			HardwareBufferManager::getSingleton().createVertexBufferBinding();
+		v1::VertexBufferBinding* newBind =
+			v1::HardwareBufferManager::getSingleton().createVertexBufferBinding();
 
 		// Lock source buffers
 		typedef std::vector<char*> BufferLocks;
 		BufferLocks srcbufferLocks;
 		BufferLocks destbufferLocks;
-		const VertexBufferBinding::VertexBufferBindingMap& srcBindings =
+		const v1::VertexBufferBinding::VertexBufferBindingMap& srcBindings =
 			mTargetVertexData->vertexBufferBinding->getBindings();
-		VertexBufferBinding::VertexBufferBindingMap::const_iterator bindi;
+		v1::VertexBufferBinding::VertexBufferBindingMap::const_iterator bindi;
 		srcbufferLocks.resize(mTargetVertexData->vertexBufferBinding->getLastBoundIndex()+1);
 		destbufferLocks.resize(mTargetVertexData->vertexBufferBinding->getLastBoundIndex()+1);
 		for (bindi = srcBindings.begin(); bindi != srcBindings.end(); ++bindi)
 		{
-			char* lock = static_cast<char*>(bindi->second->lock(HardwareBuffer::HBL_READ_ONLY));
+			char* lock = static_cast<char*>(bindi->second->lock(v1::HardwareBuffer::HBL_READ_ONLY));
 			srcbufferLocks[bindi->first] = lock;
 
 			// Add a new vertex buffer and binding
-			HardwareVertexBufferSharedPtr newBuf =
-				HardwareBufferManager::getSingleton().createVertexBuffer(
+			v1::HardwareVertexBufferSharedPtr newBuf =
+				v1::HardwareBufferManager::getSingleton().createVertexBuffer(
 					bindi->second->getVertexSize(),
 					mUniqueVertexList.size(),
 					bindi->second->getUsage(),
 					bindi->second->hasShadowBuffer());
 			newBind->setBinding(bindi->first, newBuf);
-			lock = static_cast<char*>(newBuf->lock(HardwareBuffer::HBL_DISCARD));
+			lock = static_cast<char*>(newBuf->lock(v1::HardwareBuffer::HBL_DISCARD));
 			destbufferLocks[bindi->first] = lock;
 		}
-		const VertexBufferBinding::VertexBufferBindingMap& destBindings =
+		const v1::VertexBufferBinding::VertexBufferBindingMap& destBindings =
 			newBind->getBindings();
 
 
@@ -533,9 +533,9 @@ namespace meshmagick
 		{
 			uint32 origVertexIndex = ui->oldIndex;
 			// copy vertex from each buffer in turn
-			VertexBufferBinding::VertexBufferBindingMap::const_iterator srci =
+			v1::VertexBufferBinding::VertexBufferBindingMap::const_iterator srci =
 				srcBindings.begin();
-			VertexBufferBinding::VertexBufferBindingMap::const_iterator desti =
+			v1::VertexBufferBinding::VertexBufferBindingMap::const_iterator desti =
 				destBindings.begin();
 			for (; srci != srcBindings.end(); ++srci, ++desti)
 			{
@@ -563,9 +563,9 @@ namespace meshmagick
 		}
 
 		// now switch over the bindings, and thus the buffers
-		VertexBufferBinding* oldBind = mTargetVertexData->vertexBufferBinding;
+		v1::VertexBufferBinding* oldBind = mTargetVertexData->vertexBufferBinding;
 		mTargetVertexData->vertexBufferBinding = newBind;
-		HardwareBufferManager::getSingleton().destroyVertexBufferBinding(oldBind);
+		v1::HardwareBufferManager::getSingleton().destroyVertexBufferBinding(oldBind);
 
 		// Update vertex count in data
 		mTargetVertexData->vertexCount = mUniqueVertexList.size();
@@ -577,27 +577,27 @@ namespace meshmagick
 	{
 		for (IndexDataList::iterator i = mIndexDataList.begin(); i != mIndexDataList.end(); ++i)
 		{
-			IndexData* idata = i->indexData;
+			v1::IndexData* idata = i->indexData;
 			remapIndexes(idata);
 
 		}
 
 	}
 	//---------------------------------------------------------------------
-	void OptimiseTool::remapIndexes(IndexData* idata)
+	void OptimiseTool::remapIndexes(v1::IndexData* idata)
 	{
 		// Time to repoint indexes at the new shared vertices
 		uint16* p16 = 0;
 		uint32* p32 = 0;
 
 		// Lock for read & write
-		if (idata->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
+		if (idata->indexBuffer->getType() == v1::HardwareIndexBuffer::IT_32BIT)
 		{
-			p32 = static_cast<uint32*>(idata->indexBuffer->lock(HardwareBuffer::HBL_NORMAL));
+			p32 = static_cast<uint32*>(idata->indexBuffer->lock(v1::HardwareBuffer::HBL_NORMAL));
 		}
 		else
 		{
-			p16 = static_cast<uint16*>(idata->indexBuffer->lock(HardwareBuffer::HBL_NORMAL));
+			p16 = static_cast<uint16*>(idata->indexBuffer->lock(v1::HardwareBuffer::HBL_NORMAL));
 		}
 
 		for (size_t j = 0; j < idata->indexCount; ++j)
@@ -627,9 +627,9 @@ namespace meshmagick
 		for (IndexDataList::iterator i = mIndexDataList.begin(); i != mIndexDataList.end(); ++i)
 		{
 			// Only remove degenerate faces from triangle lists, strips & fans need them
-			if (i->operationType == RenderOperation::OT_TRIANGLE_LIST)
+			if (i->operationType == OT_TRIANGLE_LIST)
 			{
-				IndexData* idata = i->indexData;
+				v1::IndexData* idata = i->indexData;
 				removeDegenerateFaces(idata);
 			}
 
@@ -637,7 +637,7 @@ namespace meshmagick
 
 	}
 	//---------------------------------------------------------------------
-	void OptimiseTool::removeDegenerateFaces(Ogre::IndexData* idata)
+	void OptimiseTool::removeDegenerateFaces(Ogre::v1::IndexData* idata)
 	{
 		// Remove any faces that do not include 3 unique positions
 
@@ -650,22 +650,22 @@ namespace meshmagick
 		uint32* pdest32 = 0;
 
 		// Lock for read only, we'll build another list
-		if (idata->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
+		if (idata->indexBuffer->getType() == v1::HardwareIndexBuffer::IT_32BIT)
 		{
-			p32 = static_cast<uint32*>(idata->indexBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
+			p32 = static_cast<uint32*>(idata->indexBuffer->lock(v1::HardwareBuffer::HBL_READ_ONLY));
 			pnewbuf32 = pdest32 = OGRE_ALLOC_T(uint32, idata->indexCount, MEMCATEGORY_GENERAL);
 		}
 		else
 		{
-			p16 = static_cast<uint16*>(idata->indexBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
+			p16 = static_cast<uint16*>(idata->indexBuffer->lock(v1::HardwareBuffer::HBL_READ_ONLY));
 			pnewbuf16 = pdest16 = OGRE_ALLOC_T(uint16, idata->indexCount, MEMCATEGORY_GENERAL);
 		}
 
 
-		const VertexElement* posElem = 
+		const v1::VertexElement* posElem = 
 			mTargetVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
-		HardwareVertexBufferSharedPtr posBuf = mTargetVertexData->vertexBufferBinding->getBuffer(posElem->getSource());
-		unsigned char *pVertBase = static_cast<unsigned char*>(posBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+		v1::HardwareVertexBufferSharedPtr posBuf = mTargetVertexData->vertexBufferBinding->getBuffer(posElem->getSource());
+		unsigned char *pVertBase = static_cast<unsigned char*>(posBuf->lock(v1::HardwareBuffer::HBL_READ_ONLY));
 		size_t vsize = posBuf->getVertexSize();
 
 		size_t newIndexCount = 0;
@@ -735,7 +735,7 @@ namespace meshmagick
 			if (newIndexCount > 0)
 			{
 				// we eliminated one or more faces
-				HardwareIndexBufferSharedPtr newIBuf = HardwareBufferManager::getSingleton().createIndexBuffer(
+				v1::HardwareIndexBufferSharedPtr newIBuf = v1::HardwareBufferManager::getSingleton().createIndexBuffer(
 					idata->indexBuffer->getType(), newIndexCount, 
 					idata->indexBuffer->getUsage());
 				if (pdest32)

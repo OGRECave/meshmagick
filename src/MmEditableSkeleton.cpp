@@ -28,13 +28,13 @@ using namespace Ogre;
 namespace meshmagick
 {
 
-	EditableSkeleton::EditableSkeleton(const Ogre::Skeleton& skel)
-	:   Skeleton()
+	EditableSkeleton::EditableSkeleton(const Ogre::v1::Skeleton& skel)
+	:   v1::Skeleton()
 	{
         skel.copyParametersTo(this);
 	}
 
-	void EditableSkeleton::addAnimation(Ogre::Animation* anim)
+	void EditableSkeleton::addAnimation(Ogre::v1::Animation* anim)
 	{
 		mAnimationsList[anim->getName()] = anim;
 	}

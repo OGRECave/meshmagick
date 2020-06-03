@@ -30,12 +30,12 @@ THE SOFTWARE.
 #	include <Ogre/OgreAxisAlignedBox.h>
 #	include <Ogre/OgreMatrix3.h>
 #	include <Ogre/OgreMatrix4.h>
-#	include <Ogre/OgreVector.h>
+#	include <Ogre/OgreVector4.h>
 #else
 #	include <OgreAxisAlignedBox.h>
 #	include <OgreMatrix3.h>
 #	include <OgreMatrix4.h>
-#	include <OgreVector.h>
+#	include <OgreVector4.h>
 #endif
 
 
@@ -72,8 +72,8 @@ namespace meshmagick
         /// It first tries to find the skeleton file in the same directory as the mesh file.
         /// If not found there, it is searched in working dir,
         /// if not found there, Ogre::Ogre::BLANKSTRING is returned.
-        static Ogre::String getSkeletonFileName(const Ogre::MeshPtr, const Ogre::String& meshFileName);
-        static Ogre::String getSkeletonFileNameOut (const Ogre::MeshPtr, const Ogre::String& meshFileName);
+        static Ogre::String getSkeletonFileName(const Ogre::v1::MeshPtr, const Ogre::String& meshFileName);
+        static Ogre::String getSkeletonFileNameOut (const Ogre::v1::MeshPtr, const Ogre::String& meshFileName);
 
     };
 }

@@ -71,15 +71,15 @@ namespace meshmagick
         Ogre::Log* mLog;
         Ogre::ResourceGroupManager* mResourceGroupMgr;
         Ogre::Math* mMath;
-        Ogre::MeshManager* mMeshMgr;
+        Ogre::v1::MeshManager* mMeshMgr;
 #if OGRE_VERSION_MAJOR > 1 || (OGRE_VERSION_MAJOR == 1 && OGRE_VERSION_MINOR >= 7)
         Ogre::LodStrategyManager* mLodStrategyMgr;
 #endif
         Ogre::MaterialManager* mMaterialMgr;
-        Ogre::SkeletonManager* mSkeletonMgr;
+        Ogre::v1::OldSkeletonManager* mSkeletonMgr;
         StatefulMeshSerializer* mMeshSerializer;
         StatefulSkeletonSerializer* mSkeletonSerializer;
-        Ogre::DefaultHardwareBufferManager* mBufferManager;
+        Ogre::v1::DefaultHardwareBufferManager* mBufferManager;
 		bool mStandalone;
     };
 }

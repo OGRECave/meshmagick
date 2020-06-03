@@ -60,24 +60,24 @@ namespace meshmagick
 		Ogre::String getName() const;
 
 		/// Add a Mesh to the batch that creates a new Mesh. Call MeshMergeTool#bake, when done.
-		void addMesh(Ogre::MeshPtr mesh);
+		void addMesh(Ogre::v1::MeshPtr mesh);
 
 		/** Merges all added Meshes into a new one. Internal state is reset afterwards.
 		@param name The name of the merged mesh.
 		@param resourceGroupName The resource group the merged mesh is created in.
 		@return the newly created merged mesh
 		*/
-		Ogre::MeshPtr merge(const Ogre::String& name,
+		Ogre::v1::MeshPtr merge(const Ogre::String& name,
 			const Ogre::String& resourceGroupName = Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 		/// Clears the list of Meshes to be baked.
 		void reset();
 
 	private: 
-		Ogre::SkeletonPtr mBaseSkeleton;
-		std::vector<Ogre::MeshPtr> mMeshes;
+		Ogre::v1::SkeletonPtr mBaseSkeleton;
+		std::vector<Ogre::v1::MeshPtr> mMeshes;
 
-		const Ogre::String findSubmeshName(Ogre::MeshPtr m, Ogre::ushort sid) const;
+		const Ogre::String findSubmeshName(Ogre::v1::MeshPtr m, Ogre::ushort sid) const;
 
 		void doInvoke(const OptionList& toolOptions,
 			const Ogre::StringVector& inFileNames,

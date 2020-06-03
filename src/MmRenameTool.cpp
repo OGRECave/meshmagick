@@ -23,9 +23,9 @@ THE SOFTWARE.
 
 #include "MmRenameTool.h"
 
-#include <OgreBone.h>
 #include <OgreLog.h>
 #include <OgreMesh.h>
+#include <OgreOldBone.h>
 #include <OgreSkeleton.h>
 #include <OgreSubMesh.h>
 
@@ -94,7 +94,7 @@ namespace meshmagick
             OgreEnvironment::getSingleton().getSkeletonSerializer();
 
         print("Loading skeleton " + inFile + "...");
-        SkeletonPtr skeleton;
+        v1::SkeletonPtr skeleton;
         try
         {
             skeleton = skeletonSerializer->loadSkeleton(inFile);
@@ -130,9 +130,9 @@ namespace meshmagick
 			{
 				StringPair names = split(any_cast<String>(it->second));
 				EditableSkeleton* eskel = dynamic_cast<EditableSkeleton*>(skeleton.get());
-				Animation* anim = eskel->getAnimation(names.first);
+				v1::Animation* anim = eskel->getAnimation(names.first);
 				eskel->removeAnimation(names.first);
-				Animation* newAnim = anim->clone(names.second);
+				v1::Animation* newAnim = anim->clone(names.second);
 				eskel->addAnimation(newAnim);
 			}
             else if (it->first == "material")
@@ -151,7 +151,7 @@ namespace meshmagick
             OgreEnvironment::getSingleton().getMeshSerializer();
 
         print("Loading mesh " + inFile + "...");
-        MeshPtr mesh;
+        v1::MeshPtr mesh;
         try
         {
             mesh = meshSerializer->loadMesh(inFile);
@@ -185,11 +185,14 @@ namespace meshmagick
 				StringPair names = split(any_cast<String>(it->second));
                 String before = names.first;
                 String after = names.second;
-                const auto& submeshes = mesh->getSubMeshes ();
-                for (const auto& submesh : submeshes)
+                for (v1::Mesh::SubMeshIterator it = mesh->getSubMeshIterator();
+                    it.hasMoreElements();)
                 {
+                    v1::SubMesh* submesh = it.getNext();
                     if (submesh->getMaterialName() == before)
+                    {
                         submesh->setMaterialName(after);
+                    }
                 }
             }
             else if (it->first == "submesh")
@@ -198,8 +201,8 @@ namespace meshmagick
                 String before = names.first;
                 String after = names.second;
 
-                Mesh::SubMeshNameMap smnn = mesh->getSubMeshNameMap();
-                Mesh::SubMeshNameMap::iterator it = smnn.find(before);
+                v1::Mesh::SubMeshNameMap smnn = mesh->getSubMeshNameMap();
+                v1::Mesh::SubMeshNameMap::iterator it = smnn.find(before);
                 EditableMesh* pMesh = dynamic_cast<EditableMesh*>(mesh.get());
                 pMesh->renameSubmesh(before, after);
             }
