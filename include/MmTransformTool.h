@@ -29,13 +29,13 @@ THE SOFTWARE.
 #ifdef __APPLE__
 #	include <Ogre/OgreAnimation.h>
 #	include <Ogre/OgreMesh.h>
+#	include <Ogre/OgreOldBone.h>
 #	include <Ogre/OgreSkeleton.h>
-#	include <Ogre/OgreBone.h>
 #else
 #	include <OgreAnimation.h>
 #	include <OgreMesh.h>
+#	include <OgreOldBone.h>
 #	include <OgreSkeleton.h>
-#	include <OgreBone.h>
 #endif
 
 #include "MmOptionsParser.h"
@@ -50,8 +50,8 @@ namespace meshmagick
 
 		Ogre::String getName() const;
 
-		void transform(Ogre::MeshPtr mesh, Ogre::Matrix4 transformation, bool followSkeleton = true);
-		void transform(Ogre::SkeletonPtr skeleton, Ogre::Matrix4 transformation);
+		void transform(Ogre::v1::MeshPtr mesh, Ogre::Matrix4 transformation, bool followSkeleton = true);
+		void transform(Ogre::v1::SkeletonPtr skeleton, Ogre::Matrix4 transformation);
 
     private:
         Ogre::Matrix4 mTransform;
@@ -65,25 +65,25 @@ namespace meshmagick
             bool calcTransform);
         void processMeshFile(Ogre::String file, Ogre::String outFile);
 
-        void processSkeleton(Ogre::SkeletonPtr skeleton);
-        void processMesh(Ogre::MeshPtr mesh);
-		void processSkeleton(Ogre::Skeleton* skeleton);
-		void processMesh(Ogre::Mesh* mesh);
+        void processSkeleton(Ogre::v1::SkeletonPtr skeleton);
+        void processMesh(Ogre::v1::MeshPtr mesh);
+		void processSkeleton(Ogre::v1::Skeleton* skeleton);
+		void processMesh(Ogre::v1::Mesh* mesh);
 
         void setOptions(const OptionList& options);
 
-        void processVertexData(Ogre::VertexData* vertexData);
-        void processPositionElement(Ogre::VertexData* vertexData,
-            const Ogre::VertexElement* vertexElem);
-        void processDirectionElement(Ogre::VertexData* vertexData,
-            const Ogre::VertexElement* vertexElem);
+        void processVertexData(Ogre::v1::VertexData* vertexData);
+        void processPositionElement(Ogre::v1::VertexData* vertexData,
+            const Ogre::v1::VertexElement* vertexElem);
+        void processDirectionElement(Ogre::v1::VertexData* vertexData,
+            const Ogre::v1::VertexElement* vertexElem);
 
-        void processAnimation(Ogre::Animation* ani);
-        void processBone(Ogre::Bone* bone);
-        void processPose(Ogre::Pose* pose);
-        void processVertexMorphKeyFrame(Ogre::VertexMorphKeyFrame* keyframe, size_t vertexCount);
+        void processAnimation(Ogre::v1::Animation* ani);
+        void processBone(Ogre::v1::OldBone* bone);
+        void processPose(Ogre::v1::Pose* pose);
+        void processVertexMorphKeyFrame(Ogre::v1::VertexMorphKeyFrame* keyframe, size_t vertexCount);
 
-        void processIndexData(Ogre::IndexData* indexData);
+        void processIndexData(Ogre::v1::IndexData* indexData);
 
         /// Calculate transformation matrix from input arguments and, if given, a mesh.
         /// The mesh is used to retrieve the AABB, which is needed for alignment operation
@@ -92,7 +92,7 @@ namespace meshmagick
         /// This doesn't matter for alignment operations on skeletons,
         /// since translations don't apply there. But resizing a skeleton seperately from the mesh
         /// is not possible and the result will look weird.
-        void calculateTransform(Ogre::MeshPtr mesh = Ogre::MeshPtr());
+        void calculateTransform(Ogre::v1::MeshPtr mesh = Ogre::v1::MeshPtr());
 
 		void doInvoke(const OptionList& toolOptions,
             const Ogre::StringVector& inFileNames,

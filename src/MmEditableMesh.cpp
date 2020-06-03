@@ -28,7 +28,7 @@ namespace meshmagick
 
 EditableMesh::EditableMesh(Ogre::ResourceManager* creator, const Ogre::String& name, Ogre::ResourceHandle handle,
             const Ogre::String& group, bool isManual, Ogre::ManualResourceLoader* loader)
-: Ogre::Mesh(creator, name, handle, group, isManual, loader)
+: Ogre::v1::Mesh(creator, name, handle, group, isManual, loader)
 {
 
 }

@@ -30,8 +30,8 @@ THE SOFTWARE.
 #include "MmToolUtils.h"
 
 #include <OgreAnimation.h>
-#include <OgreBone.h>
 #include <OgreHardwareVertexBuffer.h>
+#include <OgreOldBone.h>
 #include <OgreStringConverter.h>
 
 #include <algorithm>
@@ -43,9 +43,9 @@ using namespace Ogre;
 namespace meshmagick
 {
     struct FindSubMeshNameByIndex
-        : std::binary_function<Mesh::SubMeshNameMap::value_type, unsigned short, bool>
+        : std::binary_function<v1::Mesh::SubMeshNameMap::value_type, unsigned short, bool>
     {
-        bool operator()(const Mesh::SubMeshNameMap::value_type& entry, unsigned short index) const
+        bool operator()(const v1::Mesh::SubMeshNameMap::value_type& entry, unsigned short index) const
         {
             return entry.second == index;
         }
@@ -63,7 +63,7 @@ namespace meshmagick
     }
     //------------------------------------------------------------------------
 
-	MeshInfo InfoTool::getInfo(MeshPtr mesh, bool followSkeleton)
+	MeshInfo InfoTool::getInfo(v1::MeshPtr mesh, bool followSkeleton)
 	{
 		mFollowSkeletonLink = followSkeleton;
 
@@ -76,7 +76,7 @@ namespace meshmagick
 	}
     //------------------------------------------------------------------------
 
-	SkeletonInfo InfoTool::getInfo(SkeletonPtr skeleton)
+	SkeletonInfo InfoTool::getInfo(v1::SkeletonPtr skeleton)
 	{
 		SkeletonInfo info;
 		info.name = skeleton->getName();
@@ -122,7 +122,7 @@ namespace meshmagick
         StatefulMeshSerializer* meshSerializer =
             OgreEnvironment::getSingleton().getMeshSerializer();
 
-        MeshPtr mesh = meshSerializer->loadMesh(meshFileName);
+        v1::MeshPtr mesh = meshSerializer->loadMesh(meshFileName);
 
 		MeshInfo info;
 		info.name = meshFileName;
@@ -133,7 +133,7 @@ namespace meshmagick
 		return info;
 	}
     //------------------------------------------------------------------------
-	void InfoTool::processMesh(MeshInfo& info, MeshPtr mesh) const
+	void InfoTool::processMesh(MeshInfo& info, v1::MeshPtr mesh) const
 	{
 	    info.storedBoundingBox = mesh->getBounds();
 		info.actualBoundingBox = MeshUtils::getMeshAabb(mesh);
@@ -149,14 +149,14 @@ namespace meshmagick
 			mesh->_updateCompiledBoneAssignments();
 		}
 
-        if (mesh->sharedVertexData != NULL)
+        if (mesh->sharedVertexData[VpNormal] != NULL)
         {
 			info.hasSharedVertices = true;
-			info.sharedVertices.numVertices = mesh->sharedVertexData->vertexCount;
-			processBoneAssignmentData(info.sharedVertices, mesh->sharedVertexData,
+			info.sharedVertices.numVertices = mesh->sharedVertexData[VpNormal]->vertexCount;
+			processBoneAssignmentData(info.sharedVertices, mesh->sharedVertexData[VpNormal],
 				mesh->sharedBlendIndexToBoneIndexMap);
             processVertexDeclaration(info.sharedVertices,
-				mesh->sharedVertexData->vertexDeclaration);
+				mesh->sharedVertexData[VpNormal]->vertexDeclaration);
 			info.maxNumBoneAssignments =
 				std::max(info.maxNumBoneAssignments, info.sharedVertices.numBoneAssignments);
 			info.maxNumBonesReferenced =
@@ -168,12 +168,12 @@ namespace meshmagick
 			info.hasSharedVertices = false;
         }
 
-        const Mesh::SubMeshNameMap& subMeshNames = mesh->getSubMeshNameMap();
+        const v1::Mesh::SubMeshNameMap& subMeshNames = mesh->getSubMeshNameMap();
         for (int i = 0; i < mesh->getNumSubMeshes(); ++i)
         {
 			SubMeshInfo subMeshInfo;
             // Has the submesh got a name?
-            Mesh::SubMeshNameMap::const_iterator it = std::find_if(subMeshNames.begin(),
+            v1::Mesh::SubMeshNameMap::const_iterator it = std::find_if(subMeshNames.begin(),
                 subMeshNames.end(), std::bind2nd(FindSubMeshNameByIndex(), i));
 
             subMeshInfo.name = it == subMeshNames.end() ? String() : it->first;
@@ -209,13 +209,13 @@ namespace meshmagick
             // Yes, list them
             for (unsigned short i = 0, end = mesh->getNumAnimations(); i < end; ++i)
             {
-                Animation* ani = mesh->getAnimation(i);
+                v1::Animation* ani = mesh->getAnimation(i);
 				info.morphAnimations.push_back(std::make_pair(ani->getName(), ani->getLength()));
             }
         }
 
         // Poses?
-        PoseList poses = mesh->getPoseList();
+        v1::PoseList poses = mesh->getPoseList();
 		for (size_t i = 0; i < poses.size(); ++i)
 		{
 			info.poseNames.push_back(poses[i]->getName());
@@ -243,22 +243,22 @@ namespace meshmagick
     }
     //------------------------------------------------------------------------
 
-    void InfoTool::processSubMesh(SubMeshInfo& info, Ogre::SubMesh* submesh) const
+    void InfoTool::processSubMesh(SubMeshInfo& info, Ogre::v1::SubMesh* submesh) const
     {
 		info.materialName = submesh->getMaterialName();
 		info.usesSharedVertices = submesh->useSharedVertices;
         if (!info.usesSharedVertices)
         {
-			info.vertices.numVertices = submesh->vertexData->vertexCount;
-			processBoneAssignmentData(info.vertices, submesh->vertexData, submesh->blendIndexToBoneIndexMap);
-            processVertexDeclaration(info.vertices, submesh->vertexData->vertexDeclaration);
+			info.vertices.numVertices = submesh->vertexData[VpNormal]->vertexCount;
+			processBoneAssignmentData(info.vertices, submesh->vertexData[VpNormal], submesh->blendIndexToBoneIndexMap);
+            processVertexDeclaration(info.vertices, submesh->vertexData[VpNormal]->vertexDeclaration);
         }
 
         // indices
-        if (submesh->indexData != NULL)
+        if (submesh->indexData[VpNormal] != NULL)
         {
-            HardwareIndexBufferSharedPtr indexBuffer = submesh->indexData->indexBuffer;
-            if (indexBuffer->getType() == HardwareIndexBuffer::IT_16BIT)
+            v1::HardwareIndexBufferSharedPtr indexBuffer = submesh->indexData[VpNormal]->indexBuffer;
+            if (indexBuffer->getType() == v1::HardwareIndexBuffer::IT_16BIT)
             {
 				info.indexBitWidth = 16;
             }
@@ -270,32 +270,32 @@ namespace meshmagick
 			size_t numIndices = indexBuffer->getNumIndexes();
 			switch(submesh->operationType)
 			{
-			case RenderOperation::OT_LINE_LIST:
+			case OT_LINE_LIST:
 				info.operationType = "OT_LINE_LIST";
 				info.numElements = numIndices / 2;
 				info.elementType = "lines";
 				break;
-			case RenderOperation::OT_LINE_STRIP:
+			case OT_LINE_STRIP:
 				info.operationType = "OT_LINE_STRIP";
 				info.numElements = numIndices / 2;
 				info.elementType = "lines";
 				break;
-			case RenderOperation::OT_POINT_LIST:
+			case OT_POINT_LIST:
 				info.operationType = "OT_POINT_LIST";
 				info.numElements = numIndices;
 				info.elementType = "points";
 				break;
-			case RenderOperation::OT_TRIANGLE_FAN:
+			case OT_TRIANGLE_FAN:
 				info.operationType = "OT_TRIANGLE_FAN";
 				info.numElements = numIndices - 2;
 				info.elementType = "triangles";
 				break;
-			case RenderOperation::OT_TRIANGLE_LIST:
+			case OT_TRIANGLE_LIST:
 				info.operationType = "OT_TRIANGLE_LIST";
 				info.numElements = numIndices / 3;
 				info.elementType = "triangles";
 				break;
-			case RenderOperation::OT_TRIANGLE_STRIP:
+			case OT_TRIANGLE_STRIP:
 				info.operationType = "OT_TRIANGLE_STRIP";
 				info.numElements = numIndices - 2;
 				info.elementType = "triangles";
@@ -312,7 +312,7 @@ namespace meshmagick
         StatefulSkeletonSerializer* skeletonSerializer =
             OgreEnvironment::getSingleton().getSkeletonSerializer();
 
-        SkeletonPtr skeleton;
+        v1::SkeletonPtr skeleton;
         try
         {
             skeleton = skeletonSerializer->loadSkeleton(skeletonFileName);
@@ -331,38 +331,38 @@ namespace meshmagick
 		return info;
 	}
     //------------------------------------------------------------------------
-	void InfoTool::processSkeleton(SkeletonInfo& info, Ogre::SkeletonPtr skeleton) const
+	void InfoTool::processSkeleton(SkeletonInfo& info, Ogre::v1::SkeletonPtr skeleton) const
 	{
 		processSkeleton(info, skeleton.get());
 	}
 	//---------------------------------------------------------------------
-	void InfoTool::processSkeleton(SkeletonInfo& info, Ogre::Skeleton* skeleton) const
+	void InfoTool::processSkeleton(SkeletonInfo& info, Ogre::v1::Skeleton* skeleton) const
     {
         for (unsigned short i = 0, end = skeleton->getNumBones(); i < end; ++i)
         {
-            Bone* bone = skeleton->getBone(i);
+            v1::OldBone* bone = skeleton->getBone(i);
 			info.boneNames.push_back(bone->getName());
         }
 
         for (unsigned short i = 0, end = skeleton->getNumAnimations(); i < end; ++i)
         {
-            Animation* ani = skeleton->getAnimation(i);
+            v1::Animation* ani = skeleton->getAnimation(i);
 			info.animations.push_back(std::make_pair(ani->getName(), ani->getLength()));
         }
     }
     //------------------------------------------------------------------------
 
-    String InfoTool::getEndianModeAsString(MeshSerializer::Endian endian) const
+    String InfoTool::getEndianModeAsString(v1::MeshSerializer::Endian endian) const
     {
-        if (endian == MeshSerializer::ENDIAN_BIG)
+        if (endian == v1::MeshSerializer::ENDIAN_BIG)
         {
             return "Big Endian";
         }
-        else if (endian == MeshSerializer::ENDIAN_LITTLE)
+        else if (endian == v1::MeshSerializer::ENDIAN_LITTLE)
         {
             return "Little Endian";
         }
-        else if (endian == MeshSerializer::ENDIAN_NATIVE)
+        else if (endian == v1::MeshSerializer::ENDIAN_NATIVE)
         {
             return "Native Endian";
         }
@@ -373,15 +373,15 @@ namespace meshmagick
     }
     //------------------------------------------------------------------------
 
-	void InfoTool::processBoneAssignmentData(VertexInfo& info, const Ogre::VertexData* vd,
-		const Ogre::Mesh::IndexMap& blendIndexToBoneIndexMap) const
+	void InfoTool::processBoneAssignmentData(VertexInfo& info, const Ogre::v1::VertexData* vd,
+		const Ogre::v1::Mesh::IndexMap& blendIndexToBoneIndexMap) const
 	{
 		// Report number of bones per vertex
-		const Ogre::VertexElement* elem =
+		const Ogre::v1::VertexElement* elem =
 			vd->vertexDeclaration->findElementBySemantic(VES_BLEND_WEIGHTS);
 		if (elem)
 		{
-			info.numBoneAssignments = VertexElement::getTypeCount(elem->getType());
+			info.numBoneAssignments = v1::VertexElement::getTypeCount(elem->getType());
 			info.numBonesReferenced = blendIndexToBoneIndexMap.size();
 		}
 	}
@@ -389,7 +389,7 @@ namespace meshmagick
 
 	/// @todo externalise this function, when reorganise-tool is integrated,
     /// because both use the same format
-    void InfoTool::processVertexDeclaration(VertexInfo& info, const VertexDeclaration* vd) const
+    void InfoTool::processVertexDeclaration(VertexInfo& info, const v1::VertexDeclaration* vd) const
     {
         // First: source-ID, second: offset
         typedef std::pair<unsigned short, size_t> ElementPosition;
@@ -403,8 +403,8 @@ namespace meshmagick
         // Iterate over declaration elements and put them into the map.
         // We do this, because we don't know in what order the elements are stored, but
         // in order to create the layout string we need them in order of their source and offset.
-        const VertexDeclaration::VertexElementList& elementList = vd->getElements();
-        for (VertexDeclaration::VertexElementList::const_iterator it = elementList.begin(),
+        const v1::VertexDeclaration::VertexElementList& elementList = vd->getElements();
+        for (v1::VertexDeclaration::VertexElementList::const_iterator it = elementList.begin(),
             end = elementList.end(); it != end; ++it)
         {
             elements[std::make_pair((*it).getSource(), (*it).getOffset())] =
@@ -470,14 +470,8 @@ namespace meshmagick
             case VET_FLOAT4:
                 layout += "(f4)";
                 break;
-            case VET_SHORT1:
-                layout += "(s1)";
-                break;
             case VET_SHORT2:
                 layout += "(s2)";
-                break;
-            case VET_SHORT3:
-                layout += "(s3)";
                 break;
             case VET_SHORT4:
                 layout += "(s4)";

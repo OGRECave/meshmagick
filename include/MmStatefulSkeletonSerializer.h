@@ -40,15 +40,15 @@ THE SOFTWARE.
 
 namespace meshmagick
 {
-    class _MeshMagickExport StatefulSkeletonSerializer : public Ogre::SkeletonSerializer
+    class _MeshMagickExport StatefulSkeletonSerializer : public Ogre::v1::SkeletonSerializer
     {
     public:
-        Ogre::SkeletonPtr loadSkeleton(const Ogre::String& name);
+        Ogre::v1::SkeletonPtr loadSkeleton(const Ogre::String& name);
         void saveSkeleton(const Ogre::String& name, bool keepEndianess);
         void clear();
-        Ogre::SkeletonPtr getSkeleton() const;
+        Ogre::v1::SkeletonPtr getSkeleton() const;
     private:
-        Ogre::SkeletonPtr mSkeleton;
+        Ogre::v1::SkeletonPtr mSkeleton;
         Ogre::String mSkeletonFileVersion;
         Endian mSkeletonFileEndian;
 

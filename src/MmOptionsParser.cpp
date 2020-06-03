@@ -23,9 +23,8 @@ THE SOFTWARE.
 
 #include "MmOptionsParser.h"
 
-#include <OgreStringConverter.h>
-#include <OgreVector.h>
 #include <OgreQuaternion.h>
+#include <OgreStringConverter.h>
 
 #include <algorithm>
 #include <stdexcept>

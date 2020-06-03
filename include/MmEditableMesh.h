@@ -27,15 +27,15 @@ namespace meshmagick
 {
 
     class EditableMesh :
-        public Ogre::Mesh
+        public Ogre::v1::Mesh
     {
     public:
         EditableMesh(Ogre::ResourceManager* creator, const Ogre::String& name, Ogre::ResourceHandle handle,
             const Ogre::String& group, bool isManual = false, Ogre::ManualResourceLoader* loader = 0);
         ~EditableMesh();
 
-        Ogre::SubMesh* removeSubmesh(const Ogre::String& submeshName);
-        void addSubmesh(const Ogre::String& submeshName, Ogre::SubMesh* submesh);
+        Ogre::v1::SubMesh* removeSubmesh(const Ogre::String& submeshName);
+        void addSubmesh(const Ogre::String& submeshName, Ogre::v1::SubMesh* submesh);
         void renameSubmesh(const Ogre::String& before, const Ogre::String& after);
     };
 

@@ -26,6 +26,8 @@ THE SOFTWARE.
 #include <OgreMesh.h>
 #include <OgreStringConverter.h>
 
+#include <fstream>
+
 using namespace Ogre;
 
 namespace meshmagick
@@ -88,7 +90,7 @@ namespace meshmagick
         return rval;
     }
 
-    String ToolUtils::getSkeletonFileName(const MeshPtr mesh, const String& meshFileName)
+    String ToolUtils::getSkeletonFileName(const v1::MeshPtr mesh, const String& meshFileName)
     {
         String rval;
         String skeletonName = mesh->getSkeletonName();
@@ -110,7 +112,7 @@ namespace meshmagick
         return rval;
     }
 
-    String ToolUtils::getSkeletonFileNameOut (const MeshPtr mesh, const String& meshFileName)
+    String ToolUtils::getSkeletonFileNameOut (const v1::MeshPtr mesh, const String& meshFileName)
     {
         String skeletonName = mesh->getSkeletonName ();
         // Decompose meshfilename into path and basename.

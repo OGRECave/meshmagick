@@ -23,27 +23,27 @@ THE SOFTWARE.
 
 #include "MmOgreEnvironment.h"
 
-#include <OgreRoot.h>
 #include <OgreLogManager.h>
 #include <OgreMaterialManager.h>
 #include <OgreMeshManager.h>
+#include <OgreOldSkeletonManager.h>
 #include <OgreResourceGroupManager.h>
-#include <OgreSkeletonManager.h>
+#include <OgreRoot.h>
 
 using namespace Ogre;
 
 template<> meshmagick::OgreEnvironment* Singleton<meshmagick::OgreEnvironment>::msSingleton = NULL;
 
-struct MaterialCreator : public MeshSerializerListener
+struct MaterialCreator : public v1::MeshSerializerListener
 {
-    void processMaterialName(Mesh *mesh, String *name)
+    void processMaterialName(v1::Mesh *mesh, String *name)
     {
         // create material because we do not load any .material files
         MaterialManager::getSingleton().create(*name, mesh->getGroup());
     }
 
-    void processSkeletonName(Mesh *mesh, String *name) {}
-    void processMeshCompleted(Mesh *mesh) {}
+    void processSkeletonName(v1::Mesh *mesh, String *name) {}
+    void processMeshCompleted(v1::Mesh *mesh) {}
 };
 
 namespace meshmagick
@@ -92,7 +92,7 @@ namespace meshmagick
 			mRoot = new Root();
 			mResourceGroupMgr = ResourceGroupManager::getSingletonPtr();
 			mMath = new Math();
-			mMeshMgr = MeshManager::getSingletonPtr();
+			mMeshMgr = v1::MeshManager::getSingletonPtr();
 			mMeshMgr->setBoundsPaddingFactor(0.0f);
 #if OGRE_VERSION_MAJOR > 1 || (OGRE_VERSION_MAJOR == 1 && OGRE_VERSION_MINOR >= 7)
 			mLodStrategyMgr = LodStrategyManager::getSingletonPtr();
@@ -100,8 +100,8 @@ namespace meshmagick
 			mMaterialMgr = MaterialManager::getSingletonPtr();
 			mMaterialMgr->initialise();
 
-			mSkeletonMgr = SkeletonManager::getSingletonPtr();
-			mBufferManager = new DefaultHardwareBufferManager();
+			mSkeletonMgr = v1::OldSkeletonManager::getSingletonPtr();
+			mBufferManager = new v1::DefaultHardwareBufferManager();
 			mStandalone = true;
 		}
 		else

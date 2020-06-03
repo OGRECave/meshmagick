@@ -28,6 +28,8 @@ THE SOFTWARE.
 #include <OgreMesh.h>
 #include <OgreSubMesh.h>
 
+#include <sstream>
+
 #include "MmOgreEnvironment.h"
 #include "MmStatefulMeshSerializer.h"
 
@@ -77,14 +79,14 @@ namespace meshmagick
 		}
 	}
 
-	void FillMeshData(HardwareIndexBufferSharedPtr indexBuffer,
-		VertexDeclaration *vertexDeclaration,
-		VertexBufferBinding* vertexBufferBinding,
+	void FillMeshData(v1::HardwareIndexBufferSharedPtr indexBuffer,
+		v1::VertexDeclaration *vertexDeclaration,
+		v1::VertexBufferBinding* vertexBufferBinding,
 		std::vector<Vector3> & vertices,
 		std::vector<unsigned int> &indices)
 	{
 		// Get the target element
-		const VertexElement* srcElem = vertexDeclaration->findElementBySemantic(
+		const v1::VertexElement* srcElem = vertexDeclaration->findElementBySemantic(
 			VES_POSITION);
 
 		if (!srcElem || srcElem->getType() != VET_FLOAT3)
@@ -93,12 +95,12 @@ namespace meshmagick
 				"SubMesh has no position semantic!! ",
 				"FillMeshData");
 		}
-		HardwareVertexBufferSharedPtr srcBuf;
+		v1::HardwareVertexBufferSharedPtr srcBuf;
 		srcBuf = vertexBufferBinding->getBuffer(srcElem->getSource());
 		unsigned char *pSrcBase;
 		// lock source for read only
 		pSrcBase = static_cast<unsigned char*>(
-			srcBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+			srcBuf->lock(v1::HardwareBuffer::HBL_READ_ONLY));
 		size_t numvertices=srcBuf->getNumVertices();
 		size_t vertexsize=srcBuf->getVertexSize();
 		float	*pVPos;	                // vertex position buffer, read only
@@ -120,10 +122,10 @@ namespace meshmagick
 		uint32	*pVIndices32 = NULL;    // the face indices buffer, read only
 		bool use32bit = false;
 
-		if (indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
+		if (indexBuffer->getType() == v1::HardwareIndexBuffer::IT_32BIT)
 		{
 			pVIndices32 = static_cast<uint32*>(
-				indexBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
+				indexBuffer->lock(v1::HardwareBuffer::HBL_READ_ONLY));
 			use32bit = true;
 			for(size_t i=0;i<indexBuffer->getNumIndexes();i++)
 			{
@@ -135,7 +137,7 @@ namespace meshmagick
 		else
 		{
 			pVIndices16 = static_cast<uint16*>(
-				indexBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
+				indexBuffer->lock(v1::HardwareBuffer::HBL_READ_ONLY));
 			size_t nm_indices=indexBuffer->getNumIndexes();
 			for(size_t i=0;i<nm_indices;i++)
 			{
@@ -226,7 +228,7 @@ namespace meshmagick
 			OgreEnvironment::getSingleton().getMeshSerializer();
 
 		print("Loading mesh " + inFile + "...");
-		MeshPtr mesh;
+		v1::MeshPtr mesh;
 		try
 		{
 			mesh = meshSerializer->loadMesh(inFile);
@@ -246,12 +248,12 @@ namespace meshmagick
 
 	}
 
-	void TootleTool::processMesh(Ogre::MeshPtr mesh)
+	void TootleTool::processMesh(Ogre::v1::MeshPtr mesh)
 	{
 		processMesh(mesh.get());
 	}
 
-	void TootleTool::processMesh(Ogre::Mesh* mesh)
+	void TootleTool::processMesh(Ogre::v1::Mesh* mesh)
 	{
 		print("Processing mesh...");
 
@@ -274,28 +276,28 @@ namespace meshmagick
 			indices.clear();
 
 			// build buffers containing only the vertex positions and indices, since this is what Tootle requires
-			SubMesh * smesh=mesh->getSubMesh(i);
+			v1::SubMesh * smesh=mesh->getSubMesh(i);
 
 			// Skip empty submeshes
-			if (!smesh->indexData->indexCount)
+			if (!smesh->indexData[VpNormal]->indexCount)
 				continue;
 
-			if(smesh->operationType!=RenderOperation::OT_TRIANGLE_LIST)
+			if(smesh->operationType!=OT_TRIANGLE_LIST)
 			{
 				continue;
 			}
 			if(smesh->useSharedVertices)
 			{
-				FillMeshData(smesh->indexData->indexBuffer,
-					mesh->sharedVertexData->vertexDeclaration,
-					mesh->sharedVertexData->vertexBufferBinding,
+				FillMeshData(smesh->indexData[VpNormal]->indexBuffer,
+					mesh->sharedVertexData[VpNormal]->vertexDeclaration,
+					mesh->sharedVertexData[VpNormal]->vertexBufferBinding,
 					vertices,indices);
 			}
 			else
 			{
-				FillMeshData(smesh->indexData->indexBuffer,
-					smesh->vertexData->vertexDeclaration,
-					smesh->vertexData->vertexBufferBinding,
+				FillMeshData(smesh->indexData[VpNormal]->indexBuffer,
+					smesh->vertexData[VpNormal]->vertexDeclaration,
+					smesh->vertexData[VpNormal]->vertexBufferBinding,
 					vertices,indices);
 
 			}
@@ -422,14 +424,14 @@ namespace meshmagick
 
 
 				//copy the index buffer back to where it came from
-				if (smesh->indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
+				if (smesh->indexData[VpNormal]->indexBuffer->getType() == v1::HardwareIndexBuffer::IT_32BIT)
 				{
 					uint32	*pVIndices32 = NULL;    // the face indices buffer
 					std::vector<unsigned int>::iterator srci = indices.begin();
 
 					pVIndices32 = static_cast<uint32*>(
-						smesh->indexData->indexBuffer->lock(HardwareBuffer::HBL_NORMAL));
-					for(size_t i=0;i<smesh->indexData->indexBuffer->getNumIndexes();i++)
+						smesh->indexData[VpNormal]->indexBuffer->lock(v1::HardwareBuffer::HBL_NORMAL));
+					for(size_t i=0;i<smesh->indexData[VpNormal]->indexBuffer->getNumIndexes();i++)
 					{
 						*pVIndices32++ = static_cast<uint32>(*srci++);
 					}
@@ -441,14 +443,14 @@ namespace meshmagick
 					std::vector<unsigned int>::iterator srci = indices.begin();
 
 					pVIndices16 = static_cast<uint16*>(
-						smesh->indexData->indexBuffer->lock(HardwareBuffer::HBL_NORMAL));
-					size_t nm_indices=smesh->indexData->indexBuffer->getNumIndexes();
+						smesh->indexData[VpNormal]->indexBuffer->lock(v1::HardwareBuffer::HBL_NORMAL));
+					size_t nm_indices=smesh->indexData[VpNormal]->indexBuffer->getNumIndexes();
 					for(size_t i=0;i<nm_indices;i++)
 					{
 						*pVIndices16++ = static_cast<uint16>(*srci++);
 					}
 				}
-				smesh->indexData->indexBuffer->unlock();
+				smesh->indexData[VpNormal]->indexBuffer->unlock();
 			}
 		}
 
