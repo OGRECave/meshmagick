@@ -27,6 +27,9 @@ THE SOFTWARE.
 #include "MmMeshMergeToolFactory.h"
 #include "MmOptimiseToolFactory.h"
 #include "MmRenameToolFactory.h"
+#ifdef MESHMAGICK_USE_TOOTLE
+#	include "MmTootleToolFactory.h"
+#endif
 #include "MmTransformToolFactory.h"
 
 template<> meshmagick::MeshMagick* Ogre::Singleton<meshmagick::MeshMagick>::msSingleton = NULL;
@@ -40,6 +43,10 @@ namespace meshmagick
 		mOgreEnvironment(NULL),
 		mInfoTool(NULL),
 		mMeshMergeTool(NULL),
+		mOptimiseTool(NULL),
+#ifdef MESHMAGICK_USE_TOOTLE
+		mTootleTool(NULL),
+#endif
 		mTransformTool(NULL)
 	{
 		mOgreEnvironment = new OgreEnvironment();
@@ -48,6 +55,10 @@ namespace meshmagick
 		mToolManager = new ToolManager();
 		mToolManager->registerToolFactory(new InfoToolFactory());
 		mToolManager->registerToolFactory(new MeshMergeToolFactory());
+		mToolManager->registerToolFactory(new OptimiseToolFactory());
+#ifdef MESHMAGICK_USE_TOOTLE
+		mToolManager->registerToolFactory(new TootleToolFactory());
+#endif
 		mToolManager->registerToolFactory(new TransformToolFactory());
 	}
     //------------------------------------------------------------------------
@@ -56,6 +67,10 @@ namespace meshmagick
 	{
 		if (mInfoTool != NULL) mToolManager->destroyTool(mInfoTool);
 		if (mMeshMergeTool != NULL) mToolManager->destroyTool(mMeshMergeTool);
+		if (mOptimiseTool != NULL) mToolManager->destroyTool(mOptimiseTool);
+#ifdef MESHMAGICK_USE_TOOTLE
+		if (mTootleTool != NULL) mToolManager->destroyTool(mTootleTool);
+#endif
 		if (mTransformTool != NULL) mToolManager->destroyTool(mTransformTool);
 
 		delete mToolManager;
@@ -80,6 +95,26 @@ namespace meshmagick
 		}
 		return mMeshMergeTool;
 	}
+    //------------------------------------------------------------------------
+	OptimiseTool* MeshMagick::getOptimiseTool()
+	{
+		if (mOptimiseTool == NULL)
+		{
+			mOptimiseTool = static_cast<OptimiseTool*>(mToolManager->createTool("optimise"));
+		}
+		return mOptimiseTool;
+	}
+    //------------------------------------------------------------------------
+#ifdef MESHMAGICK_USE_TOOTLE
+	TootleTool* MeshMagick::getTootleTool()
+	{
+		if (mTootleTool == NULL)
+		{
+			mTootleTool = static_cast<TootleTool*>(mToolManager->createTool("tootle"));
+		}
+		return mTootleTool;
+	}
+#endif
     //------------------------------------------------------------------------
 	TransformTool* MeshMagick::getTransformTool()
 	{
