@@ -37,6 +37,9 @@ THE SOFTWARE.
 #include "MmMeshMergeTool.h"
 #include "MmOptimiseTool.h"
 #include "MmRenameTool.h"
+#ifdef MESHMAGICK_USE_TOOTLE
+#	include "MmTootleTool.h"
+#endif
 #include "MmTransformTool.h"
 
 namespace meshmagick
@@ -57,11 +60,19 @@ namespace meshmagick
 
 		InfoTool* getInfoTool();
 		MeshMergeTool* getMeshMergeTool();
+		OptimiseTool* getOptimiseTool();
+#ifdef MESHMAGICK_USE_TOOTLE
+		TootleTool* getTootleTool();
+#endif
 		TransformTool* getTransformTool();
 
 	private:
 		InfoTool* mInfoTool;
 		MeshMergeTool* mMeshMergeTool;
+		OptimiseTool* mOptimiseTool;
+#ifdef MESHMAGICK_USE_TOOTLE
+		TootleTool* mTootleTool;
+#endif
 		TransformTool* mTransformTool;
 
 		ToolManager* mToolManager;
