@@ -56,6 +56,9 @@ namespace meshmagick
 
 		bool getQualityOptimization() const { return mQualityOptimization; }
 		void setQualityOptimization(bool quality) { mQualityOptimization = quality; }
+
+		bool getVMemoryOptimization() const { return mVMemoryOptimization; }
+		void setVMemoryOptimization(bool vmemory) { mVMemoryOptimization = vmemory; }
 	protected:
 		virtual void doInvoke(const OptionList& toolOptions,
 			const Ogre::StringVector& inFileNames,
@@ -66,6 +69,7 @@ namespace meshmagick
 		bool mClockwise;
 		unsigned int mClusters;
 		bool mQualityOptimization;
+		bool mVMemoryOptimization;
 		typedef std::vector<Ogre::Vector3> ViewpointList;
 		ViewpointList mViewpointList;
 

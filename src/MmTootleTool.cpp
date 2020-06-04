@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include <sstream>
 
 #include "MmOgreEnvironment.h"
+#include "MmOptimiseTool.h"
 #include "MmStatefulMeshSerializer.h"
 
 using namespace Ogre;
@@ -82,36 +83,96 @@ namespace meshmagick
 	void FillMeshData(v1::HardwareIndexBufferSharedPtr indexBuffer,
 		v1::VertexDeclaration *vertexDeclaration,
 		v1::VertexBufferBinding* vertexBufferBinding,
-		std::vector<Vector3> & vertices,
-		std::vector<unsigned int> &indices)
+		std::vector<UniqueVertex> & vertices,
+		std::vector<unsigned int> &indices,
+		size_t numvertices)
 	{
-		// Get the target element
-		const v1::VertexElement* srcElem = vertexDeclaration->findElementBySemantic(
-			VES_POSITION);
-
-		if (!srcElem || srcElem->getType() != VET_FLOAT3)
+		// Lock all the buffers first
+		typedef std::vector<char*> BufferLocks;
+		BufferLocks bufferLocks;
+		const auto& bindings =
+			vertexBufferBinding->getBindings();
+		v1::VertexBufferBinding::VertexBufferBindingMap::const_iterator bindi;
+		bufferLocks.resize(vertexBufferBinding->getLastBoundIndex()+1);
+		for (bindi = bindings.begin(); bindi != bindings.end(); ++bindi)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-				"SubMesh has no position semantic!! ",
-				"FillMeshData");
+			char* lock = static_cast<char*>(bindi->second->lock(v1::HardwareBuffer::HBL_READ_ONLY));
+			bufferLocks[bindi->first] = lock;
 		}
-		v1::HardwareVertexBufferSharedPtr srcBuf;
-		srcBuf = vertexBufferBinding->getBuffer(srcElem->getSource());
-		unsigned char *pSrcBase;
-		// lock source for read only
-		pSrcBase = static_cast<unsigned char*>(
-			srcBuf->lock(v1::HardwareBuffer::HBL_READ_ONLY));
-		size_t numvertices=srcBuf->getNumVertices();
-		size_t vertexsize=srcBuf->getVertexSize();
-		float	*pVPos;	                // vertex position buffer, read only
 
 		for(size_t i=0;i<numvertices;i++)
 		{
-			srcElem->baseVertexPointerToElement(pSrcBase, &pVPos);
-			vertices.push_back(Vector3(pVPos[0],pVPos[1],pVPos[2]));
-			pSrcBase+=vertexsize;
+			UniqueVertex uniqueVertex;
+			const auto& elemList =
+				vertexDeclaration->getElements();
+			v1::VertexDeclaration::VertexElementList::const_iterator elemi;
+			unsigned short uvSets = 0;
+			for (elemi = elemList.begin(); elemi != elemList.end(); ++elemi)
+			{
+				// all float pointers for the moment
+				float *pFloat;
+				elemi->baseVertexPointerToElement(
+					bufferLocks[elemi->getSource()], &pFloat);
+
+				switch(elemi->getSemantic())
+				{
+				case VES_POSITION:
+					uniqueVertex.position.x = *pFloat++;
+					uniqueVertex.position.y = *pFloat++;
+					uniqueVertex.position.z = *pFloat++;
+					break;
+				case VES_NORMAL:
+					uniqueVertex.normal.x = *pFloat++;
+					uniqueVertex.normal.y = *pFloat++;
+					uniqueVertex.normal.z = *pFloat++;
+					break;
+				case VES_TANGENT:
+					uniqueVertex.tangent.x = *pFloat++;
+					uniqueVertex.tangent.y = *pFloat++;
+					uniqueVertex.tangent.z = *pFloat++;
+					// support w-component on tangent if present
+					if (v1::VertexElement::getTypeCount(elemi->getType()) == 4)
+					{
+						uniqueVertex.tangent.w = *pFloat++;
+					}
+					break;
+				case VES_BINORMAL:
+					uniqueVertex.binormal.x = *pFloat++;
+					uniqueVertex.binormal.y = *pFloat++;
+					uniqueVertex.binormal.z = *pFloat++;
+					break;
+				case VES_TEXTURE_COORDINATES:
+					// supports up to 4 dimensions
+					for (unsigned short dim = 0;
+						dim < v1::VertexElement::getTypeCount(elemi->getType()); ++dim)
+					{
+						uniqueVertex.uv[elemi->getIndex()][dim] = *pFloat++;
+					}
+					++uvSets;
+					break;
+				case VES_BLEND_INDICES:
+				case VES_BLEND_WEIGHTS:
+				case VES_DIFFUSE:
+				case VES_SPECULAR:
+					// No action needed for these semantics.
+					break;
+				};
+			}
+
+			vertices.push_back(uniqueVertex);
+
+			// increment buffer lock pointers
+			for (bindi = bindings.begin(); bindi != bindings.end(); ++bindi)
+			{
+				bufferLocks[bindi->first] += bindi->second->getVertexSize();
+			}
 		}
-		srcBuf->unlock();
+
+		// unlock the buffers now
+		for (bindi = bindings.begin(); bindi != bindings.end(); ++bindi)
+		{
+			bindi->second->unlock();
+		}
 
 		//fill the index buffer
 		//tootle only work with 32Bit buffers 
@@ -150,6 +211,149 @@ namespace meshmagick
 
 	}
 
+	void CopyBackMeshData(v1::HardwareIndexBufferSharedPtr indexBuffer,
+		v1::VertexDeclaration *vertexDeclaration,
+		v1::VertexBufferBinding* vertexBufferBinding,
+		std::vector<UniqueVertex> & vertices,
+		std::vector<unsigned int> & verticesRemap,
+		std::vector<unsigned int> &indices,
+		size_t numvertices)
+	{
+		// Lock all the buffers first
+		typedef std::vector<char*> BufferLocks;
+		BufferLocks bufferLocks;
+		const auto& bindings =
+			vertexBufferBinding->getBindings();
+		v1::VertexBufferBinding::VertexBufferBindingMap::const_iterator bindi;
+		bufferLocks.resize(vertexBufferBinding->getLastBoundIndex()+1);
+		for (bindi = bindings.begin(); bindi != bindings.end(); ++bindi)
+		{
+			char* lock = static_cast<char*>(bindi->second->lock(v1::HardwareBuffer::HBL_NORMAL));
+			bufferLocks[bindi->first] = lock;
+		}
+
+		for(size_t i=0;i<numvertices;i++)
+		{
+			unsigned int nVID = verticesRemap[i];
+			const auto& elemList =
+				vertexDeclaration->getElements();
+			v1::VertexDeclaration::VertexElementList::const_iterator elemi;
+			unsigned short uvSets = 0;
+			for (elemi = elemList.begin(); elemi != elemList.end(); ++elemi)
+			{
+				// all float pointers for the moment
+				float *pFloat;
+				elemi->baseVertexPointerToElement(
+					bufferLocks[elemi->getSource()], &pFloat);
+
+				switch(elemi->getSemantic())
+				{
+				case VES_POSITION:
+					*pFloat++ = vertices[nVID].position.x;
+					*pFloat++ = vertices[nVID].position.y;
+					*pFloat++ = vertices[nVID].position.z;
+					break;
+				case VES_NORMAL:
+					*pFloat++ = vertices[nVID].normal.x;
+					*pFloat++ = vertices[nVID].normal.y;
+					*pFloat++ = vertices[nVID].normal.z;
+					break;
+				case VES_TANGENT:
+					*pFloat++ = vertices[nVID].tangent.x;
+					*pFloat++ = vertices[nVID].tangent.y;
+					*pFloat++ = vertices[nVID].tangent.z;
+					// support w-component on tangent if present
+					if (v1::VertexElement::getTypeCount(elemi->getType()) == 4)
+					{
+						*pFloat++ = vertices[nVID].tangent.w;
+					}
+					break;
+				case VES_BINORMAL:
+					*pFloat++ = vertices[nVID].binormal.x;
+					*pFloat++ = vertices[nVID].binormal.y;
+					*pFloat++ = vertices[nVID].binormal.z;
+					break;
+				case VES_TEXTURE_COORDINATES:
+					// supports up to 4 dimensions
+					for (unsigned short dim = 0;
+						dim < v1::VertexElement::getTypeCount(elemi->getType()); ++dim)
+					{
+						*pFloat++ = vertices[nVID].uv[elemi->getIndex()][dim];
+					}
+					++uvSets;
+					break;
+				case VES_BLEND_INDICES:
+				case VES_BLEND_WEIGHTS:
+				case VES_DIFFUSE:
+				case VES_SPECULAR:
+					// No action needed for these semantics.
+					break;
+				};
+			}
+
+			// increment buffer lock pointers
+			for (bindi = bindings.begin(); bindi != bindings.end(); ++bindi)
+			{
+				bufferLocks[bindi->first] += bindi->second->getVertexSize();
+			}
+		}
+
+		// unlock the buffers now
+		for (bindi = bindings.begin(); bindi != bindings.end(); ++bindi)
+		{
+			bindi->second->unlock();
+		}
+
+		//copy the index buffer back to where it came from
+		if (indexBuffer->getType() == v1::HardwareIndexBuffer::IT_32BIT)
+		{
+			uint32	*pVIndices32 = NULL;    // the face indices buffer
+			std::vector<unsigned int>::iterator srci = indices.begin();
+
+			pVIndices32 = static_cast<uint32*>(
+				indexBuffer->lock(v1::HardwareBuffer::HBL_NORMAL));
+			for(size_t i=0;i<indexBuffer->getNumIndexes();i++)
+			{
+				*pVIndices32++ = static_cast<uint32>(*srci++);
+			}
+
+		}
+		else
+		{
+			uint16	*pVIndices16 = NULL;    // the face indices buffer
+			std::vector<unsigned int>::iterator srci = indices.begin();
+
+			pVIndices16 = static_cast<uint16*>(
+				indexBuffer->lock(v1::HardwareBuffer::HBL_NORMAL));
+			size_t nm_indices=indexBuffer->getNumIndexes();
+			for(size_t i=0;i<nm_indices;i++)
+			{
+				*pVIndices16++ = static_cast<uint16>(*srci++);
+			}
+		}
+		indexBuffer->unlock();
+	}
+
+    v1::Mesh::VertexBoneAssignmentList getAdjustedBoneAssignments(
+        Ogre::v1::SubMesh::VertexBoneAssignmentList::const_iterator bit,
+        Ogre::v1::SubMesh::VertexBoneAssignmentList::const_iterator eit,
+		std::vector<unsigned int> & verticesRemap)
+	{
+		v1::Mesh::VertexBoneAssignmentList newList;
+		for (; bit != eit; ++bit)
+		{
+			auto ass = bit->second;
+			ass.vertexIndex = verticesRemap[ass.vertexIndex];
+
+			newList.insert(v1::Mesh::VertexBoneAssignmentList::value_type(
+				ass.vertexIndex, ass));
+
+		}
+
+		return newList;
+
+	}
+
 
 	TootleTool::TootleTool()
 		: Tool()
@@ -157,6 +361,7 @@ namespace meshmagick
 		, mClockwise(false)
 		, mClusters(0)
 		, mQualityOptimization(false)
+		, mVMemoryOptimization(true)
 	{
 	}
 
@@ -207,6 +412,7 @@ namespace meshmagick
 		mClockwise = false;
 		mClusters = 0;
 		mQualityOptimization = false;
+		mVMemoryOptimization = true;
 		mViewpointList.clear();
 
 		for (OptionList::const_iterator i = options.begin(); i != options.end(); ++i)
@@ -219,6 +425,8 @@ namespace meshmagick
 				mClusters = static_cast<unsigned int>(any_cast<int>(i->second));
 			else if (i->first == "qualityoptimization")
 				mQualityOptimization = true;
+			else if (i->first == "novmemoryoptimization")
+				mVMemoryOptimization = false;
 			else if (i->first == "viewpoint")
 				mViewpointList.push_back(any_cast<Vector3>(i->second));
 
@@ -261,7 +469,7 @@ namespace meshmagick
 	{
 		print("Processing mesh...");
 
-		std::vector<Vector3> vertices;
+		std::vector<UniqueVertex> vertices;
 		std::vector<unsigned int> indices;
 
 		// Init options
@@ -295,14 +503,16 @@ namespace meshmagick
 				FillMeshData(smesh->indexData[VpNormal]->indexBuffer,
 					mesh->sharedVertexData[VpNormal]->vertexDeclaration,
 					mesh->sharedVertexData[VpNormal]->vertexBufferBinding,
-					vertices,indices);
+					vertices,indices,
+					mesh->sharedVertexData[VpNormal]->vertexCount);
 			}
 			else
 			{
 				FillMeshData(smesh->indexData[VpNormal]->indexBuffer,
 					smesh->vertexData[VpNormal]->vertexDeclaration,
 					smesh->vertexData[VpNormal]->vertexBufferBinding,
-					vertices,indices);
+					vertices,indices,
+					smesh->vertexData[VpNormal]->vertexCount);
 
 			}
 			if(indices.size()>0)
@@ -340,7 +550,13 @@ namespace meshmagick
 				unsigned int nVertices = (unsigned int) vertices.size();
 				const float* pVB = (float*) &vertices[0];
 				unsigned int* pIB = (unsigned int*) &indices[0];
-				unsigned int nStride = 3*sizeof(float);   
+
+				// position: 3 * sizeof(float)
+				// normal:   3 * sizeof(float)
+				// tangent:  4 * sizeof(float)
+				// binormal: 3 * sizeof(float)
+				// uv:       3 * OGRE_MAX_TEXTURE_COORD_SETS * sizeof(float)
+				unsigned int nStride = (3 + 3 + 4 + 3 + 3 * OGRE_MAX_TEXTURE_COORD_SETS) * sizeof(float);
 
 				TootleStats stats;
 				TootleResult result;
@@ -409,39 +625,69 @@ namespace meshmagick
 					print(statsStr.str(), V_HIGH);
 				}
 
-				// clean up tootle
-				TootleCleanup();
+				std::vector<unsigned int> pnVertexRemapping(nVertices);
+				std::vector<unsigned int> pnVertexInverseRemapping(nVertices);
 
-
-
-				//copy the index buffer back to where it came from
-				if (smesh->indexData[VpNormal]->indexBuffer->getType() == v1::HardwareIndexBuffer::IT_32BIT)
+				if (mVMemoryOptimization)
 				{
-					uint32	*pVIndices32 = NULL;    // the face indices buffer
-					std::vector<unsigned int>::iterator srci = indices.begin();
+					result = TootleOptimizeVertexMemory( pVB, pIB, nVertices, nTriangles, nStride,
+						NULL, pIB, &pnVertexRemapping[0] );
+					if( result != TOOTLE_OK )
+						fail(getTootleError(result, "TootleOptimize"));
 
-					pVIndices32 = static_cast<uint32*>(
-						smesh->indexData[VpNormal]->indexBuffer->lock(v1::HardwareBuffer::HBL_NORMAL));
-					for(size_t i=0;i<smesh->indexData[VpNormal]->indexBuffer->getNumIndexes();i++)
+					for (unsigned int i = 0; i < nVertices; i++)
 					{
-						*pVIndices32++ = static_cast<uint32>(*srci++);
+						unsigned int nVID = pnVertexRemapping[i];
+						pnVertexInverseRemapping[nVID] = i;
 					}
-
 				}
 				else
 				{
-					uint16	*pVIndices16 = NULL;    // the face indices buffer
-					std::vector<unsigned int>::iterator srci = indices.begin();
-
-					pVIndices16 = static_cast<uint16*>(
-						smesh->indexData[VpNormal]->indexBuffer->lock(v1::HardwareBuffer::HBL_NORMAL));
-					size_t nm_indices=smesh->indexData[VpNormal]->indexBuffer->getNumIndexes();
-					for(size_t i=0;i<nm_indices;i++)
+					for (unsigned int i = 0; i < nVertices; i++)
 					{
-						*pVIndices16++ = static_cast<uint16>(*srci++);
+						pnVertexRemapping[i] = i;
+						pnVertexInverseRemapping[i] = i;
 					}
 				}
-				smesh->indexData[VpNormal]->indexBuffer->unlock();
+
+				// clean up tootle
+				TootleCleanup();
+
+				if(smesh->useSharedVertices)
+				{
+					CopyBackMeshData(smesh->indexData[VpNormal]->indexBuffer,
+						mesh->sharedVertexData[VpNormal]->vertexDeclaration,
+						mesh->sharedVertexData[VpNormal]->vertexBufferBinding,
+						vertices, pnVertexInverseRemapping, indices,
+						mesh->sharedVertexData[VpNormal]->vertexCount);
+
+					if (i == 0)
+					{
+						if (mesh->getSkeletonName() != Ogre::BLANKSTRING)
+						{
+							const auto& bas = mesh->getBoneAssignments ();
+							auto newList = getAdjustedBoneAssignments(bas.begin(), bas.end(), pnVertexRemapping);
+							mesh->clearBoneAssignments();
+							for (const auto& boneAssignment : newList)
+								mesh->addBoneAssignment (boneAssignment.second);
+						}
+					}
+				}
+				else
+				{
+					CopyBackMeshData(smesh->indexData[VpNormal]->indexBuffer,
+						smesh->vertexData[VpNormal]->vertexDeclaration,
+						smesh->vertexData[VpNormal]->vertexBufferBinding,
+						vertices, pnVertexInverseRemapping, indices,
+						smesh->vertexData[VpNormal]->vertexCount);
+
+				}
+
+				const auto& bas = smesh->getBoneAssignments ();
+				auto newList = getAdjustedBoneAssignments(bas.begin(), bas.end(), pnVertexRemapping);
+				smesh->clearBoneAssignments();
+				for (const auto& boneAssignment : newList)
+					smesh->addBoneAssignment (boneAssignment.second);
 			}
 		}
 
