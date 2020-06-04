@@ -156,6 +156,7 @@ namespace meshmagick
 		, mVCacheSize(0)
 		, mClockwise(false)
 		, mClusters(0)
+		, mQualityOptimization(false)
 	{
 	}
 
@@ -205,6 +206,7 @@ namespace meshmagick
 		mVCacheSize = 0;
 		mClockwise = false;
 		mClusters = 0;
+		mQualityOptimization = false;
 		mViewpointList.clear();
 
 		for (OptionList::const_iterator i = options.begin(); i != options.end(); ++i)
@@ -215,6 +217,8 @@ namespace meshmagick
 				mClockwise = true;
 			else if (i->first == "clusters")
 				mClusters = static_cast<unsigned int>(any_cast<int>(i->second));
+			else if (i->first == "qualityoptimization")
+				mQualityOptimization = true;
 			else if (i->first == "viewpoint")
 				mViewpointList.push_back(any_cast<Vector3>(i->second));
 
@@ -363,34 +367,21 @@ namespace meshmagick
 						fail(getTootleError(result, "TootleMeasureOverdraw"));
 				}
 
-				// allocate an array to hold the cluster ID for each face
-				std::vector<unsigned int> faceClusters;
-				faceClusters.resize( nTriangles + 1 );
-
-				// cluster the mesh, and sort faces by cluster
-				result = TootleClusterMesh( pVB, pIB, nVertices, nTriangles, nStride, mClusters, pIB, &faceClusters[0], NULL );
-				if( result != TOOTLE_OK )
-					fail(getTootleError(result, "TootleClusterMesh"));
-
-				stats.nClusters = (unsigned int)(faceClusters[ nTriangles ]);
-
-				// perform vertex cache optimization on the clustered mesh
-				result = TootleVCacheClusters( pIB, nTriangles, nVertices, cacheSize, &faceClusters[0], pIB, NULL );
-				if( result != TOOTLE_OK )
-					fail(getTootleError(result, "TootleVCacheClusters"));
-
-				// optimize the draw order
-
-				// Problem: TootleOptimizeOverdraw takes a CONST pointer to the face
-				// clusters, yet consistently overwrites the data in it. So copy it.
-				unsigned int* pDummyFaceClusters = new unsigned int[nTriangles + 1];
-				memcpy(pDummyFaceClusters, &faceClusters[0], sizeof(unsigned int) * (nTriangles + 1));
-				result = TootleOptimizeOverdraw( pVB, pIB, nVertices, nTriangles, nStride, 
-					pViewpoints, numViewpoints, winding, 
-					pDummyFaceClusters, pIB, 0 );
-				if( result != TOOTLE_OK )
-					fail(getTootleError(result, "TootleOptimizeOverdraw"));
-				delete [] pDummyFaceClusters;
+				if (mQualityOptimization)
+				{
+					result = TootleOptimize( pVB, pIB, nVertices, nTriangles, nStride, cacheSize,
+						pViewpoints, numViewpoints, winding,
+						pIB, &stats.nClusters );
+					if( result != TOOTLE_OK )
+						fail(getTootleError(result, "TootleOptimize"));
+				}
+				else
+				{
+					result = TootleFastOptimize( pVB, pIB, nVertices, nTriangles, nStride, cacheSize, winding,
+						pIB, &stats.nClusters );
+					if( result != TOOTLE_OK )
+						fail(getTootleError(result, "TootleFastOptimize"));
+				}
 
 
 				if (gatherStats)
