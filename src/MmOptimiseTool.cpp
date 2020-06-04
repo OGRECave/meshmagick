@@ -809,8 +809,8 @@ namespace meshmagick
 	}
 	//---------------------------------------------------------------------
 	bool OptimiseTool::UniqueVertexLess::operator ()(
-		const OptimiseTool::UniqueVertex &a,
-		const OptimiseTool::UniqueVertex &b) const
+		const UniqueVertex &a,
+		const UniqueVertex &b) const
 	{
 		if (!equals(a.position, b.position, pos_tolerance))
 		{
