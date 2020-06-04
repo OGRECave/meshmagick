@@ -53,6 +53,9 @@ namespace meshmagick
 
 		unsigned int getClusters() const { return mClusters; }
 		void setClusters(unsigned int sz) { mClusters = sz; }
+
+		bool getQualityOptimization() const { return mQualityOptimization; }
+		void setQualityOptimization(bool quality) { mQualityOptimization = quality; }
 	protected:
 		virtual void doInvoke(const OptionList& toolOptions,
 			const Ogre::StringVector& inFileNames,
@@ -62,6 +65,7 @@ namespace meshmagick
 		unsigned int mVCacheSize;
 		bool mClockwise;
 		unsigned int mClusters;
+		bool mQualityOptimization;
 		typedef std::vector<Ogre::Vector3> ViewpointList;
 		ViewpointList mViewpointList;
 
