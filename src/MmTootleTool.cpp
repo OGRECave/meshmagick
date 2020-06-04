@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include <sstream>
 
 #include "MmOgreEnvironment.h"
+#include "MmOptimiseTool.h"
 #include "MmStatefulMeshSerializer.h"
 
 using namespace Ogre;
@@ -82,36 +83,96 @@ namespace meshmagick
 	void FillMeshData(v1::HardwareIndexBufferSharedPtr indexBuffer,
 		v1::VertexDeclaration *vertexDeclaration,
 		v1::VertexBufferBinding* vertexBufferBinding,
-		std::vector<Vector3> & vertices,
-		std::vector<unsigned int> &indices)
+		std::vector<UniqueVertex> & vertices,
+		std::vector<unsigned int> &indices,
+		size_t numvertices)
 	{
-		// Get the target element
-		const v1::VertexElement* srcElem = vertexDeclaration->findElementBySemantic(
-			VES_POSITION);
-
-		if (!srcElem || srcElem->getType() != VET_FLOAT3)
+		// Lock all the buffers first
+		typedef std::vector<char*> BufferLocks;
+		BufferLocks bufferLocks;
+		const v1::VertexBufferBinding::VertexBufferBindingMap& bindings =
+			vertexBufferBinding->getBindings();
+		v1::VertexBufferBinding::VertexBufferBindingMap::const_iterator bindi;
+		bufferLocks.resize(vertexBufferBinding->getLastBoundIndex()+1);
+		for (bindi = bindings.begin(); bindi != bindings.end(); ++bindi)
 		{
-			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-				"SubMesh has no position semantic!! ",
-				"FillMeshData");
+			char* lock = static_cast<char*>(bindi->second->lock(v1::HardwareBuffer::HBL_READ_ONLY));
+			bufferLocks[bindi->first] = lock;
 		}
-		v1::HardwareVertexBufferSharedPtr srcBuf;
-		srcBuf = vertexBufferBinding->getBuffer(srcElem->getSource());
-		unsigned char *pSrcBase;
-		// lock source for read only
-		pSrcBase = static_cast<unsigned char*>(
-			srcBuf->lock(v1::HardwareBuffer::HBL_READ_ONLY));
-		size_t numvertices=srcBuf->getNumVertices();
-		size_t vertexsize=srcBuf->getVertexSize();
-		float	*pVPos;	                // vertex position buffer, read only
 
 		for(size_t i=0;i<numvertices;i++)
 		{
-			srcElem->baseVertexPointerToElement(pSrcBase, &pVPos);
-			vertices.push_back(Vector3(pVPos[0],pVPos[1],pVPos[2]));
-			pSrcBase+=vertexsize;
+			UniqueVertex uniqueVertex;
+			const v1::VertexDeclaration::VertexElementList& elemList =
+				vertexDeclaration->getElements();
+			v1::VertexDeclaration::VertexElementList::const_iterator elemi;
+			unsigned short uvSets = 0;
+			for (elemi = elemList.begin(); elemi != elemList.end(); ++elemi)
+			{
+				// all float pointers for the moment
+				float *pFloat;
+				elemi->baseVertexPointerToElement(
+					bufferLocks[elemi->getSource()], &pFloat);
+
+				switch(elemi->getSemantic())
+				{
+				case VES_POSITION:
+					uniqueVertex.position.x = *pFloat++;
+					uniqueVertex.position.y = *pFloat++;
+					uniqueVertex.position.z = *pFloat++;
+					break;
+				case VES_NORMAL:
+					uniqueVertex.normal.x = *pFloat++;
+					uniqueVertex.normal.y = *pFloat++;
+					uniqueVertex.normal.z = *pFloat++;
+					break;
+				case VES_TANGENT:
+					uniqueVertex.tangent.x = *pFloat++;
+					uniqueVertex.tangent.y = *pFloat++;
+					uniqueVertex.tangent.z = *pFloat++;
+					// support w-component on tangent if present
+					if (v1::VertexElement::getTypeCount(elemi->getType()) == 4)
+					{
+						uniqueVertex.tangent.w = *pFloat++;
+					}
+					break;
+				case VES_BINORMAL:
+					uniqueVertex.binormal.x = *pFloat++;
+					uniqueVertex.binormal.y = *pFloat++;
+					uniqueVertex.binormal.z = *pFloat++;
+					break;
+				case VES_TEXTURE_COORDINATES:
+					// supports up to 4 dimensions
+					for (unsigned short dim = 0;
+						dim < v1::VertexElement::getTypeCount(elemi->getType()); ++dim)
+					{
+						uniqueVertex.uv[elemi->getIndex()][dim] = *pFloat++;
+					}
+					++uvSets;
+					break;
+				case VES_BLEND_INDICES:
+				case VES_BLEND_WEIGHTS:
+				case VES_DIFFUSE:
+				case VES_SPECULAR:
+					// No action needed for these semantics.
+					break;
+				};
+			}
+
+			vertices.push_back(uniqueVertex);
+
+			// increment buffer lock pointers
+			for (bindi = bindings.begin(); bindi != bindings.end(); ++bindi)
+			{
+				bufferLocks[bindi->first] += bindi->second->getVertexSize();
+			}
 		}
-		srcBuf->unlock();
+
+		// unlock the buffers now
+		for (bindi = bindings.begin(); bindi != bindings.end(); ++bindi)
+		{
+			bindi->second->unlock();
+		}
 
 		//fill the index buffer
 		//tootle only work with 32Bit buffers 
@@ -261,7 +322,7 @@ namespace meshmagick
 	{
 		print("Processing mesh...");
 
-		std::vector<Vector3> vertices;
+		std::vector<UniqueVertex> vertices;
 		std::vector<unsigned int> indices;
 
 		// Init options
@@ -295,14 +356,16 @@ namespace meshmagick
 				FillMeshData(smesh->indexData[VpNormal]->indexBuffer,
 					mesh->sharedVertexData[VpNormal]->vertexDeclaration,
 					mesh->sharedVertexData[VpNormal]->vertexBufferBinding,
-					vertices,indices);
+					vertices,indices,
+					mesh->sharedVertexData[VpNormal]->vertexCount);
 			}
 			else
 			{
 				FillMeshData(smesh->indexData[VpNormal]->indexBuffer,
 					smesh->vertexData[VpNormal]->vertexDeclaration,
 					smesh->vertexData[VpNormal]->vertexBufferBinding,
-					vertices,indices);
+					vertices,indices,
+					smesh->vertexData[VpNormal]->vertexCount);
 
 			}
 			if(indices.size()>0)
@@ -340,7 +403,13 @@ namespace meshmagick
 				unsigned int nVertices = (unsigned int) vertices.size();
 				const float* pVB = (float*) &vertices[0];
 				unsigned int* pIB = (unsigned int*) &indices[0];
-				unsigned int nStride = 3*sizeof(float);   
+
+				// position: 3 * sizeof(float)
+				// normal:   3 * sizeof(float)
+				// tangent:  4 * sizeof(float)
+				// binormal: 3 * sizeof(float)
+				// uv:       3 * OGRE_MAX_TEXTURE_COORD_SETS * sizeof(float)
+				unsigned int nStride = (3 + 3 + 4 + 3 + 3 * OGRE_MAX_TEXTURE_COORD_SETS) * sizeof(float);
 
 				TootleStats stats;
 				TootleResult result;
