@@ -211,6 +211,136 @@ namespace meshmagick
 
 	}
 
+	void CopyBackMeshData(v1::HardwareIndexBufferSharedPtr indexBuffer,
+		v1::VertexDeclaration *vertexDeclaration,
+		v1::VertexBufferBinding* vertexBufferBinding,
+		std::vector<UniqueVertex> & vertices,
+		std::vector<unsigned int> & verticesRemap,
+		std::vector<unsigned int> &indices,
+		size_t numvertices)
+	{
+		std::vector<unsigned int> verticesInverseRemap(numvertices);
+		for (unsigned int i = 0; i < numvertices; i++)
+		{
+			unsigned int nVID = verticesRemap[i];
+			verticesInverseRemap[nVID] = i;
+		}
+
+		// Lock all the buffers first
+		typedef std::vector<char*> BufferLocks;
+		BufferLocks bufferLocks;
+		const v1::VertexBufferBinding::VertexBufferBindingMap& bindings =
+			vertexBufferBinding->getBindings();
+		v1::VertexBufferBinding::VertexBufferBindingMap::const_iterator bindi;
+		bufferLocks.resize(vertexBufferBinding->getLastBoundIndex()+1);
+		for (bindi = bindings.begin(); bindi != bindings.end(); ++bindi)
+		{
+			char* lock = static_cast<char*>(bindi->second->lock(v1::HardwareBuffer::HBL_NORMAL));
+			bufferLocks[bindi->first] = lock;
+		}
+
+		for(size_t i=0;i<numvertices;i++)
+		{
+			unsigned int nVID = verticesInverseRemap[i];
+			const v1::VertexDeclaration::VertexElementList& elemList =
+				vertexDeclaration->getElements();
+			v1::VertexDeclaration::VertexElementList::const_iterator elemi;
+			unsigned short uvSets = 0;
+			for (elemi = elemList.begin(); elemi != elemList.end(); ++elemi)
+			{
+				// all float pointers for the moment
+				float *pFloat;
+				elemi->baseVertexPointerToElement(
+					bufferLocks[elemi->getSource()], &pFloat);
+
+				switch(elemi->getSemantic())
+				{
+				case VES_POSITION:
+					*pFloat++ = vertices[nVID].position.x;
+					*pFloat++ = vertices[nVID].position.y;
+					*pFloat++ = vertices[nVID].position.z;
+					break;
+				case VES_NORMAL:
+					*pFloat++ = vertices[nVID].normal.x;
+					*pFloat++ = vertices[nVID].normal.y;
+					*pFloat++ = vertices[nVID].normal.z;
+					break;
+				case VES_TANGENT:
+					*pFloat++ = vertices[nVID].tangent.x;
+					*pFloat++ = vertices[nVID].tangent.y;
+					*pFloat++ = vertices[nVID].tangent.z;
+					// support w-component on tangent if present
+					if (v1::VertexElement::getTypeCount(elemi->getType()) == 4)
+					{
+						*pFloat++ = vertices[nVID].tangent.w;
+					}
+					break;
+				case VES_BINORMAL:
+					*pFloat++ = vertices[nVID].binormal.x;
+					*pFloat++ = vertices[nVID].binormal.y;
+					*pFloat++ = vertices[nVID].binormal.z;
+					break;
+				case VES_TEXTURE_COORDINATES:
+					// supports up to 4 dimensions
+					for (unsigned short dim = 0;
+						dim < v1::VertexElement::getTypeCount(elemi->getType()); ++dim)
+					{
+						*pFloat++ = vertices[nVID].uv[elemi->getIndex()][dim];
+					}
+					++uvSets;
+					break;
+				case VES_BLEND_INDICES:
+				case VES_BLEND_WEIGHTS:
+				case VES_DIFFUSE:
+				case VES_SPECULAR:
+					// No action needed for these semantics.
+					break;
+				};
+			}
+
+			// increment buffer lock pointers
+			for (bindi = bindings.begin(); bindi != bindings.end(); ++bindi)
+			{
+				bufferLocks[bindi->first] += bindi->second->getVertexSize();
+			}
+		}
+
+		// unlock the buffers now
+		for (bindi = bindings.begin(); bindi != bindings.end(); ++bindi)
+		{
+			bindi->second->unlock();
+		}
+
+		//copy the index buffer back to where it came from
+		if (indexBuffer->getType() == v1::HardwareIndexBuffer::IT_32BIT)
+		{
+			uint32	*pVIndices32 = NULL;    // the face indices buffer
+			std::vector<unsigned int>::iterator srci = indices.begin();
+
+			pVIndices32 = static_cast<uint32*>(
+				indexBuffer->lock(v1::HardwareBuffer::HBL_NORMAL));
+			for(size_t i=0;i<indexBuffer->getNumIndexes();i++)
+			{
+				*pVIndices32++ = static_cast<uint32>(*srci++);
+			}
+
+		}
+		else
+		{
+			uint16	*pVIndices16 = NULL;    // the face indices buffer
+			std::vector<unsigned int>::iterator srci = indices.begin();
+
+			pVIndices16 = static_cast<uint16*>(
+				indexBuffer->lock(v1::HardwareBuffer::HBL_NORMAL));
+			size_t nm_indices=indexBuffer->getNumIndexes();
+			for(size_t i=0;i<nm_indices;i++)
+			{
+				*pVIndices16++ = static_cast<uint16>(*srci++);
+			}
+		}
+		indexBuffer->unlock();
+	}
+
 
 	TootleTool::TootleTool()
 		: Tool()
@@ -218,6 +348,7 @@ namespace meshmagick
 		, mClockwise(false)
 		, mClusters(0)
 		, mQualityOptimization(false)
+		, mVMemoryOptimization(true)
 	{
 	}
 
@@ -268,6 +399,7 @@ namespace meshmagick
 		mClockwise = false;
 		mClusters = 0;
 		mQualityOptimization = false;
+		mVMemoryOptimization = true;
 		mViewpointList.clear();
 
 		for (OptionList::const_iterator i = options.begin(); i != options.end(); ++i)
@@ -280,6 +412,8 @@ namespace meshmagick
 				mClusters = static_cast<unsigned int>(any_cast<int>(i->second));
 			else if (i->first == "qualityoptimization")
 				mQualityOptimization = true;
+			else if (i->first == "novmemoryoptimization")
+				mVMemoryOptimization = false;
 			else if (i->first == "viewpoint")
 				mViewpointList.push_back(any_cast<Vector3>(i->second));
 
@@ -478,39 +612,41 @@ namespace meshmagick
 					print(statsStr.str(), V_HIGH);
 				}
 
-				// clean up tootle
-				TootleCleanup();
+				std::vector<unsigned int> pnVertexRemapping(nVertices);
 
-
-
-				//copy the index buffer back to where it came from
-				if (smesh->indexData[VpNormal]->indexBuffer->getType() == v1::HardwareIndexBuffer::IT_32BIT)
+				if (mVMemoryOptimization)
 				{
-					uint32	*pVIndices32 = NULL;    // the face indices buffer
-					std::vector<unsigned int>::iterator srci = indices.begin();
-
-					pVIndices32 = static_cast<uint32*>(
-						smesh->indexData[VpNormal]->indexBuffer->lock(v1::HardwareBuffer::HBL_NORMAL));
-					for(size_t i=0;i<smesh->indexData[VpNormal]->indexBuffer->getNumIndexes();i++)
-					{
-						*pVIndices32++ = static_cast<uint32>(*srci++);
-					}
-
+					result = TootleOptimizeVertexMemory( pVB, pIB, nVertices, nTriangles, nStride,
+						NULL, pIB, &pnVertexRemapping[0] );
+					if( result != TOOTLE_OK )
+						fail(getTootleError(result, "TootleOptimize"));
 				}
 				else
 				{
-					uint16	*pVIndices16 = NULL;    // the face indices buffer
-					std::vector<unsigned int>::iterator srci = indices.begin();
-
-					pVIndices16 = static_cast<uint16*>(
-						smesh->indexData[VpNormal]->indexBuffer->lock(v1::HardwareBuffer::HBL_NORMAL));
-					size_t nm_indices=smesh->indexData[VpNormal]->indexBuffer->getNumIndexes();
-					for(size_t i=0;i<nm_indices;i++)
-					{
-						*pVIndices16++ = static_cast<uint16>(*srci++);
-					}
+					for (unsigned int i = 0; i < nVertices; i++)
+						pnVertexRemapping[i] = i;
 				}
-				smesh->indexData[VpNormal]->indexBuffer->unlock();
+
+				// clean up tootle
+				TootleCleanup();
+
+				if(smesh->useSharedVertices)
+				{
+					CopyBackMeshData(smesh->indexData[VpNormal]->indexBuffer,
+						mesh->sharedVertexData[VpNormal]->vertexDeclaration,
+						mesh->sharedVertexData[VpNormal]->vertexBufferBinding,
+						vertices, pnVertexRemapping, indices,
+						mesh->sharedVertexData[VpNormal]->vertexCount);
+				}
+				else
+				{
+					CopyBackMeshData(smesh->indexData[VpNormal]->indexBuffer,
+						smesh->vertexData[VpNormal]->vertexDeclaration,
+						smesh->vertexData[VpNormal]->vertexBufferBinding,
+						vertices, pnVertexRemapping, indices,
+						smesh->vertexData[VpNormal]->vertexCount);
+
+				}
 			}
 		}
 
