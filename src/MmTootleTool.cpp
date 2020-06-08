@@ -219,13 +219,6 @@ namespace meshmagick
 		std::vector<unsigned int> &indices,
 		size_t numvertices)
 	{
-		std::vector<unsigned int> verticesInverseRemap(numvertices);
-		for (unsigned int i = 0; i < numvertices; i++)
-		{
-			unsigned int nVID = verticesRemap[i];
-			verticesInverseRemap[nVID] = i;
-		}
-
 		// Lock all the buffers first
 		typedef std::vector<char*> BufferLocks;
 		BufferLocks bufferLocks;
@@ -241,7 +234,7 @@ namespace meshmagick
 
 		for(size_t i=0;i<numvertices;i++)
 		{
-			unsigned int nVID = verticesInverseRemap[i];
+			unsigned int nVID = verticesRemap[i];
 			const v1::VertexDeclaration::VertexElementList& elemList =
 				vertexDeclaration->getElements();
 			v1::VertexDeclaration::VertexElementList::const_iterator elemi;
@@ -339,6 +332,26 @@ namespace meshmagick
 			}
 		}
 		indexBuffer->unlock();
+	}
+
+    v1::Mesh::VertexBoneAssignmentList getAdjustedBoneAssignments(
+        Ogre::v1::SubMesh::VertexBoneAssignmentList::const_iterator bit,
+        Ogre::v1::SubMesh::VertexBoneAssignmentList::const_iterator eit,
+		std::vector<unsigned int> & verticesRemap)
+	{
+		v1::Mesh::VertexBoneAssignmentList newList;
+		for (; bit != eit; ++bit)
+		{
+			v1::VertexBoneAssignment ass = bit->second;
+			ass.vertexIndex = verticesRemap[ass.vertexIndex];
+
+			newList.insert(v1::Mesh::VertexBoneAssignmentList::value_type(
+				ass.vertexIndex, ass));
+
+		}
+
+		return newList;
+
 	}
 
 
@@ -613,6 +626,7 @@ namespace meshmagick
 				}
 
 				std::vector<unsigned int> pnVertexRemapping(nVertices);
+				std::vector<unsigned int> pnVertexInverseRemapping(nVertices);
 
 				if (mVMemoryOptimization)
 				{
@@ -620,11 +634,20 @@ namespace meshmagick
 						NULL, pIB, &pnVertexRemapping[0] );
 					if( result != TOOTLE_OK )
 						fail(getTootleError(result, "TootleOptimize"));
+
+					for (unsigned int i = 0; i < nVertices; i++)
+					{
+						unsigned int nVID = pnVertexRemapping[i];
+						pnVertexInverseRemapping[nVID] = i;
+					}
 				}
 				else
 				{
 					for (unsigned int i = 0; i < nVertices; i++)
+					{
 						pnVertexRemapping[i] = i;
+						pnVertexInverseRemapping[i] = i;
+					}
 				}
 
 				// clean up tootle
@@ -635,18 +658,36 @@ namespace meshmagick
 					CopyBackMeshData(smesh->indexData[VpNormal]->indexBuffer,
 						mesh->sharedVertexData[VpNormal]->vertexDeclaration,
 						mesh->sharedVertexData[VpNormal]->vertexBufferBinding,
-						vertices, pnVertexRemapping, indices,
+						vertices, pnVertexInverseRemapping, indices,
 						mesh->sharedVertexData[VpNormal]->vertexCount);
+
+					if (i == 0)
+					{
+						if (mesh->getSkeletonName() != Ogre::BLANKSTRING)
+						{
+							const auto& bas = mesh->getBoneAssignments ();
+							auto newList = getAdjustedBoneAssignments(bas.begin(), bas.end(), pnVertexRemapping);
+							mesh->clearBoneAssignments();
+							for (const auto& boneAssignment : newList)
+								mesh->addBoneAssignment (boneAssignment.second);
+						}
+					}
 				}
 				else
 				{
 					CopyBackMeshData(smesh->indexData[VpNormal]->indexBuffer,
 						smesh->vertexData[VpNormal]->vertexDeclaration,
 						smesh->vertexData[VpNormal]->vertexBufferBinding,
-						vertices, pnVertexRemapping, indices,
+						vertices, pnVertexInverseRemapping, indices,
 						smesh->vertexData[VpNormal]->vertexCount);
 
 				}
+
+				const auto& bas = smesh->getBoneAssignments ();
+				auto newList = getAdjustedBoneAssignments(bas.begin(), bas.end(), pnVertexRemapping);
+				smesh->clearBoneAssignments();
+				for (const auto& boneAssignment : newList)
+					smesh->addBoneAssignment (boneAssignment.second);
 			}
 		}
 
