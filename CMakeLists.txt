@@ -83,8 +83,9 @@ if (Tootle_FOUND)
 	src/MmTootleToolFactory.cpp)
 	
   include_directories(${Tootle_INCLUDE_DIRS})
-  add_definitions(-DMESHMAGICK_USE_TOOTLE)
-	
+  if(UNIX)
+	add_definitions(-DMESHMAGICK_USE_TOOTLE -D_LINUX)
+  endif()
 endif()
 
 if (STATIC_BUILD)

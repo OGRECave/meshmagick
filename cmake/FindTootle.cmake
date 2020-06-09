@@ -8,17 +8,12 @@
 #  To assist, define TOOTLE_HOME in CMake or in environment
 #
 
-# Only written for windows at this time
-if (NOT WIN32)
-  return()
-endif()
-
 include(FindPkgMacros)
 
 findpkg_begin(Tootle)
 
 # Try to find DirectX; using occlusion queries for overdraw detection instead of software raytrace is vastly faster
-if (NOT DirectX_FOUND)
+if (WIN32 AND NOT DirectX_FOUND)
 	find_package(DirectX)
 endif()
 
@@ -48,12 +43,14 @@ if (Tootle_USE_DIRECTX)
 	else()
 		set(Tootle_LIBRARY_NAMES "TootleStatic_MTDLL")
 	endif()
-else()
+elseif(MSVC_VERSION)
 	if (${MSVC_VERSION} EQUAL 1500)
 		set(Tootle_LIBRARY_NAMES "TootleSoftwareOnlyStatic_2k8_MTDLL")
 	else()
 		set(Tootle_LIBRARY_NAMES "TootleSoftwareOnlyStatic_MTDLL")
 	endif()
+else()
+	set(Tootle_LIBRARY_NAMES "Tootle")
 endif()
 
 get_debug_names(Tootle_LIBRARY_NAMES)
