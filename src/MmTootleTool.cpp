@@ -90,7 +90,7 @@ namespace meshmagick
 		// Lock all the buffers first
 		typedef std::vector<char*> BufferLocks;
 		BufferLocks bufferLocks;
-		const v1::VertexBufferBinding::VertexBufferBindingMap& bindings =
+		const auto& bindings =
 			vertexBufferBinding->getBindings();
 		v1::VertexBufferBinding::VertexBufferBindingMap::const_iterator bindi;
 		bufferLocks.resize(vertexBufferBinding->getLastBoundIndex()+1);
@@ -103,7 +103,7 @@ namespace meshmagick
 		for(size_t i=0;i<numvertices;i++)
 		{
 			UniqueVertex uniqueVertex;
-			const v1::VertexDeclaration::VertexElementList& elemList =
+			const auto& elemList =
 				vertexDeclaration->getElements();
 			v1::VertexDeclaration::VertexElementList::const_iterator elemi;
 			unsigned short uvSets = 0;
@@ -222,7 +222,7 @@ namespace meshmagick
 		// Lock all the buffers first
 		typedef std::vector<char*> BufferLocks;
 		BufferLocks bufferLocks;
-		const v1::VertexBufferBinding::VertexBufferBindingMap& bindings =
+		const auto& bindings =
 			vertexBufferBinding->getBindings();
 		v1::VertexBufferBinding::VertexBufferBindingMap::const_iterator bindi;
 		bufferLocks.resize(vertexBufferBinding->getLastBoundIndex()+1);
@@ -235,7 +235,7 @@ namespace meshmagick
 		for(size_t i=0;i<numvertices;i++)
 		{
 			unsigned int nVID = verticesRemap[i];
-			const v1::VertexDeclaration::VertexElementList& elemList =
+			const auto& elemList =
 				vertexDeclaration->getElements();
 			v1::VertexDeclaration::VertexElementList::const_iterator elemi;
 			unsigned short uvSets = 0;
@@ -342,7 +342,7 @@ namespace meshmagick
 		v1::Mesh::VertexBoneAssignmentList newList;
 		for (; bit != eit; ++bit)
 		{
-			v1::VertexBoneAssignment ass = bit->second;
+			auto ass = bit->second;
 			ass.vertexIndex = verticesRemap[ass.vertexIndex];
 
 			newList.insert(v1::Mesh::VertexBoneAssignmentList::value_type(
