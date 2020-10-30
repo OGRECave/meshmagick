@@ -41,7 +41,7 @@ namespace meshmagick
     SkeletonPtr StatefulSkeletonSerializer::loadSkeleton(const String& name)
     {
         // Resource already created upon mesh loading?
-        mSkeleton = SkeletonManager::getSingleton().getByName(name);
+        mSkeleton = SkeletonManager::getSingleton().getByName(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         if (!mSkeleton)
         {
             // Nope. We create it here then.

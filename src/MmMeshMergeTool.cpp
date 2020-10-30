@@ -78,7 +78,7 @@ namespace meshmagick
 			if (curMesh)
 			{
 				if (curMesh->hasSkeleton() && 
-					!SkeletonManager::getSingleton().getByName(curMesh->getSkeletonName()))
+					!SkeletonManager::getSingleton().getByName(curMesh->getSkeletonName(), ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME))
 				{
 					skelSer->loadSkeleton(curMesh->getSkeletonName());
 				}
@@ -99,7 +99,7 @@ namespace meshmagick
 		SkeletonPtr meshSkel = mesh->getSkeleton();
 		if (!meshSkel && mesh->hasSkeleton())
 		{
-			meshSkel = SkeletonManager::getSingleton().getByName(mesh->getSkeletonName());
+			meshSkel = SkeletonManager::getSingleton().getByName(mesh->getSkeletonName(), ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		}
 
 		if (!meshSkel && mBaseSkeleton)
