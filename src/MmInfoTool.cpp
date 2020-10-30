@@ -227,8 +227,10 @@ namespace meshmagick
 			try
 			{
 				auto skeletonFileName = ToolUtils::getSkeletonFileName (mesh, info.name);
-				info.skeleton = processSkeleton(skeletonFileName);
-				info.skeletonValid = true;
+				if (!skeletonFileName.empty()) {
+					info.skeleton = processSkeleton(skeletonFileName);
+					info.skeletonValid = true;
+				}
 			}
 			catch (std::exception&)
 			{
