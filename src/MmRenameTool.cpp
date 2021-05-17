@@ -130,10 +130,9 @@ namespace meshmagick
 			{
 				StringPair names = split(any_cast<String>(it->second));
 				EditableSkeleton* eskel = dynamic_cast<EditableSkeleton*>(skeleton.get());
-				Animation* anim = eskel->getAnimation(names.first);
+				Animation* anim = eskel->getAnimation(names.first)->clone(names.second);
 				eskel->removeAnimation(names.first);
-				Animation* newAnim = anim->clone(names.second);
-				eskel->addAnimation(newAnim);
+				eskel->addAnimation(anim);
 			}
             else if (it->first == "material")
             {

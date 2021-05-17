@@ -29,7 +29,7 @@ namespace meshmagick
 {
 
 	EditableSkeleton::EditableSkeleton(const Ogre::Skeleton& skel)
-	:   Skeleton()
+	:   Skeleton(NULL, "", 0, "")
 	{
         skel.copyParametersTo(this);
 	}

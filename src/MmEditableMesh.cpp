@@ -39,13 +39,9 @@ EditableMesh::~EditableMesh()
 
 void EditableMesh::renameSubmesh(const Ogre::String& before, const Ogre::String& after)
 {
-    SubMeshNameMap::iterator it = mSubMeshNameMap.find(before);
-    if (it != mSubMeshNameMap.end()) 
-    {
-        Ogre::ushort submeshId = it->second;
-        mSubMeshNameMap.erase(it);
-        mSubMeshNameMap[after] = submeshId;
-    }
+    Ogre::ushort submeshId = _getSubMeshIndex(before);
+    unnameSubMesh(before);
+    nameSubMesh(after, submeshId);
 }
 
 }

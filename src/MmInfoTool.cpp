@@ -487,15 +487,17 @@ namespace meshmagick
             case VET_UBYTE4:
                 layout += "(u4)";
                 break;
+#if OGRE_VERSION_MAJOR < 3
             case VET_COLOUR_ARGB:
-                layout += "(dx)";
+                layout += "(bgra)";
                 break;
             case VET_COLOUR_ABGR:
-                layout += "(gl)";
+                layout += "(rgba)";
                 break;
 			case VET_COLOUR:
 				// Doesn't appear at runtime, so don't handle
 				break;
+#endif
             }
         }
 

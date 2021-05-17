@@ -34,8 +34,6 @@ namespace meshmagick
             const Ogre::String& group, bool isManual = false, Ogre::ManualResourceLoader* loader = 0);
         ~EditableMesh();
 
-        Ogre::SubMesh* removeSubmesh(const Ogre::String& submeshName);
-        void addSubmesh(const Ogre::String& submeshName, Ogre::SubMesh* submesh);
         void renameSubmesh(const Ogre::String& before, const Ogre::String& after);
     };
 
